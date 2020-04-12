@@ -1,8 +1,34 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@page
+        <div class="row h-100 overflow-hidden">
+            <div class="col-9 overflow-auto h-100 d-flex flex-column">
+                <div class="form-row align-items-center">
+                    <div class="col-1">User</div>
+                    <div class="col-4"><input class="form-control" type="text" id="userInput" /></div>
+                    <div class="col-2"><input type="button" class="btn btn-primary" id="dealCardsButton" value="Deal Cards" /></div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <hr />
+                    </div>
+                </div>
+                <div class="row flex-grow-1"></div>
+                <div class="row">
+                    <!--style="position: absolute; bottom: 0;"-->
+                    <div id="hand" class="col">
+                    </div>
+                </div>
+            </div>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core.</a>.</p>
-</div>
+            <div class="col-3 h-100 d-flex flex-column overflow-hidden">
+                <div id="messagesList" class="flex-grow-1 overflow-auto"></div>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="messageInput" />
+                    <input class="btn btn-primary" type="button" id="sendButton" value="Send" />
+                </div>
+            </div>
+        </div>
+
+
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/schafkopf.js"></script>
