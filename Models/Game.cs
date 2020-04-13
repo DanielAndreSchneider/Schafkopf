@@ -45,14 +45,14 @@ namespace Schafkopf.Models
             Cards[14] = new Card(Color.Herz, 4);
             Cards[15] = new Card(Color.Herz, 11);
 
-            Cards[16] = new Card(Color.Blatt, 7);
-            Cards[17] = new Card(Color.Blatt, 8);
-            Cards[18] = new Card(Color.Blatt, 9);
-            Cards[19] = new Card(Color.Blatt, 10);
-            Cards[20] = new Card(Color.Blatt, 2);
-            Cards[21] = new Card(Color.Blatt, 3);
-            Cards[22] = new Card(Color.Blatt, 4);
-            Cards[23] = new Card(Color.Blatt, 11);
+            Cards[16] = new Card(Color.Gras, 7);
+            Cards[17] = new Card(Color.Gras, 8);
+            Cards[18] = new Card(Color.Gras, 9);
+            Cards[19] = new Card(Color.Gras, 10);
+            Cards[20] = new Card(Color.Gras, 2);
+            Cards[21] = new Card(Color.Gras, 3);
+            Cards[22] = new Card(Color.Gras, 4);
+            Cards[23] = new Card(Color.Gras, 11);
 
             Cards[24] = new Card(Color.Eichel, 7);
             Cards[25] = new Card(Color.Eichel, 8);
@@ -71,12 +71,12 @@ namespace Schafkopf.Models
 
         private void GameLoop()
         {
-            while(true)
+            while (true)
             {
                 CurrentGameState = State.Start;
-                
+
                 //Determine who is playing
-                while(PlayingPlayers.Count != 4)
+                while (PlayingPlayers.Count != 4)
                 {
                     Thread.Sleep(1000);
                 }
@@ -91,7 +91,7 @@ namespace Schafkopf.Models
                 EndGame();
             }
         }
-        
+
         private void StartGame()
         {
             //New first player
@@ -100,16 +100,16 @@ namespace Schafkopf.Models
             Shuffle();
             //Distribute cards to the players
             //Player 1 gets first 8 cards, Player 2 gets second 8 cards, an so on ...
-            for(int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 for (int j = i * 8; j < (i + 1) * 8; j++)
                 {
-                    PlayingPlayers[i].HandCards[j%8] = MixedCards[j];
+                    PlayingPlayers[i].HandCards[j % 8] = MixedCards[j];
                 }
             }
 
             ActionPlayer = StartPlayer;
-            for(int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 PlayingPlayers[ActionPlayer].Announce();
                 StartPlayer = (StartPlayer + 1) % 4;
@@ -127,13 +127,13 @@ namespace Schafkopf.Models
                         AnnouncedGame = PlayingPlayers[i].AnnouncedGameType;
                         Leader = PlayingPlayers[i];
                     }
-                }                
+                }
             }
             //Leader has to choose a color he wants to play with or a color to escort his solo
             Leader.AnnounceColor();
 
             //Hochzeit, announce husband or wife
-            if((int)AnnouncedGame == 2)
+            if ((int)AnnouncedGame == 2)
             {
                 //TODO::Wait for somebody to press the Button
             }
@@ -141,7 +141,7 @@ namespace Schafkopf.Models
             //Set up the team combination
             for (int i = 0; i < 4; i++)
             {
-                if((int)AnnouncedGame == 0)
+                if ((int)AnnouncedGame == 0)
                 {
                     Groups[i] = 0;
                 }
@@ -153,12 +153,13 @@ namespace Schafkopf.Models
                     }
                     else
                     {
-                        foreach(Card c in PlayingPlayers[i].HandCards)
+                        foreach (Card c in PlayingPlayers[i].HandCards)
                         {
-                            if(c.Number == 11 && c.Color == Leader.AnnouncedColor)
+                            if (c.Number == 11 && c.Color == Leader.AnnouncedColor)
                             {
                                 Groups[i] = 1;
-                            } else
+                            }
+                            else
                             {
                                 Groups[i] = 0;
                             }
@@ -181,7 +182,8 @@ namespace Schafkopf.Models
                     if (PlayingPlayers[i] == Leader)
                     {
                         Groups[i] = 1;
-                    } else
+                    }
+                    else
                     {
                         Groups[i] = 0;
                     }
@@ -191,7 +193,7 @@ namespace Schafkopf.Models
 
         private void PlayGame()
         {
-            for(int round = 0; round < 8; round++)
+            for (int round = 0; round < 8; round++)
             {
                 ActionPlayer = StartPlayer;
                 Trick trick = new Trick
@@ -214,7 +216,7 @@ namespace Schafkopf.Models
                     //TODO::There will be no check whether the played card is valid or not, checks can be done inside the AddCard-Method using the Players-Cards
                     trick.AddCard(playedCard);
                     trick.Player[i] = PlayingPlayers[ActionPlayer];
-                    if (i==0)
+                    if (i == 0)
                     {
                         trick.FirstCard = playedCard;
                     }
@@ -224,9 +226,9 @@ namespace Schafkopf.Models
                 Player winnerOfTheTrick = trick.GetWinner();
                 winnerOfTheTrick.TakeTrick(trick);
                 int winnerInteger = 0;
-                foreach(Player p in PlayingPlayers)
+                foreach (Player p in PlayingPlayers)
                 {
-                    if(p.Equals(winnerOfTheTrick))
+                    if (p.Equals(winnerOfTheTrick))
                     {
                         break;
                     }
@@ -245,7 +247,7 @@ namespace Schafkopf.Models
         private void EndGame()
         {
             //Show the amount of pointfor each team
-            if(AnnouncedGame > 0)
+            if (AnnouncedGame > 0)
             {
                 int leaderPoints = 0;
                 int followerPoints = 0;
@@ -270,7 +272,8 @@ namespace Schafkopf.Models
                     //Leader has won the game
                     //TODO::Display end result and replay button
                 }
-            } else
+            }
+            else
             {
                 List<Player> player = new List<Player>();
 
@@ -300,7 +303,7 @@ namespace Schafkopf.Models
         //-------------------------------------------------
         public void AddPlayer(Player player)
         {
-            if(player == null && Players.Contains(player))
+            if (player == null && Players.Contains(player))
             {
                 throw new Exception("There is something wrong with the new player.");
             }
@@ -314,7 +317,7 @@ namespace Schafkopf.Models
         //-------------------------------------------------
         public void RemovePlayer(Player player)
         {
-            if(player.Playing)
+            if (player.Playing)
             {
                 //Sorry, you can not leave the game during the game. You are able to quit the game.
                 //TODO::Notification that the player is not allowed to leave the game;
@@ -333,11 +336,12 @@ namespace Schafkopf.Models
         //-------------------------------------------------
         public void PlayerPlaysTheGame(Player player)
         {
-            if(PlayingPlayers.Count < 4)
+            if (PlayingPlayers.Count < 4)
             {
                 player.Playing = true;
                 PlayingPlayers.Add(player);
-            } else
+            }
+            else
             {
                 //Sorry, there are too many players who want to play, what about some Netflix and Chill?
             }
@@ -355,7 +359,7 @@ namespace Schafkopf.Models
                 return;
             }
             player.Playing = false;
-            if(PlayingPlayers.Contains(player))
+            if (PlayingPlayers.Contains(player))
                 PlayingPlayers.Remove(player);
         }
         #endregion
