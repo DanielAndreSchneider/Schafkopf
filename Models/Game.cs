@@ -45,14 +45,14 @@ namespace Schafkopf.Models
             Cards[14] = new Card(Color.Herz, 4);
             Cards[15] = new Card(Color.Herz, 11);
 
-            Cards[16] = new Card(Color.Blatt, 7);
-            Cards[17] = new Card(Color.Blatt, 8);
-            Cards[18] = new Card(Color.Blatt, 9);
-            Cards[19] = new Card(Color.Blatt, 10);
-            Cards[20] = new Card(Color.Blatt, 2);
-            Cards[21] = new Card(Color.Blatt, 3);
-            Cards[22] = new Card(Color.Blatt, 4);
-            Cards[23] = new Card(Color.Blatt, 11);
+            Cards[16] = new Card(Color.Gras, 7);
+            Cards[17] = new Card(Color.Gras, 8);
+            Cards[18] = new Card(Color.Gras, 9);
+            Cards[19] = new Card(Color.Gras, 10);
+            Cards[20] = new Card(Color.Gras, 2);
+            Cards[21] = new Card(Color.Gras, 3);
+            Cards[22] = new Card(Color.Gras, 4);
+            Cards[23] = new Card(Color.Gras, 11);
 
             Cards[24] = new Card(Color.Eichel, 7);
             Cards[25] = new Card(Color.Eichel, 8);
@@ -74,7 +74,7 @@ namespace Schafkopf.Models
             while(true)
             {
                 CurrentGameState = State.Start;
-                
+
                 //Determine who is playing
                 while(PlayingPlayers.Count != 4)
                 {
@@ -91,7 +91,7 @@ namespace Schafkopf.Models
                 EndGame();
             }
         }
-        
+
         private void StartGame()
         {
             //New first player
@@ -127,7 +127,7 @@ namespace Schafkopf.Models
                         AnnouncedGame = PlayingPlayers[i].AnnouncedGameType;
                         Leader = PlayingPlayers[i];
                     }
-                }                
+                }
             }
             //Leader has to choose a color he wants to play with or a color to escort his solo
             Leader.AnnounceColor();
