@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
+using Schafkopf.Hubs;
 
 namespace Schafkopf.Models
 {
     public class Game
     {
-        public List<Player> Players = null;
+        public List<Player> Players = new List<Player>();
         public List<Player> PlayingPlayers = new List<Player>();
         public static Card[] Cards = new Card[32];
         public Card[] MixedCards = null;
@@ -69,8 +71,14 @@ namespace Schafkopf.Models
 
         }
 
-        public void DealCards()
+        public async Task DealCards(SchafkopfHub hub)
         {
+            if (PlayingPlayers.Count < 4)
+            {
+                await hub.Clients.All.SendAsync("ReceiveSystemMessage", "Error: not enough players");
+                return;
+            }
+
             //New first player
             StartPlayer = (StartPlayer + 1) % 4;
             //Shuffle cards
@@ -83,31 +91,36 @@ namespace Schafkopf.Models
                 {
                     PlayingPlayers[i].HandCards[j % 8] = MixedCards[j];
                 }
+                foreach (String connectionId in PlayingPlayers[i].GetConnectionIds()) {
+                    await hub.Clients.Client(connectionId).SendAsync(
+                        "ReceiveHand",
+                        PlayingPlayers[i].HandCards.Select(card => card.ToString())
+                    );
+                }
+            }
+
+            ActionPlayer = StartPlayer;
+            foreach (String connectionId in PlayingPlayers[ActionPlayer].GetConnectionIds()) {
+                await hub.Clients.Client(connectionId).SendAsync("AskAnnounce");
             }
         }
 
         private void StartGame() {
-            ActionPlayer = StartPlayer;
-            for (int i = 0; i < 4; i++)
-            {
-                PlayingPlayers[ActionPlayer].Announce();
-                StartPlayer = (StartPlayer + 1) % 4;
-            }
 
             //Determine the game type
-            for (int i = 0; i < 4; i++)
-            {
-                if (PlayingPlayers[i].AnnounceLeading)
-                {
-                    PlayingPlayers[i].AnnounceGameType();
-                    if (AnnouncedGame < PlayingPlayers[i].AnnouncedGameType)
-                    {
-                        //Player announces a higher game to play
-                        AnnouncedGame = PlayingPlayers[i].AnnouncedGameType;
-                        Leader = PlayingPlayers[i];
-                    }
-                }
-            }
+            // for (int i = 0; i < 4; i++)
+            // {
+            //     if (PlayingPlayers[i].WantToPlay)
+            //     {
+            //         PlayingPlayers[i].AnnounceGameType();
+            //         if (AnnouncedGame < PlayingPlayers[i].AnnouncedGameType)
+            //         {
+            //             //Player announces a higher game to play
+            //             AnnouncedGame = PlayingPlayers[i].AnnouncedGameType;
+            //             Leader = PlayingPlayers[i];
+            //         }
+            //     }
+            // }
             //Leader has to choose a color he wants to play with or a color to escort his solo
             Leader.AnnounceColor();
 
@@ -280,14 +293,14 @@ namespace Schafkopf.Models
         // The amount of player is limitless inside a game
         // The amount of playing players has to be excactly 4
         //-------------------------------------------------
-        public void AddPlayer(Player player)
+        public async Task AddPlayer(Player player, SchafkopfHub hub)
         {
             if (player == null && Players.Contains(player))
             {
                 throw new Exception("There is something wrong with the new player.");
             }
             Players.Add(player);
-            PlayerPlaysTheGame(player);
+            await PlayerPlaysTheGame(player, hub);
         }
 
         //-------------------------------------------------
@@ -313,12 +326,15 @@ namespace Schafkopf.Models
         //-------------------------------------------------
         // Player decides to play the game
         //-------------------------------------------------
-        public void PlayerPlaysTheGame(Player player)
+        public async Task PlayerPlaysTheGame(Player player, SchafkopfHub hub)
         {
             if (PlayingPlayers.Count < 4)
             {
                 player.Playing = true;
                 PlayingPlayers.Add(player);
+                if (PlayingPlayers.Count == 4) {
+                    await DealCards(hub);
+                }
             }
             else
             {

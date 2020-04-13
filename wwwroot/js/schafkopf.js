@@ -29,6 +29,18 @@ connection.on("ReceiveSystemMessage", function (message) {
   messageList.scrollTop = messageList.scrollHeight;
 });
 
+connection.on("AskAnnounce", function (message) {
+  $('#announceModal').modal({ keyboard: false, backdrop: "static" });
+});
+
+connection.on("AskGameType", function (message) {
+  $('#announceGameTypeModal').modal({ keyboard: false, backdrop: "static" });
+});
+
+connection.on("StoreUserId", function (id) {
+  localStorage.setItem("userId", id);
+});
+
 connection.on("ReceiveHand", function (cards) {
   var hand = document.getElementById("hand");
   hand.innerHTML = "";
@@ -38,9 +50,8 @@ connection.on("ReceiveHand", function (cards) {
     card.style = "width: 12.5%;";
     card.id = cardName;
     card.addEventListener("click", function (event) {
-      var user = document.getElementById("userInput").value;
       connection
-        .invoke("SendChatMessage", user, event.srcElement.id)
+        .invoke("SendChatMessage", event.srcElement.id)
         .catch(function (err) {
           return console.error(err.toString());
         });
@@ -54,6 +65,19 @@ connection
   .start()
   .then(function () {
     document.getElementById("sendButton").disabled = false;
+    // The following code allows a user to reconnect after reloading the page or restarting the browser
+    // During development this is not useful as it is more difficult to simulate multiple users from one machine
+    // var userId = localStorage.getItem("userId");
+    // if (userId) {
+    //   connection
+    //     .invoke("ReconnectPlayer", userId)
+    //     .catch(function (err) {
+    //       $('#usernameModal').modal({ keyboard: false, backdrop: "static" });
+    //       return console.error(err.toString());
+    //     });
+    // } else {
+      $('#usernameModal').modal({ keyboard: false, backdrop: "static" });
+    // }
   })
   .catch(function (err) {
     return console.error(err.toString());
@@ -62,19 +86,75 @@ connection
 document
   .getElementById("sendButton")
   .addEventListener("click", function (event) {
-    var user = document.getElementById("userInput").value;
     var message = document.getElementById("messageInput").value;
-    connection.invoke("SendChatMessage", user, message).catch(function (err) {
+    connection.invoke("SendChatMessage", message).catch(function (err) {
+      return console.error(err.toString());
+    });
+    event.preventDefault();
+  });
+
+// document
+//   .getElementById("wantToPlayButton")
+//   .addEventListener("click", function (event) {
+//     connection.invoke("PlayerWantsToPlay").catch(function (err) {
+//       return console.error(err.toString());
+//     });
+//     event.preventDefault();
+//   });
+
+document
+  .getElementById("announceNoButton")
+  .addEventListener("click", function (event) {
+    connection.invoke("Announce", false).catch(function (err) {
       return console.error(err.toString());
     });
     event.preventDefault();
   });
 
 document
-  .getElementById("dealCardsButton")
+  .getElementById("announceYesButton")
   .addEventListener("click", function (event) {
-    connection.invoke("DealCards").catch(function (err) {
+    connection.invoke("Announce", true).catch(function (err) {
       return console.error(err.toString());
     });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("announceSauspielButton")
+  .addEventListener("click", function (event) {
+    connection.invoke("AnnounceGameType", "Sauspiel").catch(function (err) {
+      return console.error(err.toString());
+    });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("announceWenzButton")
+  .addEventListener("click", function (event) {
+    connection.invoke("AnnounceGameType", "Wenz").catch(function (err) {
+      return console.error(err.toString());
+    });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("announceSoloButton")
+  .addEventListener("click", function (event) {
+    connection.invoke("AnnounceGameType", "Solo").catch(function (err) {
+      return console.error(err.toString());
+    });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("startButton")
+  .addEventListener("click", function (event) {
+    var userName = document.getElementById("startModalUserName").value;
+    connection
+      .invoke("AddPlayer", userName)
+      .catch(function (err) {
+        return console.error(err.toString());
+      });
     event.preventDefault();
   });

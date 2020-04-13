@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
+using Schafkopf.Hubs;
 
 namespace Schafkopf.Models
 {
@@ -10,15 +13,19 @@ namespace Schafkopf.Models
         public Card[] HandCards = new Card[8];
         public int Balance = 0;
         public String Name = "";
+        public String Id = "";
+        private readonly List<String> _connectionIds = new List<String>();
         public Boolean Playing = false;
-        public Boolean AnnounceLeading = false;
+        public Boolean WantToPlay = false;
         public GameType AnnouncedGameType = GameType.Ramsch;
         public Color AnnouncedColor = Color.Schellen;
 
 
-        public Player(String name)
+        public Player(String name, SchafkopfHub hub)
         {
             Name = name;
+            AddConnectionId(hub);
+            Id = System.Guid.NewGuid().ToString();
         }
 
         //-------------------------------------------------
@@ -47,16 +54,14 @@ namespace Schafkopf.Models
             Balance += points;
         }
 
-        public void Announce()
+        public async Task Announce(bool wantToPlay, SchafkopfHub hub)
         {
-            //TODO::Wait player's decision
             //Message about the players actions
-            if(AnnounceLeading)
-            {
-                //Player leads
-            } else
-            {
-                //Next
+            WantToPlay = wantToPlay;
+            if (WantToPlay) {
+                await hub.Clients.All.SendAsync("ReceiveChatMessage", Name, "ich mag spielen");
+            } else {
+                await hub.Clients.All.SendAsync("ReceiveChatMessage", Name, "ich mag nicht spielen");
             }
         }
 
@@ -65,11 +70,11 @@ namespace Schafkopf.Models
         //-------------------------------------------------
         public void Leading()
         {
-            AnnounceLeading = true;
+            WantToPlay = true;
         }
         public void Following()
         {
-            AnnounceLeading = false;
+            WantToPlay = false;
         }
 
         //-------------------------------------------------
@@ -79,10 +84,11 @@ namespace Schafkopf.Models
         {
             AnnouncedGameType = gameTyp;
         }
-        internal void AnnounceGameType()
+        internal async Task AnnounceGameType(GameType gameType, SchafkopfHub hub)
         {
-            //TODO::Wait player's decision about the game type
-
+            AnnouncedGameType = gameType;
+            //Message about the players actions
+            await hub.Clients.All.SendAsync("ReceiveChatMessage", Name, $"Ich hätte ein {gameType}");
         }
 
         public void AnnounceColor()
@@ -104,6 +110,21 @@ namespace Schafkopf.Models
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        public void AddConnectionId(SchafkopfHub hub) {
+            hub.Context.Items.Add("player", this);
+            lock(_connectionIds) {
+                _connectionIds.Add(hub.Context.ConnectionId);
+            }
+        }
+        public void RemoveConnectionId(String id) {
+            lock(_connectionIds) {
+                _connectionIds.Remove(id);
+            }
+        }
+        public List<String> GetConnectionIds() {
+            return _connectionIds;
         }
     }
 }

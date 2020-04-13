@@ -1,16 +1,16 @@
-@page
+﻿@page
         <div class="row h-100 overflow-hidden">
             <div class="col-9 overflow-auto h-100 d-flex flex-column">
-                <div class="form-row align-items-center">
-                    <div class="col-1">User</div>
-                    <div class="col-4"><input class="form-control" type="text" id="userInput" /></div>
-                    <div class="col-2"><input type="button" class="btn btn-primary" id="dealCardsButton" value="Deal Cards" /></div>
+                <!--
+                <div class="row">
+                    <div class="col-2"><input type="button" class="btn btn-primary" id="wantToPlayButton" value="Ich will spielen!" /></div>
                 </div>
                 <div class="row">
                     <div class="col-12">
                         <hr />
                     </div>
                 </div>
+                -->
                 <div class="row flex-grow-1"></div>
                 <div class="row">
                     <!--style="position: absolute; bottom: 0;"-->
@@ -29,6 +29,50 @@
         </div>
 
 
+<div class="modal fade" id="announceModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Magst du spielen?</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="announceNoButton" data-dismiss="modal">Nein</button>
+        <button type="button" class="btn btn-primary" id="announceYesButton" data-dismiss="modal">Ja</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="announceGameTypeModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Was magst du spielen?</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="announceSoloButton" data-dismiss="modal">Solo</button>
+        <button type="button" class="btn btn-primary" id="announceWenzButton" data-dismiss="modal">Wenz</button>
+        <button type="button" class="btn btn-primary" id="announceSauspielButton" data-dismiss="modal">Sauspiel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="usernameModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Wie heißt du?</h5>
+      </div>
+      <div class="modal-body">
+        <input class="form-control" type="text" id="startModalUserName" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="startButton" data-dismiss="modal">Los geht's!</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script src="~/js/schafkopf.js"></script>

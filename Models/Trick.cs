@@ -43,7 +43,7 @@ namespace Schafkopf.Models
                     //Highest card looses
                     case GameType.Ramsch:
                     case GameType.Hochzeit:
-                    case GameType.NormalSpiel:
+                    case GameType.Sauspiel:
                         {
                             //Determine value
                             if (card.Number == 2 || card.Number == 3)
@@ -114,7 +114,7 @@ namespace Schafkopf.Models
                             {
                                 card.Value = 2 * card.Number;
                             }
-                        } 
+                        }
                         break;
                 }
             }
@@ -133,7 +133,7 @@ namespace Schafkopf.Models
                 //Highest card looses
                 case GameType.Ramsch:
                 case GameType.Hochzeit:
-                case GameType.NormalSpiel:
+                case GameType.Sauspiel:
                     {
                         //Determine value
                         if(newCard.Number == 2 || newCard.Number == 3)
@@ -235,7 +235,7 @@ namespace Schafkopf.Models
         }
 
         public Player GetWinner()
-        {            
+        {
             return Player[Winner];
         }
     }
