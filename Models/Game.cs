@@ -64,35 +64,12 @@ namespace Schafkopf.Models
             Cards[31] = new Card(Color.Eichel, 11);
             #endregion
 
-            //Start the game loop
-            GameLoop();
+            // Start the game
+            CurrentGameState = State.Start;
 
         }
 
-        private void GameLoop()
-        {
-            while (true)
-            {
-                CurrentGameState = State.Start;
-
-                //Determine who is playing
-                while (PlayingPlayers.Count != 4)
-                {
-                    Thread.Sleep(1000);
-                }
-
-                //Start Game
-                StartGame();
-
-                //Game is playing
-                PlayGame();
-
-                //End Game
-                EndGame();
-            }
-        }
-
-        private void StartGame()
+        public void DealCards()
         {
             //New first player
             StartPlayer = (StartPlayer + 1) % 4;
@@ -107,7 +84,9 @@ namespace Schafkopf.Models
                     PlayingPlayers[i].HandCards[j % 8] = MixedCards[j];
                 }
             }
+        }
 
+        private void StartGame() {
             ActionPlayer = StartPlayer;
             for (int i = 0; i < 4; i++)
             {

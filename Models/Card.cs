@@ -17,5 +17,9 @@ namespace Schafkopf.Models
             Number = number;
         }
 
+        public override string ToString()
+        {
+            return Color + "-" + Number;
+        }
     }
 }
