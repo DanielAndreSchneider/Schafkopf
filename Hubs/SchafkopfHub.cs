@@ -93,7 +93,8 @@ namespace Schafkopf.Hubs
             await Game.StartGame(this);
         }
 
-        public async Task PlayCard(String cardId) {
+        public async Task PlayCard(String cardId)
+        {
             Color cardColor;
             Enum.TryParse(cardId.Split("-")[0], true, out cardColor);
             int cardNumber = Int16.Parse(cardId.Split("-")[1]);
@@ -159,9 +160,10 @@ namespace Schafkopf.Hubs
         {
             Player player = Game.Players.Single(p => p.Id == userId);
             player.AddConnectionId(this);
+            await Clients.Caller.SendAsync("ReceiveSystemMessage", "Willkommen zurück");
             // send username
-            // send cards, ...
-            await UpdatePlayerCountAsync();
+            // if is playing send cards, ...
+            // if game is idle ask if player wants to join
         }
         public async Task AddPlayer(string userName)
         {
@@ -169,8 +171,6 @@ namespace Schafkopf.Hubs
             await Game.AddPlayer(player, this);
             await Clients.Caller.SendAsync("StoreUserId", player.Id);
             // send username
-            // send cards
-            await UpdatePlayerCountAsync();
         }
 
         public async Task PlayerWantsToPlay()
@@ -179,25 +179,40 @@ namespace Schafkopf.Hubs
             await UpdatePlayingPlayers();
         }
 
-        private async Task UpdatePlayingPlayers()
+        public async Task ResetGame()
+        {
+            await Game.Reset(this);
+        }
+
+        public async Task UpdatePlayingPlayers()
         {
             await Clients.All.SendAsync("ReceiveSystemMessage", $"Playing Players: {String.Join(", ", Game.PlayingPlayers.Select(p => p.Name + " (" + p.GetConnectionIds().Count + ")"))}");
-        }
-        private async Task UpdatePlayerCountAsync()
-        {
-            await Clients.All.SendAsync("ReceiveSystemMessage", $"Number of players: {Game.Players.Count}");
-            await Clients.All.SendAsync("ReceiveSystemMessage", $"Players: {String.Join(", ", Game.Players.Select(p => p.Name + " (" + p.GetConnectionIds().Count + ")"))}");
         }
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
             foreach (Player player in Game.Players)
             {
-                player.RemoveConnectionId(Context.ConnectionId);
+                if (player.RemoveConnectionId(Context.ConnectionId))
+                {
+                    if (Game.PlayingPlayers.Contains(player) && player.GetConnectionIds().Count == 0)
+                    {
+                        if (Game.CurrentGameState == State.Idle)
+                        {
+                            Task asyncTask = Game.PlayerDoesNotPlaysTheGame(player, this);
+                        }
+                        else
+                        {
+                            Clients.All.SendAsync(
+                                "GameOver",
+                                "Verbindung zu Spieler verloren",
+                                "Möchtest du neustarten oder auf den anderen Spieler warten?"
+                            );
+                            Task asyncTask = Game.ResetIfAllConnectionsLost(this);
+                        }
+                    }
+                }
             }
-            Task task = UpdatePlayerCountAsync();
-            // TODO: if connection count drops to zero:
-            // - if player is currently in a game ask other players if they want to wait or abort game
             return base.OnDisconnectedAsync(exception);
         }
     }

@@ -1,16 +1,6 @@
 ﻿@page
         <div class="row h-100 overflow-hidden">
             <div class="col-9 overflow-auto h-100 d-flex flex-column">
-                <!--
-                <div class="row">
-                    <div class="col-2"><input type="button" class="btn btn-primary" id="wantToPlayButton" value="Ich will spielen!" /></div>
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                        <hr />
-                    </div>
-                </div>
-                -->
                 <div class="row flex-grow-1 overflow-auto">
 
                   <!-- the positioning here is really hacky => TODO: find better solution -->
@@ -43,7 +33,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="staticBackdropLabel">Magst du spielen?</h5>
+        <h5 class="modal-title">Magst du spielen?</h5>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" id="announceNoButton" data-dismiss="modal">Nein</button>
@@ -57,7 +47,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="staticBackdropLabel">Was magst du spielen?</h5>
+        <h5 class="modal-title">Was magst du spielen?</h5>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" id="announceSoloButton" data-dismiss="modal">Solo</button>
@@ -72,7 +62,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="staticBackdropLabel">Was magst du spielen?</h5>
+        <h5 class="modal-title">Was magst du spielen?</h5>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" id="eichelButton" data-dismiss="modal">Eichel</button>
@@ -88,13 +78,42 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="staticBackdropLabel">Wie heißt du?</h5>
+        <h5 class="modal-title">Wie heißt du?</h5>
       </div>
       <div class="modal-body">
         <input class="form-control" type="text" id="startModalUserName" />
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" id="startButton" data-dismiss="modal">Los geht's!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="gameOverModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="gameOverModalTitle"></h5>
+      </div>
+      <div class="modal-body" id="gameOverModalBody">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="restartButton" data-dismiss="modal">Neues Spiel starten!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="wantToPlayModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Willst du nächste Runde mitspielen?</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Erstmal aussetzen.</button>
+        <button type="button" class="btn btn-primary" id="wantToPlayButton" data-dismiss="modal">Bin dabei!</button>
       </div>
     </div>
   </div>

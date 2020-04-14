@@ -18,7 +18,7 @@ namespace Schafkopf.Models
         public Boolean Playing = false;
         public Boolean WantToPlay = false;
         public GameType AnnouncedGameType = GameType.Ramsch;
-        public Color AnnouncedColor = Color.Schellen;
+        public Color AnnouncedColor = Color.None;
 
 
         public Player(String name, SchafkopfHub hub)
@@ -26,6 +26,15 @@ namespace Schafkopf.Models
             Name = name;
             AddConnectionId(hub);
             Id = System.Guid.NewGuid().ToString();
+        }
+
+        public void Reset() {
+            HandCards = new List<Card>();
+            Balance = 0;
+            Playing = false;
+            WantToPlay = false;
+            AnnouncedGameType = GameType.Ramsch;
+            AnnouncedColor = Color.None;
         }
 
         //-------------------------------------------------
@@ -51,7 +60,7 @@ namespace Schafkopf.Models
         //-------------------------------------------------
         public void TakeTrick(Trick trick)
         {
-            int points = trick.Cards[0].Number + trick.Cards[1].Number + trick.Cards[2].Number + trick.Cards[3].Number;
+            int points = trick.Cards[0].getPoints() + trick.Cards[1].getPoints() + trick.Cards[2].getPoints() + trick.Cards[3].getPoints();
             Balance += points;
         }
 
@@ -114,9 +123,9 @@ namespace Schafkopf.Models
                 _connectionIds.Add(hub.Context.ConnectionId);
             }
         }
-        public void RemoveConnectionId(String id) {
+        public bool RemoveConnectionId(String id) {
             lock(_connectionIds) {
-                _connectionIds.Remove(id);
+                return _connectionIds.Remove(id);
             }
         }
         public List<String> GetConnectionIds() {

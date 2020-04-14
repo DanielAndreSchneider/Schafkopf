@@ -24,6 +24,7 @@ namespace Schafkopf.Models
         public Player Leader = null;
         public Player HusbandWife = null;
         public Trick Trick = new Trick();
+        public int TrickCount = 0;
 
         private Random random = new Random();
 
@@ -67,9 +68,48 @@ namespace Schafkopf.Models
             Cards[31] = new Card(Color.Eichel, 11);
             #endregion
 
-            // Start the game
-            CurrentGameState = State.Start;
+        }
 
+        public async Task Reset(SchafkopfHub hub) {
+            CurrentGameState = State.Idle;
+            Groups = new int[] { 0, 0, 0, 0 };
+            AnnouncedGame = GameType.Ramsch;
+            Leader = null;
+            HusbandWife = null;
+            Trick = new Trick();
+            TrickCount = 0;
+
+            // TODO: let players stay in the game if they want
+            // foreach (Player player in Players) {
+            //     if (PlayingPlayers.Contains(player))
+            //     {
+            //         if (player.GetConnectionIds().Count == 0)
+            //         {
+            //             PlayingPlayers.Remove(player);
+            //         }
+            //         else
+            //         {
+            //             player.AskIfWantToPlayWithTimeout();
+            //         }
+            //     } else {
+            //         player.AskIfWantToPlay();
+            //     }
+            // }
+            PlayingPlayers = new List<Player>();
+            foreach (Player player in Players)
+            {
+                player.Reset();
+                await hub.Clients.All.SendAsync("AskWantToPlay");
+            }
+        }
+
+        public async Task ResetIfAllConnectionsLost(SchafkopfHub hub) {
+            foreach (Player player in PlayingPlayers) {
+                if (player.GetConnectionIds().Count > 0) {
+                    return;
+                }
+            }
+            await Reset(hub);
         }
 
         public async Task DealCards(SchafkopfHub hub)
@@ -79,6 +119,9 @@ namespace Schafkopf.Models
                 await hub.Clients.All.SendAsync("ReceiveSystemMessage", "Error: not enough players");
                 return;
             }
+
+            // Start the game
+            CurrentGameState = State.Start;
 
             //New first player
             StartPlayer = (StartPlayer + 1) % 4;
@@ -155,6 +198,7 @@ namespace Schafkopf.Models
                             if (c.Number == 11 && c.Color == Leader.AnnouncedColor)
                             {
                                 Groups[i] = 1;
+                                break;
                             }
                             else
                             {
@@ -204,8 +248,10 @@ namespace Schafkopf.Models
             } else {
                 Player winner = Trick.GetWinner();
                 winner.TakeTrick(Trick);
-
-                // Todo: check if game is over
+                TrickCount++;
+                if (TrickCount == 8) {
+                    await EndGame(hub);
+                }
 
                 ActionPlayer = PlayingPlayers.FindIndex(p => p == winner);
                 Trick = new Trick();
@@ -222,7 +268,7 @@ namespace Schafkopf.Models
         // there will be two options for the main-player
         // new game or quit
         //-------------------------------------------------
-        private void EndGame()
+        private async Task EndGame(SchafkopfHub hub)
         {
             //Show the amount of pointfor each team
             if (AnnouncedGame > 0)
@@ -240,16 +286,20 @@ namespace Schafkopf.Models
                         leaderPoints += PlayingPlayers[i].Balance;
                     }
                 }
+                string gameOverTitle = "";
                 if (leaderPoints <= 60)
                 {
-                    //Leader has lost the game
-                    //TODO::Display end result and replay button
+                    gameOverTitle = "Die Spieler haben verloren";
                 }
                 else
                 {
-                    //Leader has won the game
-                    //TODO::Display end result and replay button
+                    gameOverTitle = "Die Spieler haben gewonnen";
                 }
+                await hub.Clients.All.SendAsync(
+                    "GameOver",
+                    gameOverTitle,
+                    $"Spieler: {leaderPoints} Punkte, Andere: {followerPoints} Punkte"
+                );
             }
             else
             {
@@ -261,6 +311,11 @@ namespace Schafkopf.Models
                 }
 
                 player.OrderBy(o => o.Balance).ToList();
+                await hub.Clients.All.SendAsync(
+                    "GameOver",
+                    "Ramsch vorbei",
+                    String.Join(", ", player.Select(p => $"{p.Name}: {p.Balance} Punkte"))
+                );
                 //TODO::Display end table and replay button
             }
             //Ask player whether they want to play another game
@@ -287,37 +342,41 @@ namespace Schafkopf.Models
             }
             Players.Add(player);
             await PlayerPlaysTheGame(player, hub);
+            await hub.UpdatePlayingPlayers();
         }
 
         //-------------------------------------------------
         // Remove player
         // Each player has the ability to leave the game, except when they are playing
         //-------------------------------------------------
-        public void RemovePlayer(Player player)
-        {
-            if (player.Playing)
-            {
-                //Sorry, you can not leave the game during the game. You are able to quit the game.
-                //TODO::Notification that the player is not allowed to leave the game;
-                return;
-            }
-            if (!Players.Contains(player))
-            {
-                throw new Exception("There is something wrong with the player who wants to leave.");
-            }
-            PlayerDoesNotPlaysTheGame(player);
-            Players.Remove(player);
-        }
+        // public void RemovePlayer(Player player)
+        // {
+        //     if (player.Playing)
+        //     {
+        //         //Sorry, you can not leave the game during the game. You are able to quit the game.
+        //         //TODO::Notification that the player is not allowed to leave the game;
+        //         return;
+        //     }
+        //     if (!Players.Contains(player))
+        //     {
+        //         throw new Exception("There is something wrong with the player who wants to leave.");
+        //     }
+        //     PlayerDoesNotPlaysTheGame(player);
+        //     Players.Remove(player);
+        // }
 
         //-------------------------------------------------
         // Player decides to play the game
         //-------------------------------------------------
         public async Task PlayerPlaysTheGame(Player player, SchafkopfHub hub)
         {
-            if (PlayingPlayers.Count < 4)
+            if (PlayingPlayers.Count < 4 && CurrentGameState == State.Idle)
             {
                 player.Playing = true;
-                PlayingPlayers.Add(player);
+                lock (PlayingPlayers)
+                {
+                    PlayingPlayers.Add(player);
+                }
                 if (PlayingPlayers.Count == 4) {
                     await DealCards(hub);
                 }
@@ -331,9 +390,9 @@ namespace Schafkopf.Models
         //-------------------------------------------------
         // Player decides to not play the next game
         //-------------------------------------------------
-        public void PlayerDoesNotPlaysTheGame(Player player)
+        public async Task PlayerDoesNotPlaysTheGame(Player player, SchafkopfHub hub)
         {
-            if (player.Playing)
+            if (CurrentGameState != State.Idle)
             {
                 //Sorry, you can not pause the game during the game. You are able to pause afterwards.
                 //TODO::Notification that the player is not allowed to leave the game;
@@ -341,7 +400,13 @@ namespace Schafkopf.Models
             }
             player.Playing = false;
             if (PlayingPlayers.Contains(player))
-                PlayingPlayers.Remove(player);
+            {
+                lock (PlayingPlayers)
+                {
+                    PlayingPlayers.Remove(player);
+                }
+            }
+            await hub.UpdatePlayingPlayers();
         }
         #endregion
 

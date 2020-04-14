@@ -41,6 +41,21 @@ connection.on("AskColor", function (message) {
   $('#gameColorModal').modal({ keyboard: false, backdrop: "static" });
 });
 
+connection.on("AskWantToPlay", function () {
+  $('#gameOverModal').modal('hide');
+  $('#wantToPlayModal').modal({ keyboard: false, backdrop: "static" });
+});
+
+connection.on("GameOver", function (title, body) {
+  $('#announceModal').modal('hide');
+  $('#announceGameTypeModal').modal('hide');
+  $('#wantToPlayModal').modal('hide');
+  $('#gameColorModal').modal('hide');
+  document.getElementById("gameOverModalTitle").textContent = title;
+  document.getElementById("gameOverModalBody").textContent = body;
+  $('#gameOverModal').modal({ keyboard: false, backdrop: "static" });
+});
+
 connection.on("StoreUserId", function (id) {
   localStorage.setItem("userId", id);
 });
@@ -113,14 +128,14 @@ document
     event.preventDefault();
   });
 
-// document
-//   .getElementById("wantToPlayButton")
-//   .addEventListener("click", function (event) {
-//     connection.invoke("PlayerWantsToPlay").catch(function (err) {
-//       return console.error(err.toString());
-//     });
-//     event.preventDefault();
-//   });
+document
+  .getElementById("wantToPlayButton")
+  .addEventListener("click", function (event) {
+    connection.invoke("PlayerWantsToPlay").catch(function (err) {
+      return console.error(err.toString());
+    });
+    event.preventDefault();
+  });
 
 document
   .getElementById("announceNoButton")
@@ -210,6 +225,16 @@ document
     connection
       .invoke("AddPlayer", userName)
       .catch(function (err) {
+        return console.error(err.toString());
+      });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("restartButton")
+  .addEventListener("click", function (event) {
+    connection
+      .invoke("ResetGame",).catch(function (err) {
         return console.error(err.toString());
       });
     event.preventDefault();
