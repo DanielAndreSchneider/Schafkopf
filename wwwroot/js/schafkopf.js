@@ -37,6 +37,10 @@ connection.on("AskGameType", function (message) {
   $('#announceGameTypeModal').modal({ keyboard: false, backdrop: "static" });
 });
 
+connection.on("AskColor", function (message) {
+  $('#gameColorModal').modal({ keyboard: false, backdrop: "static" });
+});
+
 connection.on("StoreUserId", function (id) {
   localStorage.setItem("userId", id);
 });
@@ -51,7 +55,7 @@ connection.on("ReceiveHand", function (cards) {
     card.id = cardName;
     card.addEventListener("click", function (event) {
       connection
-        .invoke("SendChatMessage", event.srcElement.id)
+        .invoke("PlayCard", event.srcElement.id)
         .catch(function (err) {
           return console.error(err.toString());
         });
@@ -59,6 +63,22 @@ connection.on("ReceiveHand", function (cards) {
     });
     hand.appendChild(card);
   }
+});
+
+connection.on("ReceiveTrick", function (cards) {
+  // uncomment this if the cards-on-table-positioning is fixed
+  // if (cards[0] != "") {
+    document.getElementById("card-bottom").src = `/carddecks/noto/${cards[0]}.svg`;
+  // }
+  // if (cards[1] != "") {
+    document.getElementById("card-left").src = `/carddecks/noto/${cards[1]}.svg`;
+  // }
+  // if (cards[2] != "") {
+    document.getElementById("card-top").src = `/carddecks/noto/${cards[2]}.svg`;
+  // }
+  // if (cards[3] != "") {
+    document.getElementById("card-right").src = `/carddecks/noto/${cards[3]}.svg`;
+  // }
 });
 
 connection
@@ -142,6 +162,42 @@ document
   .getElementById("announceSoloButton")
   .addEventListener("click", function (event) {
     connection.invoke("AnnounceGameType", "Solo").catch(function (err) {
+      return console.error(err.toString());
+    });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("eichelButton")
+  .addEventListener("click", function (event) {
+    connection.invoke("AnnounceGameColor", "Eichel").catch(function (err) {
+      return console.error(err.toString());
+    });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("grasButton")
+  .addEventListener("click", function (event) {
+    connection.invoke("AnnounceGameColor", "Gras").catch(function (err) {
+      return console.error(err.toString());
+    });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("herzButton")
+  .addEventListener("click", function (event) {
+    connection.invoke("AnnounceGameColor", "Herz").catch(function (err) {
+      return console.error(err.toString());
+    });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("schellenButton")
+  .addEventListener("click", function (event) {
+    connection.invoke("AnnounceGameColor", "Schellen").catch(function (err) {
       return console.error(err.toString());
     });
     event.preventDefault();

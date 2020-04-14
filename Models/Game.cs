@@ -23,6 +23,7 @@ namespace Schafkopf.Models
         public GameType AnnouncedGame = GameType.Ramsch;
         public Player Leader = null;
         public Player HusbandWife = null;
+        public Trick Trick = new Trick();
 
         private Random random = new Random();
 
@@ -87,57 +88,61 @@ namespace Schafkopf.Models
             //Player 1 gets first 8 cards, Player 2 gets second 8 cards, an so on ...
             for (int i = 0; i < 4; i++)
             {
+                Card[] HandCards = new Card[8];
                 for (int j = i * 8; j < (i + 1) * 8; j++)
                 {
-                    PlayingPlayers[i].HandCards[j % 8] = MixedCards[j];
+                    HandCards[j % 8] = MixedCards[j];
+                    PlayingPlayers[i].HandCards = new List<Card>(HandCards);
                 }
-                foreach (String connectionId in PlayingPlayers[i].GetConnectionIds()) {
-                    await hub.Clients.Client(connectionId).SendAsync(
-                        "ReceiveHand",
-                        PlayingPlayers[i].HandCards.Select(card => card.ToString())
-                    );
-                }
+                await PlayingPlayers[i].SendHand(hub);
             }
 
             ActionPlayer = StartPlayer;
-            foreach (String connectionId in PlayingPlayers[ActionPlayer].GetConnectionIds()) {
+            foreach (String connectionId in PlayingPlayers[ActionPlayer].GetConnectionIds())
+            {
                 await hub.Clients.Client(connectionId).SendAsync("AskAnnounce");
             }
         }
 
-        private void StartGame() {
-
-            //Determine the game type
-            // for (int i = 0; i < 4; i++)
-            // {
-            //     if (PlayingPlayers[i].WantToPlay)
-            //     {
-            //         PlayingPlayers[i].AnnounceGameType();
-            //         if (AnnouncedGame < PlayingPlayers[i].AnnouncedGameType)
-            //         {
-            //             //Player announces a higher game to play
-            //             AnnouncedGame = PlayingPlayers[i].AnnouncedGameType;
-            //             Leader = PlayingPlayers[i];
-            //         }
-            //     }
-            // }
-            //Leader has to choose a color he wants to play with or a color to escort his solo
-            Leader.AnnounceColor();
-
-            //Hochzeit, announce husband or wife
-            if ((int)AnnouncedGame == 2)
+        public void DecideWhoIsPlaying()
+        {
+            ActionPlayer = StartPlayer;
+            for (int i = 0; i < 4; i++)
             {
-                //TODO::Wait for somebody to press the Button
+                if (PlayingPlayers[ActionPlayer].WantToPlay)
+                {
+                    if (AnnouncedGame < PlayingPlayers[ActionPlayer].AnnouncedGameType)
+                    {
+                        //Player announces a higher game to play
+                        AnnouncedGame = PlayingPlayers[ActionPlayer].AnnouncedGameType;
+                        Leader = PlayingPlayers[ActionPlayer];
+                    }
+                }
+                ActionPlayer = (ActionPlayer + 1) % 4;
             }
+        }
 
+        public async Task StartGame(SchafkopfHub hub)
+        {
+            FindTeams();
+            Trick.DetermineTrumpf(this);
+            CurrentGameState = State.Playing;
+            ActionPlayer = StartPlayer;
+            await hub.Clients.All.SendAsync(
+                "ReceiveSystemMessage",
+                $"{PlayingPlayers[ActionPlayer].Name} kommt raus"
+            );
+        }
+        private void FindTeams()
+        {
             //Set up the team combination
             for (int i = 0; i < 4; i++)
             {
-                if ((int)AnnouncedGame == 0)
+                if (AnnouncedGame == GameType.Ramsch)
                 {
                     Groups[i] = 0;
                 }
-                else if ((int)AnnouncedGame == 1)
+                else if (AnnouncedGame == GameType.Sauspiel)
                 {
                     if (PlayingPlayers[i] == Leader)
                     {
@@ -158,7 +163,7 @@ namespace Schafkopf.Models
                         }
                     }
                 }
-                else if ((int)AnnouncedGame == 2)
+                else if (AnnouncedGame == GameType.Hochzeit)
                 {
                     if (PlayingPlayers[i] == Leader || PlayingPlayers[i] == HusbandWife)
                     {
@@ -169,6 +174,7 @@ namespace Schafkopf.Models
                         Groups[i] = 0;
                     }
                 }
+                // Wenz, Farbsolo, WenzTout, FarbsoloTout
                 else if ((int)AnnouncedGame >= 3)
                 {
                     if (PlayingPlayers[i] == Leader)
@@ -183,51 +189,31 @@ namespace Schafkopf.Models
             }
         }
 
-        private void PlayGame()
+        public async Task PlayCard(Player player, Color cardColor, int cardNumber, SchafkopfHub hub)
         {
-            for (int round = 0; round < 8; round++)
+            if (player != PlayingPlayers[ActionPlayer] || CurrentGameState != State.Playing)
             {
-                ActionPlayer = StartPlayer;
-                Trick trick = new Trick
-                {
-                    GameType = AnnouncedGame
-                };
-                if ((int)AnnouncedGame < 3)
-                {
-                    trick.Trumpf = Color.Herz;
-                }
-                else
-                {
-                    trick.Trumpf = Leader.AnnouncedColor;
-                }
-                for (int i = 0; i < 4; i++)
-                {
-                    //TODO::Game waits for the player to play a card
-                    int x = 0; //??
-                    Card playedCard = PlayingPlayers[ActionPlayer].PlayCard(x);
-                    //TODO::There will be no check whether the played card is valid or not, checks can be done inside the AddCard-Method using the Players-Cards
-                    trick.AddCard(playedCard);
-                    trick.Player[i] = PlayingPlayers[ActionPlayer];
-                    if (i == 0)
-                    {
-                        trick.FirstCard = playedCard;
-                    }
-                    //TODO::Portray played card
-                }
-                //Determine the winner of the trick
-                Player winnerOfTheTrick = trick.GetWinner();
-                winnerOfTheTrick.TakeTrick(trick);
-                int winnerInteger = 0;
-                foreach (Player p in PlayingPlayers)
-                {
-                    if (p.Equals(winnerOfTheTrick))
-                    {
-                        break;
-                    }
-                    winnerInteger++;
-                }
-                StartPlayer = winnerInteger;
-                //TODO::Portray player gets the trick
+                return;
+            }
+            Card playedCard = await player.PlayCard(cardColor, cardNumber, hub);
+            await Trick.AddCard(playedCard, player, hub, this);
+
+            if (Trick.Count < 4)
+            {
+                ActionPlayer = (ActionPlayer + 1) % 4;
+            } else {
+                Player winner = Trick.GetWinner();
+                winner.TakeTrick(Trick);
+
+                // Todo: check if game is over
+
+                ActionPlayer = PlayingPlayers.FindIndex(p => p == winner);
+                Trick = new Trick();
+                Trick.DetermineTrumpf(this);
+                await hub.Clients.All.SendAsync(
+                    "ReceiveSystemMessage",
+                    $"{PlayingPlayers[ActionPlayer].Name} kommt raus"
+                );
             }
         }
 

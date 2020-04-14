@@ -10,7 +10,7 @@ namespace Schafkopf.Models
 {
     public class Player
     {
-        public Card[] HandCards = new Card[8];
+        public List<Card> HandCards = new List<Card>();
         public int Balance = 0;
         public String Name = "";
         public String Id = "";
@@ -33,16 +33,17 @@ namespace Schafkopf.Models
         // Card will be removed from the hand-cards
         // Throw exception in case that a card has been played twice
         //-------------------------------------------------
-        public Card PlayCard(int card)
+        public async Task<Card> PlayCard(Color cardColor, int cardNumber, SchafkopfHub hub)
         {
-            Card playedCard = HandCards[card];
-            HandCards[card] = null;
-            //TODO::Portray own card deck with less cards
-            if(playedCard == null)
-            {
-                throw new Exception("There is something wrong, the card was already been played.");
+            foreach (Card card in HandCards) {
+                if (card.Color == cardColor && card.Number == cardNumber)
+                {
+                    HandCards.Remove(card);
+                    await SendHand(hub);
+                    return card;
+                }
             }
-            return playedCard;
+            throw new Exception("There is something wrong, the card is not on the hand.");
         }
 
         //-------------------------------------------------
@@ -91,11 +92,6 @@ namespace Schafkopf.Models
             await hub.Clients.All.SendAsync("ReceiveChatMessage", Name, $"Ich hätte ein {gameType}");
         }
 
-        public void AnnounceColor()
-        {
-            //TODO::Wait for the player to choose its color
-        }
-
         public override bool Equals(object obj)
         {
             Player secondPlayer = obj as Player;
@@ -125,6 +121,16 @@ namespace Schafkopf.Models
         }
         public List<String> GetConnectionIds() {
             return _connectionIds;
+        }
+
+        public async Task SendHand(SchafkopfHub hub) {
+            foreach (String connectionId in GetConnectionIds())
+            {
+                await hub.Clients.Client(connectionId).SendAsync(
+                    "ReceiveHand",
+                    HandCards.Select(card => card.ToString())
+                );
+            }
         }
     }
 }

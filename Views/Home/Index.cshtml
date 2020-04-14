@@ -11,7 +11,17 @@
                     </div>
                 </div>
                 -->
-                <div class="row flex-grow-1"></div>
+                <div class="row flex-grow-1 overflow-auto">
+
+                  <!-- the positioning here is really hacky => TODO: find better solution -->
+                  <div class="row w-100" style="transform: translateY(13rem); height: 0;">
+                      <img src="" id="card-left">
+                      <img src="" id="card-right">
+                      <img src="" id="card-top">
+                      <img src="" id="card-bottom">
+                    </div>
+
+                </div>
                 <div class="row">
                     <!--style="position: absolute; bottom: 0;"-->
                     <div id="hand" class="col">
@@ -53,6 +63,22 @@
         <button type="button" class="btn btn-primary" id="announceSoloButton" data-dismiss="modal">Solo</button>
         <button type="button" class="btn btn-primary" id="announceWenzButton" data-dismiss="modal">Wenz</button>
         <button type="button" class="btn btn-primary" id="announceSauspielButton" data-dismiss="modal">Sauspiel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="gameColorModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Was magst du spielen?</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="eichelButton" data-dismiss="modal">Eichel</button>
+        <button type="button" class="btn btn-primary" id="grasButton" data-dismiss="modal">Gras</button>
+        <button type="button" class="btn btn-primary" id="herzButton" data-dismiss="modal">Herz</button>
+        <button type="button" class="btn btn-primary" id="schellenButton" data-dismiss="modal">Schellen</button>
       </div>
     </div>
   </div>

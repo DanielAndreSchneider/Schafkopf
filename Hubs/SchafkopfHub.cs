@@ -9,7 +9,7 @@ namespace Schafkopf.Hubs
 {
     public class SchafkopfHub : Hub
     {
-        private readonly static Game Game = new Game();
+        public readonly static Game Game = new Game();
         public async Task SendChatMessage(string message)
         {
             String user = ((Player)Context.Items["player"]).Name;
@@ -57,6 +57,48 @@ namespace Schafkopf.Hubs
                 await AskForGameType();
             }
         }
+        public async Task AnnounceGameColor(string gameColorString)
+        {
+            Color color = Color.Eichel;
+            switch (gameColorString)
+            {
+                case "Eichel":
+                    color = Color.Eichel;
+                    break;
+                case "Gras":
+                    color = Color.Gras;
+                    break;
+                case "Herz":
+                    color = Color.Herz;
+                    break;
+                case "Schellen":
+                    color = Color.Schellen;
+                    break;
+            }
+            Game.Leader.AnnouncedColor = color;
+            if (Game.AnnouncedGame == GameType.Farbsolo)
+            {
+                await Clients.All.SendAsync(
+                    "ReceiveSystemMessage",
+                    $"{Game.Leader.Name} spielt {color}-{Game.AnnouncedGame}"
+                );
+            }
+            else if (Game.AnnouncedGame == GameType.Sauspiel)
+            {
+                await Clients.All.SendAsync(
+                    "ReceiveSystemMessage",
+                    $"{Game.Leader.Name} spielt auf die {color} Sau"
+                );
+            }
+            await Game.StartGame(this);
+        }
+
+        public async Task PlayCard(String cardId) {
+            Color cardColor;
+            Enum.TryParse(cardId.Split("-")[0], true, out cardColor);
+            int cardNumber = Int16.Parse(cardId.Split("-")[1]);
+            await Game.PlayCard((Player)Context.Items["player"], cardColor, cardNumber, this);
+        }
 
         public async Task AskForGameType()
         {
@@ -64,23 +106,54 @@ namespace Schafkopf.Hubs
             {
                 if (Game.PlayingPlayers[Game.ActionPlayer].WantToPlay)
                 {
+                    // game type not anounced
                     if (Game.PlayingPlayers[Game.ActionPlayer].AnnouncedGameType == GameType.Ramsch)
                     {
                         foreach (String connectionId in Game.PlayingPlayers[Game.ActionPlayer].GetConnectionIds())
                         {
-                            // await Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", "Was magst du spielen?");
                             await Clients.Client(connectionId).SendAsync("AskGameType");
                         }
                     }
+                    // game type already anounnced for everyone
                     else
                     {
                         // decide who plays and ask for color
+                        Game.DecideWhoIsPlaying();
+                        await AskForColor();
                     }
                     return;
                 }
                 Game.ActionPlayer = (Game.ActionPlayer + 1) % 4;
             }
             // no one wants to play => it's a ramsch
+            await Clients.All.SendAsync(
+                "ReceiveSystemMessage",
+                $"Es wird geramscht!"
+            );
+            await Game.StartGame(this);
+        }
+        public async Task AskForColor()
+        {
+            // Leader has to choose a color he wants to play with or a color to escort his solo
+            if (Game.AnnouncedGame == GameType.Sauspiel || Game.AnnouncedGame == GameType.Farbsolo)
+            {
+                foreach (String connectionId in Game.Leader.GetConnectionIds())
+                {
+                    await Clients.Client(connectionId).SendAsync("AskColor");
+                }
+            }
+            else if (Game.AnnouncedGame == GameType.Hochzeit) //Hochzeit, announce husband or wife
+            {
+                //TODO::Wait for somebody to press the Button
+            }
+            else
+            {
+                await Clients.All.SendAsync(
+                    "ReceiveSystemMessage",
+                    $"{Game.Leader.Name} spielt {Game.AnnouncedGame}"
+                );
+                await Game.StartGame(this);
+            }
         }
         public async Task ReconnectPlayer(string userId)
         {
@@ -123,6 +196,8 @@ namespace Schafkopf.Hubs
                 player.RemoveConnectionId(Context.ConnectionId);
             }
             Task task = UpdatePlayerCountAsync();
+            // TODO: if connection count drops to zero:
+            // - if player is currently in a game ask other players if they want to wait or abort game
             return base.OnDisconnectedAsync(exception);
         }
     }
