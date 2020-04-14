@@ -1,8 +1,123 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@page
+        <div class="row h-100 overflow-hidden">
+            <div class="col-9 overflow-auto h-100 d-flex flex-column">
+                <div class="row flex-grow-1 overflow-auto">
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Guten Morgen Paul, ich habe schon mal eine Build/Deploy-Pipeline und einen Docker-Container eingerichtet.</p>
+                  <!-- the positioning here is really hacky => TODO: find better solution -->
+                  <div class="row w-100" style="transform: translateY(13rem); height: 0;">
+                      <img src="" id="card-left">
+                      <img src="" id="card-right">
+                      <img src="" id="card-top">
+                      <img src="" id="card-bottom">
+                    </div>
+
+                </div>
+                <div class="row">
+                    <!--style="position: absolute; bottom: 0;"-->
+                    <div id="hand" class="col">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-3 h-100 d-flex flex-column overflow-hidden">
+                <div id="messagesList" class="flex-grow-1 overflow-auto"></div>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="messageInput" />
+                    <input class="btn btn-primary" type="button" id="sendButton" value="Send" />
+                </div>
+            </div>
+        </div>
+
+
+<div class="modal fade" id="announceModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Magst du spielen?</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="announceNoButton" data-dismiss="modal">Nein</button>
+        <button type="button" class="btn btn-primary" id="announceYesButton" data-dismiss="modal">Ja</button>
+      </div>
+    </div>
+  </div>
 </div>
+
+<div class="modal fade" id="announceGameTypeModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Was magst du spielen?</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="announceSoloButton" data-dismiss="modal">Solo</button>
+        <button type="button" class="btn btn-primary" id="announceWenzButton" data-dismiss="modal">Wenz</button>
+        <button type="button" class="btn btn-primary" id="announceSauspielButton" data-dismiss="modal">Sauspiel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="gameColorModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Was magst du spielen?</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="eichelButton" data-dismiss="modal">Eichel</button>
+        <button type="button" class="btn btn-primary" id="grasButton" data-dismiss="modal">Gras</button>
+        <button type="button" class="btn btn-primary" id="herzButton" data-dismiss="modal">Herz</button>
+        <button type="button" class="btn btn-primary" id="schellenButton" data-dismiss="modal">Schellen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="usernameModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Wie heißt du?</h5>
+      </div>
+      <div class="modal-body">
+        <input class="form-control" type="text" id="startModalUserName" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="startButton" data-dismiss="modal">Los geht's!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="gameOverModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="gameOverModalTitle"></h5>
+      </div>
+      <div class="modal-body" id="gameOverModalBody">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="restartButton" data-dismiss="modal">Neues Spiel starten!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="wantToPlayModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Willst du nächste Runde mitspielen?</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Erstmal aussetzen.</button>
+        <button type="button" class="btn btn-primary" id="wantToPlayButton" data-dismiss="modal">Bin dabei!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/schafkopf.js"></script>

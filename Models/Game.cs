@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
+using Schafkopf.Hubs;
 
 namespace Schafkopf.Models
 {
     public class Game
     {
-        public List<Player> Players = null;
+        public List<Player> Players = new List<Player>();
         public List<Player> PlayingPlayers = new List<Player>();
         public static Card[] Cards = new Card[32];
         public Card[] MixedCards = null;
@@ -21,6 +23,8 @@ namespace Schafkopf.Models
         public GameType AnnouncedGame = GameType.Ramsch;
         public Player Leader = null;
         public Player HusbandWife = null;
+        public Trick Trick = new Trick();
+        public int TrickCount = 0;
 
         private Random random = new Random();
 
@@ -64,88 +68,124 @@ namespace Schafkopf.Models
             Cards[31] = new Card(Color.Eichel, 11);
             #endregion
 
-            //Start the game loop
-            GameLoop();
-
         }
 
-        private void GameLoop()
-        {
-            while(true)
+        public async Task Reset(SchafkopfHub hub) {
+            CurrentGameState = State.Idle;
+            Groups = new int[] { 0, 0, 0, 0 };
+            AnnouncedGame = GameType.Ramsch;
+            Leader = null;
+            HusbandWife = null;
+            Trick = new Trick();
+            TrickCount = 0;
+
+            // TODO: let players stay in the game if they want
+            // foreach (Player player in Players) {
+            //     if (PlayingPlayers.Contains(player))
+            //     {
+            //         if (player.GetConnectionIds().Count == 0)
+            //         {
+            //             PlayingPlayers.Remove(player);
+            //         }
+            //         else
+            //         {
+            //             player.AskIfWantToPlayWithTimeout();
+            //         }
+            //     } else {
+            //         player.AskIfWantToPlay();
+            //     }
+            // }
+            PlayingPlayers = new List<Player>();
+            foreach (Player player in Players)
             {
-                CurrentGameState = State.Start;
-
-                //Determine who is playing
-                while(PlayingPlayers.Count != 4)
-                {
-                    Thread.Sleep(1000);
-                }
-
-                //Start Game
-                StartGame();
-
-                //Game is playing
-                PlayGame();
-
-                //End Game
-                EndGame();
+                player.Reset();
+                await hub.Clients.All.SendAsync("AskWantToPlay");
             }
         }
 
-        private void StartGame()
+        public async Task ResetIfAllConnectionsLost(SchafkopfHub hub) {
+            foreach (Player player in PlayingPlayers) {
+                if (player.GetConnectionIds().Count > 0) {
+                    return;
+                }
+            }
+            await Reset(hub);
+        }
+
+        public async Task DealCards(SchafkopfHub hub)
         {
+            if (PlayingPlayers.Count < 4)
+            {
+                await hub.Clients.All.SendAsync("ReceiveSystemMessage", "Error: not enough players");
+                return;
+            }
+
+            // Start the game
+            CurrentGameState = State.Start;
+
             //New first player
             StartPlayer = (StartPlayer + 1) % 4;
             //Shuffle cards
             Shuffle();
             //Distribute cards to the players
             //Player 1 gets first 8 cards, Player 2 gets second 8 cards, an so on ...
-            for(int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
+                Card[] HandCards = new Card[8];
                 for (int j = i * 8; j < (i + 1) * 8; j++)
                 {
-                    PlayingPlayers[i].HandCards[j%8] = MixedCards[j];
+                    HandCards[j % 8] = MixedCards[j];
+                    PlayingPlayers[i].HandCards = new List<Card>(HandCards);
                 }
+                await PlayingPlayers[i].SendHand(hub);
             }
 
             ActionPlayer = StartPlayer;
-            for(int i = 0; i < 4; i++)
+            foreach (String connectionId in PlayingPlayers[ActionPlayer].GetConnectionIds())
             {
-                PlayingPlayers[ActionPlayer].Announce();
-                StartPlayer = (StartPlayer + 1) % 4;
+                await hub.Clients.Client(connectionId).SendAsync("AskAnnounce");
             }
+        }
 
-            //Determine the game type
+        public void DecideWhoIsPlaying()
+        {
+            ActionPlayer = StartPlayer;
             for (int i = 0; i < 4; i++)
             {
-                if (PlayingPlayers[i].AnnounceLeading)
+                if (PlayingPlayers[ActionPlayer].WantToPlay)
                 {
-                    PlayingPlayers[i].AnnounceGameType();
-                    if (AnnouncedGame < PlayingPlayers[i].AnnouncedGameType)
+                    if (AnnouncedGame < PlayingPlayers[ActionPlayer].AnnouncedGameType)
                     {
                         //Player announces a higher game to play
-                        AnnouncedGame = PlayingPlayers[i].AnnouncedGameType;
-                        Leader = PlayingPlayers[i];
+                        AnnouncedGame = PlayingPlayers[ActionPlayer].AnnouncedGameType;
+                        Leader = PlayingPlayers[ActionPlayer];
                     }
                 }
+                ActionPlayer = (ActionPlayer + 1) % 4;
             }
-            //Leader has to choose a color he wants to play with or a color to escort his solo
-            Leader.AnnounceColor();
+        }
 
-            //Hochzeit, announce husband or wife
-            if((int)AnnouncedGame == 2)
-            {
-                //TODO::Wait for somebody to press the Button
-            }
-
+        public async Task StartGame(SchafkopfHub hub)
+        {
+            FindTeams();
+            Trick.DetermineTrumpf(this);
+            CurrentGameState = State.Playing;
+            ActionPlayer = StartPlayer;
+            await hub.Clients.All.SendAsync(
+                "ReceiveSystemMessage",
+                $"{PlayingPlayers[ActionPlayer].Name} kommt raus"
+            );
+        }
+        private void FindTeams()
+        {
             //Set up the team combination
             for (int i = 0; i < 4; i++)
             {
-                if((int)AnnouncedGame == 0)
+                if (AnnouncedGame == GameType.Ramsch)
                 {
                     Groups[i] = 0;
                 }
-                else if ((int)AnnouncedGame == 1)
+                else if (AnnouncedGame == GameType.Sauspiel)
                 {
                     if (PlayingPlayers[i] == Leader)
                     {
@@ -153,19 +193,21 @@ namespace Schafkopf.Models
                     }
                     else
                     {
-                        foreach(Card c in PlayingPlayers[i].HandCards)
+                        foreach (Card c in PlayingPlayers[i].HandCards)
                         {
-                            if(c.Number == 11 && c.Color == Leader.AnnouncedColor)
+                            if (c.Number == 11 && c.Color == Leader.AnnouncedColor)
                             {
                                 Groups[i] = 1;
-                            } else
+                                break;
+                            }
+                            else
                             {
                                 Groups[i] = 0;
                             }
                         }
                     }
                 }
-                else if ((int)AnnouncedGame == 2)
+                else if (AnnouncedGame == GameType.Hochzeit)
                 {
                     if (PlayingPlayers[i] == Leader || PlayingPlayers[i] == HusbandWife)
                     {
@@ -176,12 +218,14 @@ namespace Schafkopf.Models
                         Groups[i] = 0;
                     }
                 }
+                // Wenz, Farbsolo, WenzTout, FarbsoloTout
                 else if ((int)AnnouncedGame >= 3)
                 {
                     if (PlayingPlayers[i] == Leader)
                     {
                         Groups[i] = 1;
-                    } else
+                    }
+                    else
                     {
                         Groups[i] = 0;
                     }
@@ -189,51 +233,33 @@ namespace Schafkopf.Models
             }
         }
 
-        private void PlayGame()
+        public async Task PlayCard(Player player, Color cardColor, int cardNumber, SchafkopfHub hub)
         {
-            for(int round = 0; round < 8; round++)
+            if (player != PlayingPlayers[ActionPlayer] || CurrentGameState != State.Playing)
             {
-                ActionPlayer = StartPlayer;
-                Trick trick = new Trick
-                {
-                    GameType = AnnouncedGame
-                };
-                if ((int)AnnouncedGame < 3)
-                {
-                    trick.Trumpf = Color.Herz;
+                return;
+            }
+            Card playedCard = await player.PlayCard(cardColor, cardNumber, hub);
+            await Trick.AddCard(playedCard, player, hub, this);
+
+            if (Trick.Count < 4)
+            {
+                ActionPlayer = (ActionPlayer + 1) % 4;
+            } else {
+                Player winner = Trick.GetWinner();
+                winner.TakeTrick(Trick);
+                TrickCount++;
+                if (TrickCount == 8) {
+                    await EndGame(hub);
                 }
-                else
-                {
-                    trick.Trumpf = Leader.AnnouncedColor;
-                }
-                for (int i = 0; i < 4; i++)
-                {
-                    //TODO::Game waits for the player to play a card
-                    int x = 0; //??
-                    Card playedCard = PlayingPlayers[ActionPlayer].PlayCard(x);
-                    //TODO::There will be no check whether the played card is valid or not, checks can be done inside the AddCard-Method using the Players-Cards
-                    trick.AddCard(playedCard);
-                    trick.Player[i] = PlayingPlayers[ActionPlayer];
-                    if (i==0)
-                    {
-                        trick.FirstCard = playedCard;
-                    }
-                    //TODO::Portray played card
-                }
-                //Determine the winner of the trick
-                Player winnerOfTheTrick = trick.GetWinner();
-                winnerOfTheTrick.TakeTrick(trick);
-                int winnerInteger = 0;
-                foreach(Player p in PlayingPlayers)
-                {
-                    if(p.Equals(winnerOfTheTrick))
-                    {
-                        break;
-                    }
-                    winnerInteger++;
-                }
-                StartPlayer = winnerInteger;
-                //TODO::Portray player gets the trick
+
+                ActionPlayer = PlayingPlayers.FindIndex(p => p == winner);
+                Trick = new Trick();
+                Trick.DetermineTrumpf(this);
+                await hub.Clients.All.SendAsync(
+                    "ReceiveSystemMessage",
+                    $"{PlayingPlayers[ActionPlayer].Name} kommt raus"
+                );
             }
         }
 
@@ -242,10 +268,10 @@ namespace Schafkopf.Models
         // there will be two options for the main-player
         // new game or quit
         //-------------------------------------------------
-        private void EndGame()
+        private async Task EndGame(SchafkopfHub hub)
         {
             //Show the amount of pointfor each team
-            if(AnnouncedGame > 0)
+            if (AnnouncedGame > 0)
             {
                 int leaderPoints = 0;
                 int followerPoints = 0;
@@ -260,17 +286,22 @@ namespace Schafkopf.Models
                         leaderPoints += PlayingPlayers[i].Balance;
                     }
                 }
+                string gameOverTitle = "";
                 if (leaderPoints <= 60)
                 {
-                    //Leader has lost the game
-                    //TODO::Display end result and replay button
+                    gameOverTitle = "Die Spieler haben verloren";
                 }
                 else
                 {
-                    //Leader has won the game
-                    //TODO::Display end result and replay button
+                    gameOverTitle = "Die Spieler haben gewonnen";
                 }
-            } else
+                await hub.Clients.All.SendAsync(
+                    "GameOver",
+                    gameOverTitle,
+                    $"Spieler: {leaderPoints} Punkte, Andere: {followerPoints} Punkte"
+                );
+            }
+            else
             {
                 List<Player> player = new List<Player>();
 
@@ -280,6 +311,11 @@ namespace Schafkopf.Models
                 }
 
                 player.OrderBy(o => o.Balance).ToList();
+                await hub.Clients.All.SendAsync(
+                    "GameOver",
+                    "Ramsch vorbei",
+                    String.Join(", ", player.Select(p => $"{p.Name}: {p.Balance} Punkte"))
+                );
                 //TODO::Display end table and replay button
             }
             //Ask player whether they want to play another game
@@ -298,46 +334,54 @@ namespace Schafkopf.Models
         // The amount of player is limitless inside a game
         // The amount of playing players has to be excactly 4
         //-------------------------------------------------
-        public void AddPlayer(Player player)
+        public async Task AddPlayer(Player player, SchafkopfHub hub)
         {
-            if(player == null && Players.Contains(player))
+            if (player == null && Players.Contains(player))
             {
                 throw new Exception("There is something wrong with the new player.");
             }
             Players.Add(player);
-            PlayerPlaysTheGame(player);
+            await PlayerPlaysTheGame(player, hub);
+            await hub.UpdatePlayingPlayers();
         }
 
         //-------------------------------------------------
         // Remove player
         // Each player has the ability to leave the game, except when they are playing
         //-------------------------------------------------
-        public void RemovePlayer(Player player)
-        {
-            if(player.Playing)
-            {
-                //Sorry, you can not leave the game during the game. You are able to quit the game.
-                //TODO::Notification that the player is not allowed to leave the game;
-                return;
-            }
-            if (!Players.Contains(player))
-            {
-                throw new Exception("There is something wrong with the player who wants to leave.");
-            }
-            PlayerDoesNotPlaysTheGame(player);
-            Players.Remove(player);
-        }
+        // public void RemovePlayer(Player player)
+        // {
+        //     if (player.Playing)
+        //     {
+        //         //Sorry, you can not leave the game during the game. You are able to quit the game.
+        //         //TODO::Notification that the player is not allowed to leave the game;
+        //         return;
+        //     }
+        //     if (!Players.Contains(player))
+        //     {
+        //         throw new Exception("There is something wrong with the player who wants to leave.");
+        //     }
+        //     PlayerDoesNotPlaysTheGame(player);
+        //     Players.Remove(player);
+        // }
 
         //-------------------------------------------------
         // Player decides to play the game
         //-------------------------------------------------
-        public void PlayerPlaysTheGame(Player player)
+        public async Task PlayerPlaysTheGame(Player player, SchafkopfHub hub)
         {
-            if(PlayingPlayers.Count < 4)
+            if (PlayingPlayers.Count < 4 && CurrentGameState == State.Idle)
             {
                 player.Playing = true;
-                PlayingPlayers.Add(player);
-            } else
+                lock (PlayingPlayers)
+                {
+                    PlayingPlayers.Add(player);
+                }
+                if (PlayingPlayers.Count == 4) {
+                    await DealCards(hub);
+                }
+            }
+            else
             {
                 //Sorry, there are too many players who want to play, what about some Netflix and Chill?
             }
@@ -346,17 +390,23 @@ namespace Schafkopf.Models
         //-------------------------------------------------
         // Player decides to not play the next game
         //-------------------------------------------------
-        public void PlayerDoesNotPlaysTheGame(Player player)
+        public async Task PlayerDoesNotPlaysTheGame(Player player, SchafkopfHub hub)
         {
-            if (player.Playing)
+            if (CurrentGameState != State.Idle)
             {
                 //Sorry, you can not pause the game during the game. You are able to pause afterwards.
                 //TODO::Notification that the player is not allowed to leave the game;
                 return;
             }
             player.Playing = false;
-            if(PlayingPlayers.Contains(player))
-                PlayingPlayers.Remove(player);
+            if (PlayingPlayers.Contains(player))
+            {
+                lock (PlayingPlayers)
+                {
+                    PlayingPlayers.Remove(player);
+                }
+            }
+            await hub.UpdatePlayingPlayers();
         }
         #endregion
 

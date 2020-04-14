@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
+using Schafkopf.Hubs;
 
 namespace Schafkopf.Models
 {
@@ -24,13 +26,17 @@ namespace Schafkopf.Models
         // Card is added to the trick
         // in case that there are too many cards in one trick, an exception is thrown
         //-------------------------------------------------
-        public void AddCard(Card card)
+        public async Task AddCard(Card card, Player player, SchafkopfHub hub, Game game)
         {
             if (Count >= 4)
             {
                 throw new Exception("There are too many Cards in the trick.");
             }
             Cards[Count] = card;
+            Player[Count] = player;
+
+            await SendTrick(hub, game);
+
             //Determine the winner of the Trick
             if(Count > 0)
             {
@@ -43,7 +49,7 @@ namespace Schafkopf.Models
                     //Highest card looses
                     case GameType.Ramsch:
                     case GameType.Hochzeit:
-                    case GameType.NormalSpiel:
+                    case GameType.Sauspiel:
                         {
                             //Determine value
                             if (card.Number == 2 || card.Number == 3)
@@ -114,7 +120,7 @@ namespace Schafkopf.Models
                             {
                                 card.Value = 2 * card.Number;
                             }
-                        } 
+                        }
                         break;
                 }
             }
@@ -133,7 +139,7 @@ namespace Schafkopf.Models
                 //Highest card looses
                 case GameType.Ramsch:
                 case GameType.Hochzeit:
-                case GameType.NormalSpiel:
+                case GameType.Sauspiel:
                     {
                         //Determine value
                         if(newCard.Number == 2 || newCard.Number == 3)
@@ -235,8 +241,47 @@ namespace Schafkopf.Models
         }
 
         public Player GetWinner()
-        {            
+        {
             return Player[Winner];
+        }
+
+        public void DetermineTrumpf(Game game) {
+            switch (game.AnnouncedGame)
+            {
+                case GameType.Ramsch:
+                case GameType.Sauspiel:
+                case GameType.Hochzeit:
+                    Trumpf = Color.Herz;
+                    break;
+                case GameType.Farbsolo:
+                case GameType.FarbsoloTout:
+                    Trumpf = game.Leader.AnnouncedColor;
+                    break;
+                case GameType.Wenz:
+                case GameType.WenzTout:
+                    Trumpf = Color.None;
+                    break;
+            }
+        }
+
+        public async Task SendTrick(SchafkopfHub hub, Game game)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                Card[] permutedCards = new Card[4];
+                for (int j = 0; j < 4; j++)
+                {
+                    permutedCards[j] = Cards[(j + i) % 4];
+                }
+                Player player = game.PlayingPlayers[(game.ActionPlayer - Count + i + 4) % 4];
+                foreach (String connectionId in player.GetConnectionIds())
+                {
+                    await hub.Clients.Client(connectionId).SendAsync(
+                        "ReceiveTrick",
+                        permutedCards.Select(card => card == null ? "" : card.ToString())
+                    );
+                }
+            }
         }
     }
 }

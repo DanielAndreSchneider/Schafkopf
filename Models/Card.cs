@@ -17,5 +17,16 @@ namespace Schafkopf.Models
             Number = number;
         }
 
+        public int getPoints() {
+            if (Number == 7 || Number == 8 || Number == 9) {
+                return 0;
+            }
+            return Number;
+        }
+
+        public override string ToString()
+        {
+            return Color + "-" + Number;
+        }
     }
 }

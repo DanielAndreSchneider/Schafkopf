@@ -1,24 +1,40 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
+using Schafkopf.Hubs;
 
 namespace Schafkopf.Models
 {
     public class Player
     {
-        public Card[] HandCards = new Card[8];
+        public List<Card> HandCards = new List<Card>();
         public int Balance = 0;
         public String Name = "";
+        public String Id = "";
+        private readonly List<String> _connectionIds = new List<String>();
         public Boolean Playing = false;
-        public Boolean AnnounceLeading = false;
+        public Boolean WantToPlay = false;
         public GameType AnnouncedGameType = GameType.Ramsch;
-        public Color AnnouncedColor = Color.Schellen;
+        public Color AnnouncedColor = Color.None;
 
 
-        public Player(String name)
+        public Player(String name, SchafkopfHub hub)
         {
             Name = name;
+            AddConnectionId(hub);
+            Id = System.Guid.NewGuid().ToString();
+        }
+
+        public void Reset() {
+            HandCards = new List<Card>();
+            Balance = 0;
+            Playing = false;
+            WantToPlay = false;
+            AnnouncedGameType = GameType.Ramsch;
+            AnnouncedColor = Color.None;
         }
 
         //-------------------------------------------------
@@ -26,16 +42,17 @@ namespace Schafkopf.Models
         // Card will be removed from the hand-cards
         // Throw exception in case that a card has been played twice
         //-------------------------------------------------
-        public Card PlayCard(int card)
+        public async Task<Card> PlayCard(Color cardColor, int cardNumber, SchafkopfHub hub)
         {
-            Card playedCard = HandCards[card];
-            HandCards[card] = null;
-            //TODO::Portray own card deck with less cards
-            if(playedCard == null)
-            {
-                throw new Exception("There is something wrong, the card was already been played.");
+            foreach (Card card in HandCards) {
+                if (card.Color == cardColor && card.Number == cardNumber)
+                {
+                    HandCards.Remove(card);
+                    await SendHand(hub);
+                    return card;
+                }
             }
-            return playedCard;
+            throw new Exception("There is something wrong, the card is not on the hand.");
         }
 
         //-------------------------------------------------
@@ -43,20 +60,18 @@ namespace Schafkopf.Models
         //-------------------------------------------------
         public void TakeTrick(Trick trick)
         {
-            int points = trick.Cards[0].Number + trick.Cards[1].Number + trick.Cards[2].Number + trick.Cards[3].Number;
+            int points = trick.Cards[0].getPoints() + trick.Cards[1].getPoints() + trick.Cards[2].getPoints() + trick.Cards[3].getPoints();
             Balance += points;
         }
 
-        public void Announce()
+        public async Task Announce(bool wantToPlay, SchafkopfHub hub)
         {
-            //TODO::Wait player's decision
             //Message about the players actions
-            if(AnnounceLeading)
-            {
-                //Player leads
-            } else
-            {
-                //Next
+            WantToPlay = wantToPlay;
+            if (WantToPlay) {
+                await hub.Clients.All.SendAsync("ReceiveChatMessage", Name, "ich mag spielen");
+            } else {
+                await hub.Clients.All.SendAsync("ReceiveChatMessage", Name, "ich mag nicht spielen");
             }
         }
 
@@ -65,11 +80,11 @@ namespace Schafkopf.Models
         //-------------------------------------------------
         public void Leading()
         {
-            AnnounceLeading = true;
+            WantToPlay = true;
         }
         public void Following()
         {
-            AnnounceLeading = false;
+            WantToPlay = false;
         }
 
         //-------------------------------------------------
@@ -79,15 +94,11 @@ namespace Schafkopf.Models
         {
             AnnouncedGameType = gameTyp;
         }
-        internal void AnnounceGameType()
+        internal async Task AnnounceGameType(GameType gameType, SchafkopfHub hub)
         {
-            //TODO::Wait player's decision about the game type
-
-        }
-
-        public void AnnounceColor()
-        {
-            //TODO::Wait for the player to choose its color
+            AnnouncedGameType = gameType;
+            //Message about the players actions
+            await hub.Clients.All.SendAsync("ReceiveChatMessage", Name, $"Ich hätte ein {gameType}");
         }
 
         public override bool Equals(object obj)
@@ -104,6 +115,31 @@ namespace Schafkopf.Models
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        public void AddConnectionId(SchafkopfHub hub) {
+            hub.Context.Items.Add("player", this);
+            lock(_connectionIds) {
+                _connectionIds.Add(hub.Context.ConnectionId);
+            }
+        }
+        public bool RemoveConnectionId(String id) {
+            lock(_connectionIds) {
+                return _connectionIds.Remove(id);
+            }
+        }
+        public List<String> GetConnectionIds() {
+            return _connectionIds;
+        }
+
+        public async Task SendHand(SchafkopfHub hub) {
+            foreach (String connectionId in GetConnectionIds())
+            {
+                await hub.Clients.Client(connectionId).SendAsync(
+                    "ReceiveHand",
+                    HandCards.Select(card => card.ToString())
+                );
+            }
         }
     }
 }

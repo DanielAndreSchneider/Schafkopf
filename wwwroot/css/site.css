@@ -18,7 +18,8 @@ a {
   border-color: #1861ac;
 }
 
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
   color: #fff;
   background-color: #1b6ec2;
   border-color: #1861ac;
@@ -43,7 +44,7 @@ html {
 }
 
 .box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
 }
 
 button.accept-policy {
@@ -60,12 +61,54 @@ html {
 
 body {
   /* Margin bottom by footer height */
-  margin-bottom: 60px;
+  /* margin-bottom: 60px; */
 }
+
 .footer {
   position: absolute;
   bottom: 0;
   width: 100%;
   white-space: nowrap;
   line-height: 60px; /* Vertically center the text there */
+}
+
+/* the positioning here is really hacky => TODO: find better solution */
+
+#card-right {
+  width: 7rem;
+  transform: rotate(270deg);
+  transform-origin: 100% 0%;
+  position: absolute;
+  margin: auto;
+  left: 0;
+  right: 0;
+}
+
+#card-left {
+  width: 7rem;
+  transform: rotate(90deg);
+  transform-origin: 0% 0%;
+  position: absolute;
+  margin: auto;
+  left: 0;
+  right: 0;
+}
+
+#card-bottom {
+  width: 7rem;
+  transform: translateY(7em);
+  position: absolute;
+  margin: auto;
+  left: 0;
+  right:0;
+}
+
+#card-top {
+  width: 7rem;
+  transform: rotate(180deg);
+  transform-origin: 50% 0%;
+  position: absolute;
+  margin: auto;
+  left: 0;
+  right:0;
 }
