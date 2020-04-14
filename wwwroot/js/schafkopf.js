@@ -81,19 +81,10 @@ connection.on("ReceiveHand", function (cards) {
 });
 
 connection.on("ReceiveTrick", function (cards) {
-  // uncomment this if the cards-on-table-positioning is fixed
-  // if (cards[0] != "") {
-    document.getElementById("card-bottom").src = `/carddecks/noto/${cards[0]}.svg`;
-  // }
-  // if (cards[1] != "") {
-    document.getElementById("card-left").src = `/carddecks/noto/${cards[1]}.svg`;
-  // }
-  // if (cards[2] != "") {
-    document.getElementById("card-top").src = `/carddecks/noto/${cards[2]}.svg`;
-  // }
-  // if (cards[3] != "") {
-    document.getElementById("card-right").src = `/carddecks/noto/${cards[3]}.svg`;
-  // }
+    document.getElementById("card-bottom").src = cards[0] != "" ? `/carddecks/noto/${cards[0]}.svg` : "";
+    document.getElementById("card-left").src = cards[1] != "" ? `/carddecks/noto/${cards[1]}.svg` : "";
+    document.getElementById("card-top").src = cards[2] != "" ? `/carddecks/noto/${cards[2]}.svg` : "";
+    document.getElementById("card-right").src = cards[3] != "" ? `/carddecks/noto/${cards[3]}.svg` : "";
 });
 
 connection
