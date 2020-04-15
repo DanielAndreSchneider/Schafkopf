@@ -72,43 +72,32 @@ body {
   line-height: 60px; /* Vertically center the text there */
 }
 
-/* the positioning here is really hacky => TODO: find better solution */
+/* the positioning here is kinda hacky, but it works */
+
+.card-on-table {
+    width: 12.5%;
+    transform: rotate(270deg) translateY(27.5%);
+    transform-origin: 50% 0%;
+    position: absolute;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
 
 #card-right {
-  width: 7rem;
-  transform: rotate(270deg);
-  transform-origin: 100% 0%;
-  position: absolute;
-  margin: auto;
-  left: 0;
-  right: 0;
+  transform: rotate(270deg) translateY(27.5%);
 }
 
 #card-left {
-  width: 7rem;
-  transform: rotate(90deg);
-  transform-origin: 0% 0%;
-  position: absolute;
-  margin: auto;
-  left: 0;
-  right: 0;
+  transform: rotate(90deg) translateY(27.5%);
 }
 
 #card-bottom {
-  width: 7rem;
-  transform: translateY(7em);
-  position: absolute;
-  margin: auto;
-  left: 0;
-  right:0;
+  transform: translateY(27.5%);
 }
 
 #card-top {
-  width: 7rem;
-  transform: rotate(180deg);
-  transform-origin: 50% 0%;
-  position: absolute;
-  margin: auto;
-  left: 0;
-  right:0;
+  transform: rotate(180deg) translateY(27.5%);
 }
