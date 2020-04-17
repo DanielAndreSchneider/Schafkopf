@@ -72,18 +72,19 @@ body {
   line-height: 60px; /* Vertically center the text there */
 }
 
-/* the positioning here is kinda hacky, but it works */
-
 .card-on-table {
     width: 12.5%;
-    transform: rotate(270deg) translateY(27.5%);
     transform-origin: 50% 0%;
     position: absolute;
     margin: auto;
     left: 0;
     right: 0;
-    top: 0;
-    bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+#hand {
+  z-index: 100;
 }
 
 #card-right {
