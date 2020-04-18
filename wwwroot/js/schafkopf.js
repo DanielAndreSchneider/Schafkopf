@@ -1,5 +1,22 @@
 "use strict";
 
+function tryReconnect() {
+  // The following code allows a user to reconnect after reloading the page or restarting the browser
+  // During development this is not useful as it is more difficult to simulate multiple users from one machine
+  // append `?session=new` to the url to force a new connection
+  let searchParams = new URLSearchParams(window.location.search);
+  var userId = localStorage.getItem("userId");
+  if (userId && !(searchParams.get("session") == "new")) {
+    connection
+      .invoke("ReconnectPlayer", userId, searchParams.get("game"))
+      .catch(function (err) {
+        return console.error(err.toString());
+      });
+  } else {
+    $('#usernameModal').modal({ keyboard: false, backdrop: "static" });
+  }
+}
+
 var connection = new signalR.HubConnectionBuilder()
   .withUrl("/schafkopfHub")
   .build();
@@ -140,20 +157,12 @@ connection
   .start()
   .then(function () {
     document.getElementById("sendButton").disabled = false;
-    // The following code allows a user to reconnect after reloading the page or restarting the browser
-    // During development this is not useful as it is more difficult to simulate multiple users from one machine
-    // append `?session=new` to the url to force a new connection
     let searchParams = new URLSearchParams(window.location.search);
-    var userId = localStorage.getItem("userId");
-    if (userId && !(searchParams.get("session") == "new")) {
-      connection
-        .invoke("ReconnectPlayer", userId)
-        .catch(function (err) {
-          return console.error(err.toString());
-        });
-    } else {
-      $('#usernameModal').modal({ keyboard: false, backdrop: "static" });
+    if (!searchParams.get("game")) {
+      $('#gameIdModal').modal({ keyboard: false, backdrop: "static" });
+      return;
     }
+    tryReconnect();
   })
   .catch(function (err) {
     return console.error(err.toString());
@@ -271,9 +280,10 @@ document
 document
   .getElementById("startButton")
   .addEventListener("click", function (event) {
+    let searchParams = new URLSearchParams(window.location.search);
     var userName = document.getElementById("startModalUserName").value;
     connection
-      .invoke("AddPlayer", userName)
+      .invoke("AddPlayer", userName, searchParams.get("game"))
       .catch(function (err) {
         return console.error(err.toString());
       });
@@ -357,5 +367,16 @@ document
       .invoke("AllowSpectator", true).catch(function (err) {
         return console.error(err.toString());
       });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("gameIdSubmitButton")
+  .addEventListener("click", function (event) {
+    $('#gameIdModal').modal('hide');
+    let searchParams = new URLSearchParams(window.location.search);
+    searchParams.set("game", document.getElementById("gameIdInput").value)
+    window.location.search = searchParams.toString();
+    tryReconnect();
     event.preventDefault();
   });
