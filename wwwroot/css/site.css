@@ -81,6 +81,7 @@ body {
     right: 0;
     z-index: 0;
     pointer-events: none;
+    top: 50%;
 }
 
 #hand {
@@ -101,4 +102,28 @@ body {
 
 #card-top {
   transform: rotate(180deg) translateY(27.5%);
+}
+
+.player-at-table {
+  width: min-content;
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+#player-right {
+  transform: translateY(-50%);
+  left: auto;
+}
+
+#player-left {
+  transform: translateY(-50%);
+  right: auto;
+}
+
+#player-bottom {
+  top: auto;
+  bottom: 0;
+}
+
+#player-top {
+  top: 0;
 }

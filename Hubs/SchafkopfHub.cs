@@ -160,10 +160,31 @@ namespace Schafkopf.Hubs
         {
             Player player = Game.Players.Single(p => p.Id == userId);
             player.AddConnectionId(this);
-            await Clients.Caller.SendAsync("ReceiveSystemMessage", "Willkommen zurück");
-            // send username
-            // if is playing send cards, ...
-            // if game is idle ask if player wants to join
+            await Clients.Caller.SendAsync("ReceiveSystemMessage", $"Willkommen zurück {player.Name}");
+            if (Game.PlayingPlayers.Contains(player) && Game.CurrentGameState != State.Idle) {
+                await player.SendHand(this);
+                await Game.Trick.SendTrick(this, Game);
+                await Game.SendPlayers(this);
+                // send modals
+                if (Game.CurrentGameState == State.Playing && Game.TrickCount == 8)
+                {
+                    await Game.SendEndGameModal(this, new List<String>() { Context.ConnectionId });
+                }
+                foreach (Player p in Game.PlayingPlayers)
+                {
+                    if (p.GetConnectionIds().Count == 0) {
+                        await Game.SendConnectionToPlayerLostModal(this, new List<String>() {Context.ConnectionId});
+                        break;
+                    }
+                }
+                // send AskAnnounceModal
+                // send AskAnnounceGameTypeModal
+                // send AskAnnounceGameColorModal
+            } else {
+                await Clients.Caller.SendAsync("AskWantToPlay");
+                // if game is running ask if player wants to spectate
+            }
+            // else if is spectating: send hand, trick, modals
         }
         public async Task AddPlayer(string userName)
         {
@@ -171,12 +192,17 @@ namespace Schafkopf.Hubs
             await Game.AddPlayer(player, this);
             await Clients.Caller.SendAsync("StoreUserId", player.Id);
             // send username
+            // if game is running ask if player wants to spectate
         }
 
         public async Task PlayerWantsToPlay()
         {
             await Game.PlayerPlaysTheGame((Player)Context.Items["player"], this);
-            await UpdatePlayingPlayers();
+        }
+
+        public async Task PlayerWantsToPause()
+        {
+            await Game.PlayerDoesNotPlayTheGame((Player)Context.Items["player"], this);
         }
 
         public async Task ResetGame()
@@ -199,16 +225,12 @@ namespace Schafkopf.Hubs
                     {
                         if (Game.CurrentGameState == State.Idle)
                         {
-                            Task asyncTask = Game.PlayerDoesNotPlaysTheGame(player, this);
+                            Task asyncTask = Game.PlayerDoesNotPlayTheGame(player, this);
                         }
                         else
                         {
-                            Clients.All.SendAsync(
-                                "GameOver",
-                                "Verbindung zu Spieler verloren",
-                                "Möchtest du neustarten oder auf den anderen Spieler warten?"
-                            );
-                            Task asyncTask = Game.ResetIfAllConnectionsLost(this);
+                            Task asyncTask = Game.SendConnectionToPlayerLostModal(this, Game.GetPlayingPlayersConnectionIds());
+                            asyncTask = Game.ResetIfAllConnectionsLost(this);
                         }
                     }
                 }

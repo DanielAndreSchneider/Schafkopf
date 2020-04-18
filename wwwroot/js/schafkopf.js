@@ -1,5 +1,7 @@
 "use strict";
 
+var userId = "";
+
 var connection = new signalR.HubConnectionBuilder()
   .withUrl("/schafkopfHub")
   .build();
@@ -42,6 +44,9 @@ connection.on("AskColor", function (message) {
 });
 
 connection.on("AskWantToPlay", function () {
+  if (!userId) {
+    return;
+  }
   $('#gameOverModal').modal('hide');
   $('#wantToPlayModal').modal({ keyboard: false, backdrop: "static" });
 });
@@ -58,6 +63,7 @@ connection.on("GameOver", function (title, body) {
 
 connection.on("StoreUserId", function (id) {
   localStorage.setItem("userId", id);
+  userId = id;
 });
 
 connection.on("ReceiveHand", function (cards) {
@@ -80,6 +86,13 @@ connection.on("ReceiveHand", function (cards) {
   }
 });
 
+connection.on("ReceivePlayers", function (players) {
+  document.getElementById("player-bottom").textContent = players[0];
+  document.getElementById("player-left").textContent = players[1];
+  document.getElementById("player-top").textContent = players[2];
+  document.getElementById("player-right").textContent = players[3];
+});
+
 connection.on("ReceiveTrick", function (cards) {
     document.getElementById("card-bottom").src = cards[0] != "" ? `/carddecks/noto/${cards[0]}.svg` : "";
     document.getElementById("card-left").src = cards[1] != "" ? `/carddecks/noto/${cards[1]}.svg` : "";
@@ -93,17 +106,21 @@ connection
     document.getElementById("sendButton").disabled = false;
     // The following code allows a user to reconnect after reloading the page or restarting the browser
     // During development this is not useful as it is more difficult to simulate multiple users from one machine
-    // var userId = localStorage.getItem("userId");
-    // if (userId) {
-    //   connection
-    //     .invoke("ReconnectPlayer", userId)
-    //     .catch(function (err) {
-    //       $('#usernameModal').modal({ keyboard: false, backdrop: "static" });
-    //       return console.error(err.toString());
-    //     });
-    // } else {
+    // append `?session=new` to the url to force a new connection
+    let searchParams = new URLSearchParams(window.location.search);
+    userId = localStorage.getItem("userId");
+    if (userId && !(searchParams.get("session") == "new")) {
+      connection
+        .invoke("ReconnectPlayer", userId)
+        .catch(function (err) {
+          localStorage.removeItem("userId");
+          $('#usernameModal').modal({ keyboard: false, backdrop: "static" });
+          return console.error(err.toString());
+        });
+    } else {
+      userId = "";
       $('#usernameModal').modal({ keyboard: false, backdrop: "static" });
-    // }
+    }
   })
   .catch(function (err) {
     return console.error(err.toString());
@@ -123,6 +140,15 @@ document
   .getElementById("wantToPlayButton")
   .addEventListener("click", function (event) {
     connection.invoke("PlayerWantsToPlay").catch(function (err) {
+      return console.error(err.toString());
+    });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("wantToPauseButton")
+  .addEventListener("click", function (event) {
+    connection.invoke("PlayerWantsToPause").catch(function (err) {
       return console.error(err.toString());
     });
     event.preventDefault();

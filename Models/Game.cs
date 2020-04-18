@@ -250,7 +250,7 @@ namespace Schafkopf.Models
                 winner.TakeTrick(Trick);
                 TrickCount++;
                 if (TrickCount == 8) {
-                    await EndGame(hub);
+                    await SendEndGameModal(hub, GetPlayingPlayersConnectionIds());
                 }
 
                 ActionPlayer = PlayingPlayers.FindIndex(p => p == winner);
@@ -268,7 +268,7 @@ namespace Schafkopf.Models
         // there will be two options for the main-player
         // new game or quit
         //-------------------------------------------------
-        private async Task EndGame(SchafkopfHub hub)
+        public async Task SendEndGameModal(SchafkopfHub hub, List<String> connectionIds)
         {
             //Show the amount of pointfor each team
             if (AnnouncedGame > 0)
@@ -295,11 +295,14 @@ namespace Schafkopf.Models
                 {
                     gameOverTitle = "Die Spieler haben gewonnen";
                 }
-                await hub.Clients.All.SendAsync(
-                    "GameOver",
-                    gameOverTitle,
-                    $"Spieler: {leaderPoints} Punkte, Andere: {followerPoints} Punkte"
-                );
+                foreach (String connectionId in connectionIds)
+                {
+                    await hub.Clients.Client(connectionId).SendAsync(
+                        "GameOver",
+                        gameOverTitle,
+                        $"Spieler: {leaderPoints} Punkte, Andere: {followerPoints} Punkte"
+                    );
+                }
             }
             else
             {
@@ -311,12 +314,14 @@ namespace Schafkopf.Models
                 }
 
                 player.OrderBy(o => o.Balance).ToList();
-                await hub.Clients.All.SendAsync(
+                foreach (String connectionId in connectionIds)
+                {
+                    await hub.Clients.Client(connectionId).SendAsync(
                     "GameOver",
                     "Ramsch vorbei",
-                    String.Join(", ", player.Select(p => $"{p.Name}: {p.Balance} Punkte"))
-                );
-                //TODO::Display end table and replay button
+                    String.Join(", ", player.Select(p => $"{p.Name}: {p.Balance} Punkte")));
+                }
+
             }
             //Ask player whether they want to play another game
             //TODO::Wait for Button press
@@ -342,7 +347,6 @@ namespace Schafkopf.Models
             }
             Players.Add(player);
             await PlayerPlaysTheGame(player, hub);
-            await hub.UpdatePlayingPlayers();
         }
 
         //-------------------------------------------------
@@ -375,9 +379,24 @@ namespace Schafkopf.Models
                 player.Playing = true;
                 lock (PlayingPlayers)
                 {
-                    PlayingPlayers.Add(player);
+                    if (!PlayingPlayers.Contains(player))
+                    {
+                        for (int i = 0; i < PlayingPlayers.Count; i++)
+                        {
+                            if (Players.IndexOf(PlayingPlayers[i]) > Players.IndexOf(player))
+                            {
+                                PlayingPlayers.Insert(i, player);
+                                break;
+                            }
+                        }
+                        if (!PlayingPlayers.Contains(player)) {
+                            PlayingPlayers.Add(player);
+                        }
+                    }
                 }
+                await hub.UpdatePlayingPlayers();
                 if (PlayingPlayers.Count == 4) {
+                    await SendPlayers(hub);
                     await DealCards(hub);
                 }
             }
@@ -390,7 +409,7 @@ namespace Schafkopf.Models
         //-------------------------------------------------
         // Player decides to not play the next game
         //-------------------------------------------------
-        public async Task PlayerDoesNotPlaysTheGame(Player player, SchafkopfHub hub)
+        public async Task PlayerDoesNotPlayTheGame(Player player, SchafkopfHub hub)
         {
             if (CurrentGameState != State.Idle)
             {
@@ -405,8 +424,8 @@ namespace Schafkopf.Models
                 {
                     PlayingPlayers.Remove(player);
                 }
+                await hub.UpdatePlayingPlayers();
             }
-            await hub.UpdatePlayingPlayers();
         }
         #endregion
 
@@ -434,5 +453,38 @@ namespace Schafkopf.Models
             HusbandWife = p;
         }
 
+        public async Task SendConnectionToPlayerLostModal(SchafkopfHub hub, List<string> connectionIds) {
+            foreach (String connectionId in connectionIds)
+            {
+                await hub.Clients.Client(connectionId).SendAsync(
+                    "GameOver",
+                    "Verbindung zu Spieler verloren",
+                    "Möchtest du neustarten oder auf den anderen Spieler warten?"
+                );
+            }
+        }
+
+        public List<String> GetPlayingPlayersConnectionIds() {
+            return PlayingPlayers.Aggregate(new List<String>(), (acc, x) => acc.Concat(x.GetConnectionIds()).ToList());
+        }
+
+        public async Task SendPlayers(SchafkopfHub hub)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                String[] permutedPlayers = new String[4];
+                for (int j = 0; j < 4; j++)
+                {
+                    permutedPlayers[j] = PlayingPlayers[(j + i) % 4].Name;
+                }
+                foreach (String connectionId in PlayingPlayers[i].GetConnectionIds())
+                {
+                    await hub.Clients.Client(connectionId).SendAsync(
+                        "ReceivePlayers",
+                        permutedPlayers
+                    );
+                }
+            }
+        }
     }
 }
