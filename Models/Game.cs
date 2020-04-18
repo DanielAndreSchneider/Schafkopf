@@ -95,11 +95,20 @@ namespace Schafkopf.Models
             //         player.AskIfWantToPlay();
             //     }
             // }
+            await Trick.SendTrick(hub, this);
             PlayingPlayers = new List<Player>();
             foreach (Player player in Players)
             {
                 player.Reset();
-                await hub.Clients.All.SendAsync("AskWantToPlay");
+                await player.SendHand(hub);
+            }
+            await SendPlayers(hub);
+            foreach (String connectionId in GetPlayersConnectionIds()) {
+                await hub.Clients.Client(connectionId).SendAsync("CloseAnnounceModal");
+                await hub.Clients.Client(connectionId).SendAsync("CloseAnnounceGameTypeModal");
+                await hub.Clients.Client(connectionId).SendAsync("CloseGameColorModal");
+                await hub.Clients.Client(connectionId).SendAsync("CloseGameOverModal");
+                await hub.Clients.Client(connectionId).SendAsync("AskWantToPlay");
             }
         }
 
@@ -114,14 +123,13 @@ namespace Schafkopf.Models
 
         public async Task DealCards(SchafkopfHub hub)
         {
-            if (PlayingPlayers.Count < 4)
-            {
-                await hub.Clients.All.SendAsync("ReceiveSystemMessage", "Error: not enough players");
-                return;
-            }
-
             // Start the game
-            CurrentGameState = State.Start;
+            // TODO: if one of the players has exactly one trump, ask if he wants to play a Hochzeit
+            foreach (String connectionId in GetPlayersConnectionIds())
+            {
+                await hub.Clients.Client(connectionId).SendAsync("CloseWantToPlayModal");
+            }
+            CurrentGameState = State.Announce;
 
             //New first player
             StartPlayer = (StartPlayer + 1) % 4;
@@ -141,10 +149,7 @@ namespace Schafkopf.Models
             }
 
             ActionPlayer = StartPlayer;
-            foreach (String connectionId in PlayingPlayers[ActionPlayer].GetConnectionIds())
-            {
-                await hub.Clients.Client(connectionId).SendAsync("AskAnnounce");
-            }
+            await SendAskAnnounce(hub);
         }
 
         public void DecideWhoIsPlaying()
@@ -167,15 +172,46 @@ namespace Schafkopf.Models
 
         public async Task StartGame(SchafkopfHub hub)
         {
+            await SendPlayerIsPlayingGameTypeAndColor(hub, GetPlayingPlayersConnectionIds());
             FindTeams();
             Trick.DetermineTrumpf(this);
             CurrentGameState = State.Playing;
             ActionPlayer = StartPlayer;
-            await hub.Clients.All.SendAsync(
-                "ReceiveSystemMessage",
-                $"{PlayingPlayers[ActionPlayer].Name} kommt raus"
-            );
+            await SendPlayerIsStartingTheRound(hub, GetPlayingPlayersConnectionIds());
         }
+
+        public async Task SendPlayerIsPlayingGameTypeAndColor(SchafkopfHub hub, List<String> connectionIds) {
+            String message = "";
+            if (AnnouncedGame == GameType.Farbsolo)
+            {
+                message = $"{Leader.Name} spielt ein {Leader.AnnouncedColor}-{AnnouncedGame}";
+            }
+            else if (AnnouncedGame == GameType.Sauspiel)
+            {
+                message = $"{Leader.Name} spielt auf die {Leader.AnnouncedColor}-Sau";
+            }
+            else if (AnnouncedGame == GameType.Ramsch)
+            {
+                message = $"Es wird geramscht!";
+            }
+            else {
+                message = $"{Leader.Name} spielt {AnnouncedGame}";
+            }
+            foreach (String connectionId in connectionIds)
+            {
+                await hub.Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", message);
+            }
+        }
+
+        public async Task SendPlayerIsStartingTheRound(SchafkopfHub hub, List<String> connectionIds) {
+            foreach (String connectionId in connectionIds) {
+                await hub.Clients.Client(connectionId).SendAsync(
+                    "ReceiveSystemMessage",
+                    $"{PlayingPlayers[ActionPlayer].Name} kommt raus"
+                );
+            }
+        }
+
         private void FindTeams()
         {
             //Set up the team combination
@@ -256,10 +292,7 @@ namespace Schafkopf.Models
                 ActionPlayer = PlayingPlayers.FindIndex(p => p == winner);
                 Trick = new Trick();
                 Trick.DetermineTrumpf(this);
-                await hub.Clients.All.SendAsync(
-                    "ReceiveSystemMessage",
-                    $"{PlayingPlayers[ActionPlayer].Name} kommt raus"
-                );
+                await SendPlayerIsStartingTheRound(hub, GetPlayingPlayersConnectionIds());
             }
         }
 
@@ -346,6 +379,7 @@ namespace Schafkopf.Models
                 throw new Exception("There is something wrong with the new player.");
             }
             Players.Add(player);
+            // if game is running ask if player wants to spectate
             await PlayerPlaysTheGame(player, hub);
         }
 
@@ -398,6 +432,7 @@ namespace Schafkopf.Models
                 if (PlayingPlayers.Count == 4) {
                     await SendPlayers(hub);
                     await DealCards(hub);
+                    // ask other players if they want to spectate
                 }
             }
             else
@@ -468,8 +503,23 @@ namespace Schafkopf.Models
             return PlayingPlayers.Aggregate(new List<String>(), (acc, x) => acc.Concat(x.GetConnectionIds()).ToList());
         }
 
+        public List<String> GetPlayersConnectionIds()
+        {
+            return Players.Aggregate(new List<String>(), (acc, x) => acc.Concat(x.GetConnectionIds()).ToList());
+        }
+
         public async Task SendPlayers(SchafkopfHub hub)
         {
+            if (PlayingPlayers.Count != 4) {
+                foreach (String connectionId in GetPlayersConnectionIds())
+                {
+                    await hub.Clients.Client(connectionId).SendAsync(
+                        "ReceivePlayers",
+                        new String[4] {"", "", "", ""}
+                    );
+                }
+                return;
+            }
             for (int i = 0; i < 4; i++)
             {
                 String[] permutedPlayers = new String[4];
@@ -484,6 +534,62 @@ namespace Schafkopf.Models
                         permutedPlayers
                     );
                 }
+            }
+        }
+
+        public async Task SendAskAnnounce(SchafkopfHub hub) {
+            foreach (String connectionId in PlayingPlayers[ActionPlayer].GetConnectionIds())
+            {
+                await hub.Clients.Client(connectionId).SendAsync("AskAnnounce");
+            }
+        }
+
+        public async Task SendAskForGameType(SchafkopfHub hub)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (PlayingPlayers[ActionPlayer].WantToPlay)
+                {
+                    // game type not anounced
+                    if (PlayingPlayers[ActionPlayer].AnnouncedGameType == GameType.Ramsch)
+                    {
+                        foreach (String connectionId in PlayingPlayers[ActionPlayer].GetConnectionIds())
+                        {
+                            await hub.Clients.Client(connectionId).SendAsync("AskGameType");
+                        }
+                    }
+                    // game type already anounnced for everyone
+                    else
+                    {
+                        CurrentGameState = State.AnnounceGameColor;
+                        // decide who plays and ask for color
+                        DecideWhoIsPlaying();
+                        await SendAskForGameColor(hub);
+                    }
+                    return;
+                }
+                ActionPlayer = (ActionPlayer + 1) % 4;
+            }
+            // no one wants to play => it's a ramsch
+            await StartGame(hub);
+        }
+        public async Task SendAskForGameColor(SchafkopfHub hub)
+        {
+            // Leader has to choose a color he wants to play with or a color to escort his solo
+            if (AnnouncedGame == GameType.Sauspiel || AnnouncedGame == GameType.Farbsolo)
+            {
+                foreach (String connectionId in Leader.GetConnectionIds())
+                {
+                    await hub.Clients.Client(connectionId).SendAsync("AskColor");
+                }
+            }
+            else if (AnnouncedGame == GameType.Hochzeit) //Hochzeit, announce husband or wife
+            {
+                //TODO::Wait for somebody to press the Button
+            }
+            else
+            {
+                await StartGame(hub);
             }
         }
     }

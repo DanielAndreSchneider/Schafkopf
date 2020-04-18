@@ -64,14 +64,20 @@ namespace Schafkopf.Models
             Balance += points;
         }
 
-        public async Task Announce(bool wantToPlay, SchafkopfHub hub)
+        public async Task Announce(bool wantToPlay, SchafkopfHub hub, Game game)
         {
             //Message about the players actions
             WantToPlay = wantToPlay;
-            if (WantToPlay) {
-                await hub.Clients.All.SendAsync("ReceiveChatMessage", Name, "ich mag spielen");
-            } else {
-                await hub.Clients.All.SendAsync("ReceiveChatMessage", Name, "ich mag nicht spielen");
+            foreach (String connectionId in game.GetPlayingPlayersConnectionIds())
+            {
+                if (WantToPlay)
+                {
+                    await hub.Clients.Client(connectionId).SendAsync("ReceiveChatMessage", Name, "ich mag spielen");
+                }
+                else
+                {
+                    await hub.Clients.Client(connectionId).SendAsync("ReceiveChatMessage", Name, "ich mag nicht spielen");
+                }
             }
         }
 
@@ -94,27 +100,13 @@ namespace Schafkopf.Models
         {
             AnnouncedGameType = gameTyp;
         }
-        internal async Task AnnounceGameType(GameType gameType, SchafkopfHub hub)
+        internal async Task AnnounceGameType(GameType gameType, SchafkopfHub hub, Game game)
         {
             AnnouncedGameType = gameType;
             //Message about the players actions
-            await hub.Clients.All.SendAsync("ReceiveChatMessage", Name, $"Ich hätte ein {gameType}");
-        }
-
-        public override bool Equals(object obj)
-        {
-            Player secondPlayer = obj as Player;
-
-            if(this.Name.Equals(secondPlayer.Name))
-            {
-                return true;
+            foreach (String connectionId in game.GetPlayingPlayersConnectionIds()) {
+                await hub.Clients.Client(connectionId).SendAsync("ReceiveChatMessage", Name, $"Ich hätte ein {gameType}");
             }
-            return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
         }
 
         public void AddConnectionId(SchafkopfHub hub) {

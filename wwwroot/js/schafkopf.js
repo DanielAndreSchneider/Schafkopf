@@ -44,18 +44,30 @@ connection.on("AskColor", function (message) {
 });
 
 connection.on("AskWantToPlay", function () {
-  if (!userId) {
-    return;
-  }
-  $('#gameOverModal').modal('hide');
   $('#wantToPlayModal').modal({ keyboard: false, backdrop: "static" });
 });
 
-connection.on("GameOver", function (title, body) {
+connection.on("CloseGameOverModal", function () {
+  $('#gameOverModal').modal('hide');
+});
+
+connection.on("CloseAnnounceModal", function () {
   $('#announceModal').modal('hide');
+});
+
+connection.on("CloseAnnounceGameTypeModal", function () {
   $('#announceGameTypeModal').modal('hide');
-  $('#wantToPlayModal').modal('hide');
+});
+
+connection.on("CloseGameColorModal", function () {
   $('#gameColorModal').modal('hide');
+});
+
+connection.on("CloseWantToPlayModal", function () {
+  $('#wantToPlayModal').modal('hide');
+});
+
+connection.on("GameOver", function (title, body) {
   document.getElementById("gameOverModalTitle").textContent = title;
   document.getElementById("gameOverModalBody").textContent = body;
   $('#gameOverModal').modal({ keyboard: false, backdrop: "static" });

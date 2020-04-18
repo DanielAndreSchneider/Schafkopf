@@ -13,29 +13,38 @@ namespace Schafkopf.Hubs
         public async Task SendChatMessage(string message)
         {
             String user = ((Player)Context.Items["player"]).Name;
-            await Clients.All.SendAsync("ReceiveChatMessage", user, message);
+            foreach (String connectionId in Game.GetPlayersConnectionIds())
+            {
+                await Clients.Client(connectionId).SendAsync("ReceiveChatMessage", user, message);
+            }
         }
         public async Task Announce(bool wantToPlay)
         {
             Player player = (Player)Context.Items["player"];
-            if (player == Game.PlayingPlayers[Game.ActionPlayer])
+            if (Game.CurrentGameState == State.Announce && player == Game.PlayingPlayers[Game.ActionPlayer])
             {
-                await Game.PlayingPlayers[Game.ActionPlayer].Announce(wantToPlay, this);
+                foreach (String connectionId in player.GetConnectionIds())
+                {
+                    await Clients.Client(connectionId).SendAsync("CloseAnnounceModal");
+                }
+                await Game.PlayingPlayers[Game.ActionPlayer].Announce(wantToPlay, this, Game);
                 Game.ActionPlayer = (Game.ActionPlayer + 1) % 4;
                 if (Game.ActionPlayer == Game.StartPlayer)
                 {
-                    await AskForGameType();
+                    Game.CurrentGameState = State.AnnounceGameType;
+                    await Game.SendAskForGameType(this);
                     return;
                 }
-                foreach (String connectionId in Game.PlayingPlayers[Game.ActionPlayer].GetConnectionIds())
-                {
-                    await Clients.Client(connectionId).SendAsync("AskAnnounce");
-                }
+                await Game.SendAskAnnounce(this);
             }
         }
 
         public async Task AnnounceGameType(string gameTypeString)
         {
+            if (Game.CurrentGameState != State.AnnounceGameType)
+            {
+                return;
+            }
             GameType gameType = GameType.Ramsch;
             switch (gameTypeString)
             {
@@ -52,13 +61,26 @@ namespace Schafkopf.Hubs
             Player player = (Player)Context.Items["player"];
             if (player == Game.PlayingPlayers[Game.ActionPlayer])
             {
-                await Game.PlayingPlayers[Game.ActionPlayer].AnnounceGameType(gameType, this);
+                await Game.PlayingPlayers[Game.ActionPlayer].AnnounceGameType(gameType, this, Game);
                 Game.ActionPlayer = (Game.ActionPlayer + 1) % 4;
-                await AskForGameType();
+                await Game.SendAskForGameType(this);
+                foreach (String connectionId in player.GetConnectionIds())
+                {
+                    await Clients.Client(connectionId).SendAsync("CloseAnnounceGameTypeModal");
+                }
             }
         }
         public async Task AnnounceGameColor(string gameColorString)
         {
+            if (Game.CurrentGameState != State.AnnounceGameColor)
+            {
+                return;
+            }
+            Player player = (Player)Context.Items["player"];
+            if (player != Game.Leader)
+            {
+                return;
+            }
             Color color = Color.Eichel;
             switch (gameColorString)
             {
@@ -76,21 +98,11 @@ namespace Schafkopf.Hubs
                     break;
             }
             Game.Leader.AnnouncedColor = color;
-            if (Game.AnnouncedGame == GameType.Farbsolo)
-            {
-                await Clients.All.SendAsync(
-                    "ReceiveSystemMessage",
-                    $"{Game.Leader.Name} spielt {color}-{Game.AnnouncedGame}"
-                );
-            }
-            else if (Game.AnnouncedGame == GameType.Sauspiel)
-            {
-                await Clients.All.SendAsync(
-                    "ReceiveSystemMessage",
-                    $"{Game.Leader.Name} spielt auf die {color} Sau"
-                );
-            }
             await Game.StartGame(this);
+            foreach (String connectionId in player.GetConnectionIds())
+            {
+                await Clients.Client(connectionId).SendAsync("CloseGameColorModal");
+            }
         }
 
         public async Task PlayCard(String cardId)
@@ -101,90 +113,70 @@ namespace Schafkopf.Hubs
             await Game.PlayCard((Player)Context.Items["player"], cardColor, cardNumber, this);
         }
 
-        public async Task AskForGameType()
-        {
-            for (int i = 0; i < 4; i++)
-            {
-                if (Game.PlayingPlayers[Game.ActionPlayer].WantToPlay)
-                {
-                    // game type not anounced
-                    if (Game.PlayingPlayers[Game.ActionPlayer].AnnouncedGameType == GameType.Ramsch)
-                    {
-                        foreach (String connectionId in Game.PlayingPlayers[Game.ActionPlayer].GetConnectionIds())
-                        {
-                            await Clients.Client(connectionId).SendAsync("AskGameType");
-                        }
-                    }
-                    // game type already anounnced for everyone
-                    else
-                    {
-                        // decide who plays and ask for color
-                        Game.DecideWhoIsPlaying();
-                        await AskForColor();
-                    }
-                    return;
-                }
-                Game.ActionPlayer = (Game.ActionPlayer + 1) % 4;
-            }
-            // no one wants to play => it's a ramsch
-            await Clients.All.SendAsync(
-                "ReceiveSystemMessage",
-                $"Es wird geramscht!"
-            );
-            await Game.StartGame(this);
-        }
-        public async Task AskForColor()
-        {
-            // Leader has to choose a color he wants to play with or a color to escort his solo
-            if (Game.AnnouncedGame == GameType.Sauspiel || Game.AnnouncedGame == GameType.Farbsolo)
-            {
-                foreach (String connectionId in Game.Leader.GetConnectionIds())
-                {
-                    await Clients.Client(connectionId).SendAsync("AskColor");
-                }
-            }
-            else if (Game.AnnouncedGame == GameType.Hochzeit) //Hochzeit, announce husband or wife
-            {
-                //TODO::Wait for somebody to press the Button
-            }
-            else
-            {
-                await Clients.All.SendAsync(
-                    "ReceiveSystemMessage",
-                    $"{Game.Leader.Name} spielt {Game.AnnouncedGame}"
-                );
-                await Game.StartGame(this);
-            }
-        }
+
         public async Task ReconnectPlayer(string userId)
         {
             Player player = Game.Players.Single(p => p.Id == userId);
             player.AddConnectionId(this);
             await Clients.Caller.SendAsync("ReceiveSystemMessage", $"Willkommen zurück {player.Name}");
-            if (Game.PlayingPlayers.Contains(player) && Game.CurrentGameState != State.Idle) {
-                await player.SendHand(this);
-                await Game.Trick.SendTrick(this, Game);
-                await Game.SendPlayers(this);
-                // send modals
-                if (Game.CurrentGameState == State.Playing && Game.TrickCount == 8)
+            if (Game.CurrentGameState != State.Idle) {
+                if (Game.PlayingPlayers.Contains(player))
                 {
-                    await Game.SendEndGameModal(this, new List<String>() { Context.ConnectionId });
-                }
-                foreach (Player p in Game.PlayingPlayers)
-                {
-                    if (p.GetConnectionIds().Count == 0) {
-                        await Game.SendConnectionToPlayerLostModal(this, new List<String>() {Context.ConnectionId});
-                        break;
+                    await Game.SendPlayerIsPlayingGameTypeAndColor(this, new List<string>() { Context.ConnectionId });
+                    if (Game.Trick.Count == 0)
+                    {
+                        await Game.SendPlayerIsStartingTheRound(this, new List<string>() { Context.ConnectionId });
                     }
+                    await player.SendHand(this);
+                    await Game.Trick.SendTrick(this, Game);
+                    await Game.SendPlayers(this);
+                    // send modals
+                    if (Game.CurrentGameState == State.Playing && Game.TrickCount == 8)
+                    {
+                        await Game.SendEndGameModal(this, new List<String>() { Context.ConnectionId });
+                    }
+                    foreach (Player p in Game.PlayingPlayers)
+                    {
+                        if (p.GetConnectionIds().Count == 0)
+                        {
+                            await Game.SendConnectionToPlayerLostModal(this, new List<String>() { Context.ConnectionId });
+                            break;
+                        }
+                    }
+                    if (Game.PlayingPlayers[Game.ActionPlayer] == player)
+                    {
+                        if (Game.CurrentGameState == State.Announce)
+                        {
+                            await Game.SendAskAnnounce(this);
+                        }
+                        else if (Game.CurrentGameState == State.AnnounceGameType)
+                        {
+                            await Game.SendAskForGameType(this);
+                        }
+                    }
+                    if (Game.Leader == player && Game.CurrentGameState == State.AnnounceGameColor)
+                    {
+                        await Game.SendAskForGameColor(this);
+                    }
+                    // check if all players are connected again and close connectionLostModal for the other players
+                    await Task.Delay(1000);
+                    if (Game.PlayingPlayers.All(p => p.GetConnectionIds().Count > 0))
+                    {
+                        foreach (String connectionId in Game.GetPlayingPlayersConnectionIds())
+                        {
+                            await Clients.Client(connectionId).SendAsync("CloseGameOverModal");
+                        }
+                    }
+                } else {
+                    // else if is spectating: send hand, trick, modals
+                    // else ask if player wants to spectate
                 }
-                // send AskAnnounceModal
-                // send AskAnnounceGameTypeModal
-                // send AskAnnounceGameColorModal
-            } else {
-                await Clients.Caller.SendAsync("AskWantToPlay");
-                // if game is running ask if player wants to spectate
+            } else
+            {
+                if (!Game.PlayingPlayers.Contains(player)) {
+                    await Clients.Caller.SendAsync("AskWantToPlay");
+                }
             }
-            // else if is spectating: send hand, trick, modals
         }
         public async Task AddPlayer(string userName)
         {
@@ -197,12 +189,22 @@ namespace Schafkopf.Hubs
 
         public async Task PlayerWantsToPlay()
         {
-            await Game.PlayerPlaysTheGame((Player)Context.Items["player"], this);
+            Player player = (Player)Context.Items["player"];
+            await Game.PlayerPlaysTheGame(player, this);
+            foreach (String connectionId in player.GetConnectionIds())
+            {
+                await Clients.Client(connectionId).SendAsync("CloseWantToPlayModal");
+            }
         }
 
         public async Task PlayerWantsToPause()
         {
-            await Game.PlayerDoesNotPlayTheGame((Player)Context.Items["player"], this);
+            Player player = (Player)Context.Items["player"];
+            await Game.PlayerDoesNotPlayTheGame(player, this);
+            foreach (String connectionId in player.GetConnectionIds())
+            {
+                await Clients.Client(connectionId).SendAsync("CloseWantToPlayModal");
+            }
         }
 
         public async Task ResetGame()
@@ -212,7 +214,10 @@ namespace Schafkopf.Hubs
 
         public async Task UpdatePlayingPlayers()
         {
-            await Clients.All.SendAsync("ReceiveSystemMessage", $"Playing Players: {String.Join(", ", Game.PlayingPlayers.Select(p => p.Name + " (" + p.GetConnectionIds().Count + ")"))}");
+            foreach (String connectionId in Game.GetPlayersConnectionIds())
+            {
+                await Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", $"Playing Players: {String.Join(", ", Game.PlayingPlayers.Select(p => p.Name + " (" + p.GetConnectionIds().Count + ")"))}");
+            }
         }
 
         public override Task OnDisconnectedAsync(Exception exception)
