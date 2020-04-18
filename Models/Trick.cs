@@ -17,9 +17,10 @@ namespace Schafkopf.Models
         public Color Trumpf = Color.Herz;
         public int Winner = 0;
 
-        public Trick()
+        public Trick(Game game)
         {
-
+            GameType = game.AnnouncedGame;
+            DetermineTrumpf(game);
         }
 
         //-------------------------------------------------
@@ -245,7 +246,7 @@ namespace Schafkopf.Models
             return Player[Winner];
         }
 
-        public void DetermineTrumpf(Game game) {
+        private void DetermineTrumpf(Game game) {
             switch (game.AnnouncedGame)
             {
                 case GameType.Ramsch:

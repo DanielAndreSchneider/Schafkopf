@@ -23,7 +23,7 @@ namespace Schafkopf.Models
         public GameType AnnouncedGame = GameType.Ramsch;
         public Player Leader = null;
         public Player HusbandWife = null;
-        public Trick Trick = new Trick();
+        public Trick Trick = null;
         public int TrickCount = 0;
 
         private Random random = new Random();
@@ -76,7 +76,7 @@ namespace Schafkopf.Models
             AnnouncedGame = GameType.Ramsch;
             Leader = null;
             HusbandWife = null;
-            Trick = new Trick();
+            Trick = null;
             TrickCount = 0;
 
             // TODO: let players stay in the game if they want
@@ -95,7 +95,7 @@ namespace Schafkopf.Models
             //         player.AskIfWantToPlay();
             //     }
             // }
-            await Trick.SendTrick(hub, this);
+            await new Trick(this).SendTrick(hub, this);
             PlayingPlayers = new List<Player>();
             foreach (Player player in Players)
             {
@@ -176,7 +176,7 @@ namespace Schafkopf.Models
         {
             await SendPlayerIsPlayingGameTypeAndColor(hub, GetPlayingPlayersConnectionIds());
             FindTeams();
-            Trick.DetermineTrumpf(this);
+            Trick = new Trick(this);
             CurrentGameState = State.Playing;
             ActionPlayer = StartPlayer;
             await SendPlayerIsStartingTheRound(hub, GetPlayingPlayersConnectionIds());
@@ -292,8 +292,7 @@ namespace Schafkopf.Models
                 }
 
                 ActionPlayer = PlayingPlayers.FindIndex(p => p == winner);
-                Trick = new Trick();
-                Trick.DetermineTrumpf(this);
+                Trick = new Trick(this);
                 await SendPlayerIsStartingTheRound(hub, GetPlayingPlayersConnectionIds());
             }
         }
@@ -619,9 +618,9 @@ namespace Schafkopf.Models
                 {
                     await SendPlayerIsStartingTheRound(hub, new List<string>() { hub.Context.ConnectionId });
                 }
+                await Trick.SendTrick(hub, this);
             }
             await player.SendHand(hub);
-            await Trick.SendTrick(hub, this);
             await SendPlayers(hub);
             // send modals
             if (CurrentGameState == State.Playing && TrickCount == 8)
