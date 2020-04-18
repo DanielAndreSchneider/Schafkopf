@@ -19,6 +19,8 @@ namespace Schafkopf.Models
         public Boolean WantToPlay = false;
         public GameType AnnouncedGameType = GameType.Ramsch;
         public Color AnnouncedColor = Color.None;
+        public List<Player> Spectators = new List<Player>();
+        public Queue<Player> SpectatorsWaitingForApproval = new Queue<Player>();
 
 
         public Player(String name, SchafkopfHub hub)
@@ -35,6 +37,8 @@ namespace Schafkopf.Models
             WantToPlay = false;
             AnnouncedGameType = GameType.Ramsch;
             AnnouncedColor = Color.None;
+            Spectators = new List<Player>();
+            SpectatorsWaitingForApproval = new Queue<Player>();
         }
 
         //-------------------------------------------------
@@ -123,14 +127,45 @@ namespace Schafkopf.Models
         public List<String> GetConnectionIds() {
             return _connectionIds;
         }
+        public List<String> GetConnectionIdsWithSpectators()
+        {
+            return GetSpectatorConnectionIds().Concat(GetConnectionIds()).ToList();
+        }
 
         public async Task SendHand(SchafkopfHub hub) {
-            foreach (String connectionId in GetConnectionIds())
+            foreach (String connectionId in GetConnectionIdsWithSpectators())
             {
                 await hub.Clients.Client(connectionId).SendAsync(
                     "ReceiveHand",
                     HandCards.Select(card => card.ToString())
                 );
+            }
+        }
+
+        public List<String> GetSpectatorConnectionIds()
+        {
+            return Spectators.Aggregate(new List<String>(), (acc, x) => acc.Concat(x.GetConnectionIds()).ToList());
+        }
+
+        public async Task AddSpectator(Player player, SchafkopfHub hub, Game game) {
+            foreach (String connectionId in game.GetPlayingPlayersConnectionIds()) {
+                await hub.Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", $"{player.Name} schaut jetzt bei {Name} zu");
+            }
+            Spectators.Add(player);
+            await game.SendUpdatedGameState(this, hub);
+        }
+
+        public async Task AskForApprovalToSpectate(SchafkopfHub hub)
+        {
+            if (SpectatorsWaitingForApproval.Count == 0) {
+                foreach (String connectionId in GetConnectionIds())
+                {
+                    await hub.Clients.Client(connectionId).SendAsync("CloseAllowSpectatorModal");
+                }
+                return;
+            }
+            foreach (String connectionId in GetConnectionIds()) {
+                await hub.Clients.Client(connectionId).SendAsync("AskAllowSpectator", SpectatorsWaitingForApproval.Peek().Name);
             }
         }
     }

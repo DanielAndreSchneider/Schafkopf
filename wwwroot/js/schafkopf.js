@@ -1,7 +1,5 @@
 "use strict";
 
-var userId = "";
-
 var connection = new signalR.HubConnectionBuilder()
   .withUrl("/schafkopfHub")
   .build();
@@ -31,6 +29,17 @@ connection.on("ReceiveSystemMessage", function (message) {
   messageList.scrollTop = messageList.scrollHeight;
 });
 
+connection.on("AskUsername", function (message) {
+  localStorage.removeItem("userId");
+  $('#usernameModal').modal({ keyboard: false, backdrop: "static" });
+});
+
+connection.on("GameOver", function (title, body) {
+  document.getElementById("gameOverModalTitle").textContent = title;
+  document.getElementById("gameOverModalBody").textContent = body;
+  $('#gameOverModal').modal({ keyboard: false, backdrop: "static" });
+});
+
 connection.on("AskAnnounce", function (message) {
   $('#announceModal').modal({ keyboard: false, backdrop: "static" });
 });
@@ -46,6 +55,19 @@ connection.on("AskColor", function (message) {
 connection.on("AskWantToPlay", function () {
   $('#wantToPlayModal').modal({ keyboard: false, backdrop: "static" });
 });
+
+connection.on("AskWantToSpectate", function (players) {
+  document.getElementById("wantToSpectatePlayer1Button").textContent = players[0];
+  document.getElementById("wantToSpectatePlayer2Button").textContent = players[1];
+  document.getElementById("wantToSpectatePlayer3Button").textContent = players[2];
+  document.getElementById("wantToSpectatePlayer4Button").textContent = players[3];
+  $('#wantToSpectateModal').modal({ keyboard: false, backdrop: "static" });
+});
+
+connection.on("AskAllowSpectator", function (player) {
+  document.getElementById("allowSpectatorModalTitle").textContent = `Erlaubst du ${player} bei dir zuzuschauen?`;
+  $('#allowSpectatorModal').modal({ keyboard: false, backdrop: "static" });
+})
 
 connection.on("CloseGameOverModal", function () {
   $('#gameOverModal').modal('hide');
@@ -67,15 +89,17 @@ connection.on("CloseWantToPlayModal", function () {
   $('#wantToPlayModal').modal('hide');
 });
 
-connection.on("GameOver", function (title, body) {
-  document.getElementById("gameOverModalTitle").textContent = title;
-  document.getElementById("gameOverModalBody").textContent = body;
-  $('#gameOverModal').modal({ keyboard: false, backdrop: "static" });
+connection.on("CloseWantToSpectateModal", function () {
+  $('#wantToSpectateModal').modal('hide');
 });
+
+connection.on("CloseAllowSpectatorModal", function (player) {
+  $('#allowSpectatorModal').modal('hide');
+})
 
 connection.on("StoreUserId", function (id) {
   localStorage.setItem("userId", id);
-  userId = id;
+  $('#usernameModal').modal('hide');
 });
 
 connection.on("ReceiveHand", function (cards) {
@@ -120,17 +144,14 @@ connection
     // During development this is not useful as it is more difficult to simulate multiple users from one machine
     // append `?session=new` to the url to force a new connection
     let searchParams = new URLSearchParams(window.location.search);
-    userId = localStorage.getItem("userId");
+    var userId = localStorage.getItem("userId");
     if (userId && !(searchParams.get("session") == "new")) {
       connection
         .invoke("ReconnectPlayer", userId)
         .catch(function (err) {
-          localStorage.removeItem("userId");
-          $('#usernameModal').modal({ keyboard: false, backdrop: "static" });
           return console.error(err.toString());
         });
     } else {
-      userId = "";
       $('#usernameModal').modal({ keyboard: false, backdrop: "static" });
     }
   })
@@ -264,6 +285,76 @@ document
   .addEventListener("click", function (event) {
     connection
       .invoke("ResetGame",).catch(function (err) {
+        return console.error(err.toString());
+      });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("doNotSpectateButton")
+  .addEventListener("click", function (event) {
+    connection
+      .invoke("PlayerWantsToSpectate", -1).catch(function (err) {
+        return console.error(err.toString());
+      });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("wantToSpectatePlayer1Button")
+  .addEventListener("click", function (event) {
+    connection
+      .invoke("PlayerWantsToSpectate", 0).catch(function (err) {
+        return console.error(err.toString());
+      });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("wantToSpectatePlayer2Button")
+  .addEventListener("click", function (event) {
+    connection
+      .invoke("PlayerWantsToSpectate", 1).catch(function (err) {
+        return console.error(err.toString());
+      });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("wantToSpectatePlayer3Button")
+  .addEventListener("click", function (event) {
+    connection
+      .invoke("PlayerWantsToSpectate", 2).catch(function (err) {
+        return console.error(err.toString());
+      });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("wantToSpectatePlayer4Button")
+  .addEventListener("click", function (event) {
+    connection
+      .invoke("PlayerWantsToSpectate", 3).catch(function (err) {
+        return console.error(err.toString());
+      });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("doNotAllowSpectatorButton")
+  .addEventListener("click", function (event) {
+    connection
+      .invoke("AllowSpectator", false).catch(function (err) {
+        return console.error(err.toString());
+      });
+    event.preventDefault();
+  });
+
+document
+  .getElementById("allowSpectatorButton")
+  .addEventListener("click", function (event) {
+    connection
+      .invoke("AllowSpectator", true).catch(function (err) {
         return console.error(err.toString());
       });
     event.preventDefault();

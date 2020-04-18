@@ -23,7 +23,7 @@ namespace Schafkopf.Hubs
             Player player = (Player)Context.Items["player"];
             if (Game.CurrentGameState == State.Announce && player == Game.PlayingPlayers[Game.ActionPlayer])
             {
-                foreach (String connectionId in player.GetConnectionIds())
+                foreach (String connectionId in player.GetConnectionIdsWithSpectators())
                 {
                     await Clients.Client(connectionId).SendAsync("CloseAnnounceModal");
                 }
@@ -64,7 +64,7 @@ namespace Schafkopf.Hubs
                 await Game.PlayingPlayers[Game.ActionPlayer].AnnounceGameType(gameType, this, Game);
                 Game.ActionPlayer = (Game.ActionPlayer + 1) % 4;
                 await Game.SendAskForGameType(this);
-                foreach (String connectionId in player.GetConnectionIds())
+                foreach (String connectionId in player.GetConnectionIdsWithSpectators())
                 {
                     await Clients.Client(connectionId).SendAsync("CloseAnnounceGameTypeModal");
                 }
@@ -99,7 +99,7 @@ namespace Schafkopf.Hubs
             }
             Game.Leader.AnnouncedColor = color;
             await Game.StartGame(this);
-            foreach (String connectionId in player.GetConnectionIds())
+            foreach (String connectionId in player.GetConnectionIdsWithSpectators())
             {
                 await Clients.Client(connectionId).SendAsync("CloseGameColorModal");
             }
@@ -116,48 +116,17 @@ namespace Schafkopf.Hubs
 
         public async Task ReconnectPlayer(string userId)
         {
+            if (!Game.Players.Any(p => p.Id == userId)) {
+                await Clients.Caller.SendAsync("AskUsername");
+                return;
+            }
             Player player = Game.Players.Single(p => p.Id == userId);
             player.AddConnectionId(this);
             await Clients.Caller.SendAsync("ReceiveSystemMessage", $"Willkommen zurück {player.Name}");
             if (Game.CurrentGameState != State.Idle) {
                 if (Game.PlayingPlayers.Contains(player))
                 {
-                    await Game.SendPlayerIsPlayingGameTypeAndColor(this, new List<string>() { Context.ConnectionId });
-                    if (Game.Trick.Count == 0)
-                    {
-                        await Game.SendPlayerIsStartingTheRound(this, new List<string>() { Context.ConnectionId });
-                    }
-                    await player.SendHand(this);
-                    await Game.Trick.SendTrick(this, Game);
-                    await Game.SendPlayers(this);
-                    // send modals
-                    if (Game.CurrentGameState == State.Playing && Game.TrickCount == 8)
-                    {
-                        await Game.SendEndGameModal(this, new List<String>() { Context.ConnectionId });
-                    }
-                    foreach (Player p in Game.PlayingPlayers)
-                    {
-                        if (p.GetConnectionIds().Count == 0)
-                        {
-                            await Game.SendConnectionToPlayerLostModal(this, new List<String>() { Context.ConnectionId });
-                            break;
-                        }
-                    }
-                    if (Game.PlayingPlayers[Game.ActionPlayer] == player)
-                    {
-                        if (Game.CurrentGameState == State.Announce)
-                        {
-                            await Game.SendAskAnnounce(this);
-                        }
-                        else if (Game.CurrentGameState == State.AnnounceGameType)
-                        {
-                            await Game.SendAskForGameType(this);
-                        }
-                    }
-                    if (Game.Leader == player && Game.CurrentGameState == State.AnnounceGameColor)
-                    {
-                        await Game.SendAskForGameColor(this);
-                    }
+                    await Game.SendUpdatedGameState(player, this);
                     // check if all players are connected again and close connectionLostModal for the other players
                     await Task.Delay(1000);
                     if (Game.PlayingPlayers.All(p => p.GetConnectionIds().Count > 0))
@@ -167,9 +136,13 @@ namespace Schafkopf.Hubs
                             await Clients.Client(connectionId).SendAsync("CloseGameOverModal");
                         }
                     }
-                } else {
-                    // else if is spectating: send hand, trick, modals
-                    // else ask if player wants to spectate
+                }
+                else if (Game.PlayingPlayers.Any(p => p.Spectators.Contains(player)))
+                {
+                    await Game.SendUpdatedGameState(Game.PlayingPlayers.Single(p => p.Spectators.Contains(player)), this);
+                }
+                else {
+                    await Game.SendAskWantToSpectate(this, new List<string>() {Context.ConnectionId});
                 }
             } else
             {
@@ -181,10 +154,8 @@ namespace Schafkopf.Hubs
         public async Task AddPlayer(string userName)
         {
             Player player = new Player(userName, this);
-            await Game.AddPlayer(player, this);
             await Clients.Caller.SendAsync("StoreUserId", player.Id);
-            // send username
-            // if game is running ask if player wants to spectate
+            await Game.AddPlayer(player, this);
         }
 
         public async Task PlayerWantsToPlay()
@@ -195,6 +166,32 @@ namespace Schafkopf.Hubs
             {
                 await Clients.Client(connectionId).SendAsync("CloseWantToPlayModal");
             }
+        }
+        public async Task PlayerWantsToSpectate(int playerId)
+        {
+            Player player = (Player)Context.Items["player"];
+            foreach (String connectionId in player.GetConnectionIds())
+            {
+                await Clients.Client(connectionId).SendAsync("CloseWantToSpectateModal");
+            }
+            if (playerId >= 0 && playerId <= 4)
+            {
+                Game.PlayingPlayers[playerId].SpectatorsWaitingForApproval.Enqueue(player);
+                await Game.PlayingPlayers[playerId].AskForApprovalToSpectate(this);
+            }
+        }
+
+        public async Task AllowSpectator(bool allow) {
+            Player player = (Player)Context.Items["player"];
+            if (player.SpectatorsWaitingForApproval.Count == 0) {
+                return;
+            }
+            Player spectator = player.SpectatorsWaitingForApproval.Dequeue();
+            if (allow)
+            {
+                await player.AddSpectator(spectator, this, Game);
+            }
+            await player.AskForApprovalToSpectate(this);
         }
 
         public async Task PlayerWantsToPause()

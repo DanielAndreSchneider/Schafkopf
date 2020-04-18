@@ -274,7 +274,7 @@ namespace Schafkopf.Models
                     permutedCards[j] = Cards[(j + i) % 4];
                 }
                 Player player = game.PlayingPlayers[(game.ActionPlayer - Count + i + 4) % 4];
-                foreach (String connectionId in player.GetConnectionIds())
+                foreach (String connectionId in player.GetConnectionIdsWithSpectators())
                 {
                     await hub.Clients.Client(connectionId).SendAsync(
                         "ReceiveTrick",

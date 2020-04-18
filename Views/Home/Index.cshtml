@@ -31,8 +31,8 @@
         <h5 class="modal-title">Magst du spielen?</h5>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="announceNoButton" data-dismiss="modal">Nein</button>
-        <button type="button" class="btn btn-primary" id="announceYesButton" data-dismiss="modal">Ja</button>
+        <button type="button" class="btn btn-secondary" id="announceNoButton">Nein</button>
+        <button type="button" class="btn btn-primary" id="announceYesButton">Ja</button>
       </div>
     </div>
   </div>
@@ -45,9 +45,9 @@
         <h5 class="modal-title">Was magst du spielen?</h5>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="announceSoloButton" data-dismiss="modal">Solo</button>
-        <button type="button" class="btn btn-primary" id="announceWenzButton" data-dismiss="modal">Wenz</button>
-        <button type="button" class="btn btn-primary" id="announceSauspielButton" data-dismiss="modal">Sauspiel</button>
+        <button type="button" class="btn btn-primary" id="announceSoloButton">Solo</button>
+        <button type="button" class="btn btn-primary" id="announceWenzButton">Wenz</button>
+        <button type="button" class="btn btn-primary" id="announceSauspielButton">Sauspiel</button>
       </div>
     </div>
   </div>
@@ -60,10 +60,10 @@
         <h5 class="modal-title">Was magst du spielen?</h5>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="eichelButton" data-dismiss="modal">Eichel</button>
-        <button type="button" class="btn btn-primary" id="grasButton" data-dismiss="modal">Gras</button>
-        <button type="button" class="btn btn-primary" id="herzButton" data-dismiss="modal">Herz</button>
-        <button type="button" class="btn btn-primary" id="schellenButton" data-dismiss="modal">Schellen</button>
+        <button type="button" class="btn btn-primary" id="eichelButton">Eichel</button>
+        <button type="button" class="btn btn-primary" id="grasButton">Gras</button>
+        <button type="button" class="btn btn-primary" id="herzButton">Herz</button>
+        <button type="button" class="btn btn-primary" id="schellenButton">Schellen</button>
       </div>
     </div>
   </div>
@@ -79,7 +79,7 @@
         <input class="form-control" type="text" id="startModalUserName" />
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="startButton" data-dismiss="modal">Los geht's!</button>
+        <button type="button" class="btn btn-primary" id="startButton">Los geht's!</button>
       </div>
     </div>
   </div>
@@ -94,7 +94,7 @@
       <div class="modal-body" id="gameOverModalBody">
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="restartButton" data-dismiss="modal">Neues Spiel starten!</button>
+        <button type="button" class="btn btn-primary" id="restartButton">Neues Spiel starten!</button>
       </div>
     </div>
   </div>
@@ -107,8 +107,39 @@
         <h5 class="modal-title">Willst du nächste Runde mitspielen?</h5>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="wantToPauseButton" data-dismiss="modal">Erstmal aussetzen.</button>
-        <button type="button" class="btn btn-primary" id="wantToPlayButton" data-dismiss="modal">Bin dabei!</button>
+        <button type="button" class="btn btn-secondary" id="wantToPauseButton">Erstmal aussetzen.</button>
+        <button type="button" class="btn btn-primary" id="wantToPlayButton">Bin dabei!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="wantToSpectateModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Magst du bei jemand zuschauen?</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="doNotSpectateButton">Nicht zuschauen.</button>
+        <button type="button" class="btn btn-primary" id="wantToSpectatePlayer1Button"></button>
+        <button type="button" class="btn btn-primary" id="wantToSpectatePlayer2Button"></button>
+        <button type="button" class="btn btn-primary" id="wantToSpectatePlayer3Button"></button>
+        <button type="button" class="btn btn-primary" id="wantToSpectatePlayer4Button"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="allowSpectatorModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="allowSpectatorModalTitle"></h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="doNotAllowSpectatorButton">Zuschauen verbieten.</button>
+        <button type="button" class="btn btn-primary" id="allowSpectatorButton">Zuschauen erlauben</button>
       </div>
     </div>
   </div>
