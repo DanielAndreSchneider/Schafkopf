@@ -80,22 +80,6 @@ namespace Schafkopf.Models
             Trick = null;
             TrickCount = 0;
 
-            // TODO: let players stay in the game if they want
-            // foreach (Player player in Players) {
-            //     if (PlayingPlayers.Contains(player))
-            //     {
-            //         if (player.GetConnectionIds().Count == 0)
-            //         {
-            //             PlayingPlayers.Remove(player);
-            //         }
-            //         else
-            //         {
-            //             player.AskIfWantToPlayWithTimeout();
-            //         }
-            //     } else {
-            //         player.AskIfWantToPlay();
-            //     }
-            // }
             await new Trick(this).SendTrick(hub, this);
             PlayingPlayers = new List<Player>();
             foreach (Player player in Players)
@@ -110,7 +94,19 @@ namespace Schafkopf.Models
                 await hub.Clients.Client(connectionId).SendAsync("CloseAnnounceGameTypeModal");
                 await hub.Clients.Client(connectionId).SendAsync("CloseGameColorModal");
                 await hub.Clients.Client(connectionId).SendAsync("CloseGameOverModal");
-                await hub.Clients.Client(connectionId).SendAsync("AskWantToPlay");
+                await hub.Clients.Client(connectionId).SendAsync("CloseWantToSpectateModal");
+                await hub.Clients.Client(connectionId).SendAsync("CloseAllowSpectatorModal");
+            }
+            foreach (Player player in Players)
+            {
+                if (Players.Where((p => p.GetConnectionIds().Count > 0)).ToList().Count > 4)
+                {
+                    await SendAskWantToPlay(hub, player.GetConnectionIds());
+                }
+                else if (player.GetConnectionIds().Count > 0)
+                {
+                    await PlayerPlaysTheGame(player, hub);
+                }
             }
         }
 
@@ -185,6 +181,10 @@ namespace Schafkopf.Models
             CurrentGameState = State.Playing;
             ActionPlayer = StartPlayer;
             await SendPlayerIsStartingTheRound(hub, GetPlayingPlayersConnectionIds());
+            foreach (Player player in PlayingPlayers)
+            {
+                await player.SendHand(hub, AnnouncedGame, Trick.Trump);
+            }
         }
 
         public async Task SendPlayerIsPlayingGameTypeAndColor(SchafkopfHub hub, List<String> connectionIds)
@@ -286,7 +286,7 @@ namespace Schafkopf.Models
             {
                 return;
             }
-            Card playedCard = await player.PlayCard(cardColor, cardNumber, hub);
+            Card playedCard = await player.PlayCard(cardColor, cardNumber, hub, this);
             await Trick.AddCard(playedCard, player, hub, this);
 
             if (Trick.Count < 4)
@@ -630,6 +630,13 @@ namespace Schafkopf.Models
                 await hub.Clients.Client(connectionId).SendAsync("AskWantToSpectate", PlayingPlayers.Select(p => p.Name));
             }
         }
+        public async Task SendAskWantToPlay(SchafkopfHub hub, List<String> connectionIds)
+        {
+            foreach (String connectionId in connectionIds)
+            {
+                await hub.Clients.Client(connectionId).SendAsync("AskWantToPlay");
+            }
+        }
 
         public async Task SendUpdatedGameState(Player player, SchafkopfHub hub)
         {
@@ -641,8 +648,12 @@ namespace Schafkopf.Models
                     await SendPlayerIsStartingTheRound(hub, new List<string>() { hub.Context.ConnectionId });
                 }
                 await Trick.SendTrick(hub, this);
+                await player.SendHand(hub, AnnouncedGame, Trick.Trump);
             }
-            await player.SendHand(hub);
+            else
+            {
+                await player.SendHand(hub);
+            }
             await SendPlayers(hub);
             // send modals
             if (CurrentGameState == State.Playing && TrickCount == 8)

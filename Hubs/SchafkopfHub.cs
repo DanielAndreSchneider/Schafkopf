@@ -164,7 +164,7 @@ namespace Schafkopf.Hubs
             {
                 if (!game.PlayingPlayers.Contains(player))
                 {
-                    await Clients.Caller.SendAsync("AskWantToPlay");
+                    await game.SendAskWantToPlay(this, new List<string>() { Context.ConnectionId });
                 }
             }
         }

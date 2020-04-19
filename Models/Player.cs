@@ -46,13 +46,13 @@ namespace Schafkopf.Models
         // Card will be removed from the hand-cards
         // Throw exception in case that a card has been played twice
         //-------------------------------------------------
-        public async Task<Card> PlayCard(Color cardColor, int cardNumber, SchafkopfHub hub)
+        public async Task<Card> PlayCard(Color cardColor, int cardNumber, SchafkopfHub hub, Game game)
         {
             foreach (Card card in HandCards) {
                 if (card.Color == cardColor && card.Number == cardNumber)
                 {
                     HandCards.Remove(card);
-                    await SendHand(hub);
+                    await SendHand(hub, game.AnnouncedGame, game.Trick.Trump);
                     return card;
                 }
             }
@@ -132,12 +132,12 @@ namespace Schafkopf.Models
             return GetSpectatorConnectionIds().Concat(GetConnectionIds()).ToList();
         }
 
-        public async Task SendHand(SchafkopfHub hub) {
+        public async Task SendHand(SchafkopfHub hub, GameType gameType = GameType.Ramsch, Color trump = Color.Herz) {
             foreach (String connectionId in GetConnectionIdsWithSpectators())
             {
                 await hub.Clients.Client(connectionId).SendAsync(
                     "ReceiveHand",
-                    HandCards.Select(card => card.ToString())
+                    HandCards.OrderByDescending(c => c.GetValue(gameType, trump)).Select(card => card.ToString())
                 );
             }
         }
