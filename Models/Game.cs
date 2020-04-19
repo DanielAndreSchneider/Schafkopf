@@ -284,9 +284,16 @@ namespace Schafkopf.Models
         {
             if (player != PlayingPlayers[ActionPlayer] || CurrentGameState != State.Playing)
             {
+                foreach (String connectionId in player.GetConnectionIds())
+                {
+                    await hub.Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", "Du bist gerade nicht dran!");
+                }
                 return;
             }
             Card playedCard = await player.PlayCard(cardColor, cardNumber, hub, this);
+            if (playedCard == null) {
+                return;
+            }
             await Trick.AddCard(playedCard, player, hub, this);
 
             if (Trick.Count < 4)

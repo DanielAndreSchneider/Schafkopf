@@ -121,5 +121,10 @@ namespace Schafkopf.Models
             }
             return value;
         }
+
+        internal bool IsTrump(Game game)
+        {
+            return GetValue(game.AnnouncedGame, game.Trick.Trump) > 500;
+        }
     }
 }
