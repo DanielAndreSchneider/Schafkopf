@@ -422,3 +422,24 @@ document
     }
     event.preventDefault();
   });
+
+document
+  .getElementById("toggleThemeButton")
+  .addEventListener("click", function (event) {
+    var button = document.getElementById("toggleThemeButton");
+    var body = document.getElementsByTagName("body")[0];
+    if (button.textContent.trim() == "Dark") {
+      button.textContent = "Light";
+      body.classList.add("bg-dark");
+      body.classList.add("text-white");
+      body.classList.remove("bg-white");
+      body.classList.remove("text-dark");
+    } else {
+      button.textContent = "Dark";
+      body.classList.add("bg-white");
+      body.classList.add("text-dark");
+      body.classList.remove("bg-dark");
+      body.classList.remove("text-white");
+    }
+    event.preventDefault();
+  });
