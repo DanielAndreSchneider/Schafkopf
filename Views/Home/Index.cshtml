@@ -1,8 +1,165 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@page
+        <div class="d-flex flex-grow-1 overflow-hidden">
+            <div class="col-9 overflow-hidden d-flex flex-column  pl-0 pr-0">
+                <div class="flex-grow-1 w-100" style="transform: translateY(0);">
+                    <img src="" class="card-on-table" id="card-left">
+                    <img src="" class="card-on-table" id="card-right">
+                    <img src="" class="card-on-table" id="card-top">
+                    <img src="" class="card-on-table" id="card-bottom">
+                    <div class="player-at-table card-on-table" id="player-left"></div>
+                    <div class="player-at-table card-on-table" id="player-right"></div>
+                    <div class="player-at-table card-on-table" id="player-top"></div>
+                    <div class="player-at-table card-on-table" id="player-bottom"></div>
+                </div>
+                <div id="hand"></div>
+            </div>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core.</a>.</p>
+            <div class="col-3 d-flex flex-column overflow-hidden pr-0">
+                <div id="messagesList" class="flex-grow-1 overflow-auto"></div>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="messageInput" />
+                    <input class="btn btn-primary" type="button" id="sendButton" value="Send" />
+                </div>
+            </div>
+        </div>
+
+
+<div class="modal fade text-dark" id="announceModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="announceModalTitle"></h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="announceNoButton">Nein</button>
+        <button type="button" class="btn btn-primary" id="announceYesButton">Ja</button>
+      </div>
+    </div>
+  </div>
 </div>
+
+<div class="modal fade text-dark" id="announceGameTypeModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Was magst du spielen?</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="announceSoloButton">Solo</button>
+        <button type="button" class="btn btn-primary" id="announceWenzButton">Wenz</button>
+        <button type="button" class="btn btn-primary" id="announceSauspielButton">Sauspiel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade text-dark" id="gameColorModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Was magst du spielen?</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="eichelButton">Eichel</button>
+        <button type="button" class="btn btn-primary" id="grasButton">Gras</button>
+        <button type="button" class="btn btn-primary" id="herzButton">Herz</button>
+        <button type="button" class="btn btn-primary" id="schellenButton">Schellen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade text-dark" id="usernameModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Wie heißt du?</h5>
+      </div>
+      <div class="modal-body">
+        <input class="form-control" type="text" id="startModalUserName" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="startButton">Los geht's!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade text-dark" id="gameOverModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="gameOverModalTitle"></h5>
+      </div>
+      <div class="modal-body" id="gameOverModalBody">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="restartButton">Neues Spiel starten!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade text-dark" id="wantToPlayModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Willst du nächste Runde mitspielen?</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="wantToPauseButton">Erstmal aussetzen.</button>
+        <button type="button" class="btn btn-primary" id="wantToPlayButton">Bin dabei!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade text-dark" id="wantToSpectateModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Magst du bei jemand zuschauen?</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="doNotSpectateButton">Nicht zuschauen.</button>
+        <button type="button" class="btn btn-primary" id="wantToSpectatePlayer1Button"></button>
+        <button type="button" class="btn btn-primary" id="wantToSpectatePlayer2Button"></button>
+        <button type="button" class="btn btn-primary" id="wantToSpectatePlayer3Button"></button>
+        <button type="button" class="btn btn-primary" id="wantToSpectatePlayer4Button"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade text-dark" id="allowSpectatorModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="allowSpectatorModalTitle"></h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="doNotAllowSpectatorButton">Zuschauen verbieten.</button>
+        <button type="button" class="btn btn-primary" id="allowSpectatorButton">Zuschauen erlauben</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade text-dark" id="gameIdModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Wie soll das Spiel heißen?</h5>
+      </div>
+      <div class="modal-body">
+        <input class="form-control" type="text" id="gameIdInput" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="gameIdSubmitButton">Los geht's!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/schafkopf.js"></script>

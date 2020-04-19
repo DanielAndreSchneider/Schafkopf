@@ -1,0 +1,1688 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="55mm"
+   height="100mm"
+   viewBox="0 0 55 100"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
+   sodipodi:docname="Schellen-A.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.979899"
+     inkscape:cx="85.279522"
+     inkscape:cy="177.51315"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:pagecheckerboard="true"
+     inkscape:window-width="1916"
+     inkscape:window-height="1037"
+     inkscape:window-x="2"
+     inkscape:window-y="541"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-197)">
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect817"
+       width="55"
+       height="100"
+       x="0"
+       y="197"
+       ry="6" />
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect815"
+       width="45"
+       height="90"
+       x="5"
+       y="202"
+       ry="3" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect819"
+       width="2"
+       height="20"
+       x="4"
+       y="205" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect819-3"
+       width="2"
+       height="20"
+       x="49"
+       y="205" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect819-3-6"
+       width="2"
+       height="20"
+       x="49"
+       y="269" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect819-3-6-7"
+       width="2"
+       height="20"
+       x="4"
+       y="269" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.05555534px;line-height:1.25;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="1.4085373"
+       y="213.53972"
+       id="text868"><tspan
+         sodipodi:role="line"
+         id="tspan866"
+         x="1.4085373"
+         y="213.53972"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.87777805px;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332">A</tspan></text>
+    <g
+       transform="matrix(0.11450121,0,0,0.11450121,1.3331798,215.25894)"
+       id="g1842">
+      <circle
+         id="circle1066"
+         r="5"
+         cy="65"
+         cx="33"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1068"
+         d="m 33,65 v 5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1070"
+         d="m 35,65 v 4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1072"
+         d="m 37,65 v 3"
+         style="stroke:#000000" />
+      <circle
+         id="circle1074"
+         r="32"
+         cy="33"
+         cx="33"
+         style="fill:#ffff00;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1076"
+         d="m 2.5,23 h 61 q 3.5,10 0,20 H 2.5 Q -1,33 2.5,23"
+         style="fill:#ff0000;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1078"
+         d="M 63,23 V 43"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1080"
+         d="m 6,43 v 7"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1082"
+         d="M 9,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1084"
+         d="M 12,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1086"
+         d="M 15,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1088"
+         d="M 18,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1090"
+         d="M 21,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1092"
+         d="M 24,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1094"
+         d="M 27,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1096"
+         d="M 30,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1098"
+         d="M 33,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1100"
+         d="M 36,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1102"
+         d="M 39,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1104"
+         d="M 42,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1106"
+         d="M 45,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1108"
+         d="M 48,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1110"
+         d="M 51,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1112"
+         d="M 54,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1114"
+         d="M 57,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1116"
+         d="M 60,23 V 50"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1118"
+         d="m 27,48 q -1.5,-2.5 -8,-5 -4,2 -4,7 l 14,15"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1120"
+         d="m 39,48 q 1.5,-2.5 8,-5 4,2 4,7 L 37,65"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1122"
+         d="m 29,65 q -9,-15 4,-22 13,7 4,22"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1124"
+         d="M 3.1,43 H 2.8 q 3.7,17 26.6,22"
+         style="fill:#007f00;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1126"
+         d="M 29,65 Q 21,52 15,50 8,47 2.8,43"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1128"
+         d="m 62.9,43 h 0.3 Q 59.5,60 36.6,65"
+         style="fill:#007f00;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1130"
+         d="M 37,65 Q 45,52 51,50 58,47 63.2,43"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1132"
+         d="M 33,43 V 65"
+         style="stroke:#000000" />
+      <circle
+         id="circle1134"
+         r="32"
+         cy="33"
+         cx="33"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1136"
+         d="M 33,1 V 6.2"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1138"
+         d="M 35,1.2 V 6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1140"
+         d="M 31,1.2 V 6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1142"
+         d="M 37,1.2 V 5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1144"
+         d="M 29,1.2 V 5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1146"
+         d="m 28,1.2 q 0,5.3 5,5.3 5,0 5,-5.3"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1148"
+         d="M 2.8,23 H 63.2"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1150"
+         d="M 2.8,43 H 63.2"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1152"
+         d="M 33,3 H 44.5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1154"
+         d="M 33,6 H 50"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1156"
+         d="M 33,9 H 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1158"
+         d="M 33,12 H 57"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1160"
+         d="M 33,15 H 59.5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1162"
+         d="M 33,18 H 61"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1164"
+         d="M 33,21 H 63"
+         style="stroke:#000000" />
+      <circle
+         id="circle1166"
+         r="5"
+         cy="33"
+         cx="10"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1168"
+         d="M 5,33 H 15"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1170"
+         d="m 5.2,31 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1172"
+         d="m 5.2,35 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1174"
+         d="m 6.8,29 h 6.4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1176"
+         d="m 6.8,37 h 6.4"
+         style="stroke:#000000" />
+      <circle
+         id="circle1178"
+         r="5"
+         cy="33"
+         cx="33"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1180"
+         d="M 28,33 H 38"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1182"
+         d="m 28.2,31 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1184"
+         d="m 28.2,35 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1186"
+         d="m 29.8,29 h 6.4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1188"
+         d="m 29.8,37 h 6.4"
+         style="stroke:#000000" />
+      <circle
+         id="circle1190"
+         r="5"
+         cy="33"
+         cx="56"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1192"
+         d="M 51,33 H 61"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1194"
+         d="m 51.2,31 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1196"
+         d="m 51.2,35 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1198"
+         d="m 52.8,29 h 6.4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1200"
+         d="m 52.8,37 h 6.4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1202"
+         d="M 33,63 H 44.5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1204"
+         d="M 33,60 H 50"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1206"
+         d="M 33,57 H 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1208"
+         d="M 33,54 H 57"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1210"
+         d="M 33,51 H 59.5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1212"
+         d="M 33,48 H 61"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1214"
+         d="M 33,45 H 63"
+         style="stroke:#000000" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.05555534px;line-height:1.25;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="46.353115"
+       y="213.46651"
+       id="text868-1"><tspan
+         sodipodi:role="line"
+         id="tspan866-7"
+         x="46.353115"
+         y="213.46651"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.87777805px;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332">A</tspan></text>
+    <g
+       transform="matrix(0.11450121,0,0,0.11450121,46.277749,215.18571)"
+       id="g1842-5">
+      <circle
+         id="circle1066-9"
+         r="5"
+         cy="65"
+         cx="33"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1068-6"
+         d="m 33,65 v 5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1070-2"
+         d="m 35,65 v 4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1072-1"
+         d="m 37,65 v 3"
+         style="stroke:#000000" />
+      <circle
+         id="circle1074-7"
+         r="32"
+         cy="33"
+         cx="33"
+         style="fill:#ffff00;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1076-8"
+         d="m 2.5,23 h 61 q 3.5,10 0,20 H 2.5 Q -1,33 2.5,23"
+         style="fill:#ff0000;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1078-5"
+         d="M 63,23 V 43"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1080-7"
+         d="m 6,43 v 7"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1082-4"
+         d="M 9,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1084-1"
+         d="M 12,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1086-8"
+         d="M 15,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1088-5"
+         d="M 18,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1090-9"
+         d="M 21,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1092-7"
+         d="M 24,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1094-5"
+         d="M 27,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1096-3"
+         d="M 30,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1098-8"
+         d="M 33,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1100-8"
+         d="M 36,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1102-3"
+         d="M 39,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1104-1"
+         d="M 42,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1106-8"
+         d="M 45,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1108-9"
+         d="M 48,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1110-6"
+         d="M 51,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1112-4"
+         d="M 54,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1114-3"
+         d="M 57,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1116-3"
+         d="M 60,23 V 50"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1118-3"
+         d="m 27,48 q -1.5,-2.5 -8,-5 -4,2 -4,7 l 14,15"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1120-8"
+         d="m 39,48 q 1.5,-2.5 8,-5 4,2 4,7 L 37,65"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1122-6"
+         d="m 29,65 q -9,-15 4,-22 13,7 4,22"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1124-0"
+         d="M 3.1,43 H 2.8 q 3.7,17 26.6,22"
+         style="fill:#007f00;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1126-4"
+         d="M 29,65 Q 21,52 15,50 8,47 2.8,43"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1128-8"
+         d="m 62.9,43 h 0.3 Q 59.5,60 36.6,65"
+         style="fill:#007f00;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1130-8"
+         d="M 37,65 Q 45,52 51,50 58,47 63.2,43"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1132-8"
+         d="M 33,43 V 65"
+         style="stroke:#000000" />
+      <circle
+         id="circle1134-9"
+         r="32"
+         cy="33"
+         cx="33"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1136-7"
+         d="M 33,1 V 6.2"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1138-7"
+         d="M 35,1.2 V 6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1140-6"
+         d="M 31,1.2 V 6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1142-4"
+         d="M 37,1.2 V 5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1144-3"
+         d="M 29,1.2 V 5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1146-0"
+         d="m 28,1.2 q 0,5.3 5,5.3 5,0 5,-5.3"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1148-3"
+         d="M 2.8,23 H 63.2"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1150-0"
+         d="M 2.8,43 H 63.2"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1152-9"
+         d="M 33,3 H 44.5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1154-2"
+         d="M 33,6 H 50"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1156-5"
+         d="M 33,9 H 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1158-4"
+         d="M 33,12 H 57"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1160-0"
+         d="M 33,15 H 59.5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1162-5"
+         d="M 33,18 H 61"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1164-9"
+         d="M 33,21 H 63"
+         style="stroke:#000000" />
+      <circle
+         id="circle1166-4"
+         r="5"
+         cy="33"
+         cx="10"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1168-6"
+         d="M 5,33 H 15"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1170-9"
+         d="m 5.2,31 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1172-2"
+         d="m 5.2,35 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1174-2"
+         d="m 6.8,29 h 6.4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1176-4"
+         d="m 6.8,37 h 6.4"
+         style="stroke:#000000" />
+      <circle
+         id="circle1178-7"
+         r="5"
+         cy="33"
+         cx="33"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1180-7"
+         d="M 28,33 H 38"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1182-5"
+         d="m 28.2,31 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1184-4"
+         d="m 28.2,35 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1186-8"
+         d="m 29.8,29 h 6.4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1188-1"
+         d="m 29.8,37 h 6.4"
+         style="stroke:#000000" />
+      <circle
+         id="circle1190-2"
+         r="5"
+         cy="33"
+         cx="56"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1192-8"
+         d="M 51,33 H 61"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1194-9"
+         d="m 51.2,31 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1196-3"
+         d="m 51.2,35 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1198-6"
+         d="m 52.8,29 h 6.4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1200-8"
+         d="m 52.8,37 h 6.4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1202-0"
+         d="M 33,63 H 44.5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1204-2"
+         d="M 33,60 H 50"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1206-1"
+         d="M 33,57 H 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1208-0"
+         d="M 33,54 H 57"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1210-5"
+         d="M 33,51 H 59.5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1212-1"
+         d="M 33,48 H 61"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1214-1"
+         d="M 33,45 H 63"
+         style="stroke:#000000" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.05555534px;line-height:1.25;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-53.662033"
+       y="-280.34256"
+       id="text868-0"
+       transform="scale(-1)"><tspan
+         sodipodi:role="line"
+         id="tspan866-8"
+         x="-53.662033"
+         y="-280.34256"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.87777805px;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332">A</tspan></text>
+    <g
+       transform="matrix(-0.11450121,0,0,-0.11450121,53.737398,278.62383)"
+       id="g1842-50">
+      <circle
+         id="circle1066-6"
+         r="5"
+         cy="65"
+         cx="33"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1068-4"
+         d="m 33,65 v 5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1070-6"
+         d="m 35,65 v 4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1072-2"
+         d="m 37,65 v 3"
+         style="stroke:#000000" />
+      <circle
+         id="circle1074-5"
+         r="32"
+         cy="33"
+         cx="33"
+         style="fill:#ffff00;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1076-86"
+         d="m 2.5,23 h 61 q 3.5,10 0,20 H 2.5 Q -1,33 2.5,23"
+         style="fill:#ff0000;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1078-2"
+         d="M 63,23 V 43"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1080-8"
+         d="m 6,43 v 7"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1082-47"
+         d="M 9,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1084-2"
+         d="M 12,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1086-4"
+         d="M 15,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1088-0"
+         d="M 18,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1090-6"
+         d="M 21,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1092-2"
+         d="M 24,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1094-9"
+         d="M 27,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1096-9"
+         d="M 30,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1098-0"
+         d="M 33,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1100-81"
+         d="M 36,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1102-31"
+         d="M 39,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1104-10"
+         d="M 42,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1106-3"
+         d="M 45,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1108-4"
+         d="M 48,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1110-0"
+         d="M 51,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1112-3"
+         d="M 54,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1114-9"
+         d="M 57,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1116-1"
+         d="M 60,23 V 50"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1118-9"
+         d="m 27,48 q -1.5,-2.5 -8,-5 -4,2 -4,7 l 14,15"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1120-6"
+         d="m 39,48 q 1.5,-2.5 8,-5 4,2 4,7 L 37,65"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1122-9"
+         d="m 29,65 q -9,-15 4,-22 13,7 4,22"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1124-3"
+         d="M 3.1,43 H 2.8 q 3.7,17 26.6,22"
+         style="fill:#007f00;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1126-3"
+         d="M 29,65 Q 21,52 15,50 8,47 2.8,43"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1128-80"
+         d="m 62.9,43 h 0.3 Q 59.5,60 36.6,65"
+         style="fill:#007f00;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1130-5"
+         d="M 37,65 Q 45,52 51,50 58,47 63.2,43"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1132-6"
+         d="M 33,43 V 65"
+         style="stroke:#000000" />
+      <circle
+         id="circle1134-6"
+         r="32"
+         cy="33"
+         cx="33"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1136-4"
+         d="M 33,1 V 6.2"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1138-0"
+         d="M 35,1.2 V 6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1140-0"
+         d="M 31,1.2 V 6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1142-46"
+         d="M 37,1.2 V 5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1144-2"
+         d="M 29,1.2 V 5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1146-6"
+         d="m 28,1.2 q 0,5.3 5,5.3 5,0 5,-5.3"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1148-7"
+         d="M 2.8,23 H 63.2"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1150-5"
+         d="M 2.8,43 H 63.2"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1152-6"
+         d="M 33,3 H 44.5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1154-9"
+         d="M 33,6 H 50"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1156-8"
+         d="M 33,9 H 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1158-7"
+         d="M 33,12 H 57"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1160-2"
+         d="M 33,15 H 59.5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1162-8"
+         d="M 33,18 H 61"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1164-2"
+         d="M 33,21 H 63"
+         style="stroke:#000000" />
+      <circle
+         id="circle1166-9"
+         r="5"
+         cy="33"
+         cx="10"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1168-9"
+         d="M 5,33 H 15"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1170-6"
+         d="m 5.2,31 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1172-0"
+         d="m 5.2,35 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1174-27"
+         d="m 6.8,29 h 6.4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1176-6"
+         d="m 6.8,37 h 6.4"
+         style="stroke:#000000" />
+      <circle
+         id="circle1178-1"
+         r="5"
+         cy="33"
+         cx="33"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1180-3"
+         d="M 28,33 H 38"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1182-2"
+         d="m 28.2,31 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1184-1"
+         d="m 28.2,35 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1186-5"
+         d="m 29.8,29 h 6.4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1188-9"
+         d="m 29.8,37 h 6.4"
+         style="stroke:#000000" />
+      <circle
+         id="circle1190-9"
+         r="5"
+         cy="33"
+         cx="56"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1192-1"
+         d="M 51,33 H 61"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1194-4"
+         d="m 51.2,31 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1196-9"
+         d="m 51.2,35 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1198-1"
+         d="m 52.8,29 h 6.4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1200-0"
+         d="m 52.8,37 h 6.4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1202-7"
+         d="M 33,63 H 44.5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1204-5"
+         d="M 33,60 H 50"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1206-8"
+         d="M 33,57 H 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1208-7"
+         d="M 33,54 H 57"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1210-0"
+         d="M 33,51 H 59.5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1212-4"
+         d="M 33,48 H 61"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1214-8"
+         d="M 33,45 H 63"
+         style="stroke:#000000" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.05555534px;line-height:1.25;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-8.7174673"
+       y="-280.41577"
+       id="text868-1-0"
+       transform="scale(-1)"><tspan
+         sodipodi:role="line"
+         id="tspan866-7-4"
+         x="-8.7174673"
+         y="-280.41577"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.87777805px;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';stroke-width:0.26458332">A</tspan></text>
+    <g
+       transform="matrix(-0.11450121,0,0,-0.11450121,8.7928293,278.69706)"
+       id="g1842-5-2">
+      <circle
+         id="circle1066-9-9"
+         r="5"
+         cy="65"
+         cx="33"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1068-6-6"
+         d="m 33,65 v 5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1070-2-1"
+         d="m 35,65 v 4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1072-1-0"
+         d="m 37,65 v 3"
+         style="stroke:#000000" />
+      <circle
+         id="circle1074-7-4"
+         r="32"
+         cy="33"
+         cx="33"
+         style="fill:#ffff00;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1076-8-2"
+         d="m 2.5,23 h 61 q 3.5,10 0,20 H 2.5 Q -1,33 2.5,23"
+         style="fill:#ff0000;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1078-5-2"
+         d="M 63,23 V 43"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1080-7-2"
+         d="m 6,43 v 7"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1082-4-0"
+         d="M 9,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1084-1-5"
+         d="M 12,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1086-8-5"
+         d="M 15,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1088-5-2"
+         d="M 18,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1090-9-9"
+         d="M 21,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1092-7-0"
+         d="M 24,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1094-5-2"
+         d="M 27,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1096-3-8"
+         d="M 30,43 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1098-8-3"
+         d="M 33,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1100-8-8"
+         d="M 36,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1102-3-0"
+         d="M 39,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1104-1-4"
+         d="M 42,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1106-8-0"
+         d="M 45,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1108-9-9"
+         d="M 48,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1110-6-1"
+         d="M 51,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1112-4-9"
+         d="M 54,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1114-3-6"
+         d="M 57,23 V 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1116-3-2"
+         d="M 60,23 V 50"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1118-3-5"
+         d="m 27,48 q -1.5,-2.5 -8,-5 -4,2 -4,7 l 14,15"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1120-8-4"
+         d="m 39,48 q 1.5,-2.5 8,-5 4,2 4,7 L 37,65"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1122-6-4"
+         d="m 29,65 q -9,-15 4,-22 13,7 4,22"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1124-0-9"
+         d="M 3.1,43 H 2.8 q 3.7,17 26.6,22"
+         style="fill:#007f00;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1126-4-9"
+         d="M 29,65 Q 21,52 15,50 8,47 2.8,43"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1128-8-3"
+         d="m 62.9,43 h 0.3 Q 59.5,60 36.6,65"
+         style="fill:#007f00;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1130-8-6"
+         d="M 37,65 Q 45,52 51,50 58,47 63.2,43"
+         style="fill:#007f00;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1132-8-0"
+         d="M 33,43 V 65"
+         style="stroke:#000000" />
+      <circle
+         id="circle1134-9-5"
+         r="32"
+         cy="33"
+         cx="33"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1136-7-0"
+         d="M 33,1 V 6.2"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1138-7-2"
+         d="M 35,1.2 V 6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1140-6-9"
+         d="M 31,1.2 V 6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1142-4-4"
+         d="M 37,1.2 V 5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1144-3-3"
+         d="M 29,1.2 V 5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1146-0-5"
+         d="m 28,1.2 q 0,5.3 5,5.3 5,0 5,-5.3"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1148-3-1"
+         d="M 2.8,23 H 63.2"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1150-0-7"
+         d="M 2.8,43 H 63.2"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1152-9-4"
+         d="M 33,3 H 44.5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1154-2-3"
+         d="M 33,6 H 50"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1156-5-1"
+         d="M 33,9 H 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1158-4-4"
+         d="M 33,12 H 57"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1160-0-6"
+         d="M 33,15 H 59.5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1162-5-9"
+         d="M 33,18 H 61"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1164-9-4"
+         d="M 33,21 H 63"
+         style="stroke:#000000" />
+      <circle
+         id="circle1166-4-2"
+         r="5"
+         cy="33"
+         cx="10"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1168-6-2"
+         d="M 5,33 H 15"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1170-9-6"
+         d="m 5.2,31 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1172-2-4"
+         d="m 5.2,35 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1174-2-1"
+         d="m 6.8,29 h 6.4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1176-4-2"
+         d="m 6.8,37 h 6.4"
+         style="stroke:#000000" />
+      <circle
+         id="circle1178-7-8"
+         r="5"
+         cy="33"
+         cx="33"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1180-7-8"
+         d="M 28,33 H 38"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1182-5-9"
+         d="m 28.2,31 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1184-4-2"
+         d="m 28.2,35 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1186-8-8"
+         d="m 29.8,29 h 6.4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1188-1-8"
+         d="m 29.8,37 h 6.4"
+         style="stroke:#000000" />
+      <circle
+         id="circle1190-2-8"
+         r="5"
+         cy="33"
+         cx="56"
+         style="fill:none;stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1192-8-6"
+         d="M 51,33 H 61"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1194-9-8"
+         d="m 51.2,31 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1196-3-3"
+         d="m 51.2,35 h 9.6"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1198-6-8"
+         d="m 52.8,29 h 6.4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1200-8-3"
+         d="m 52.8,37 h 6.4"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1202-0-3"
+         d="M 33,63 H 44.5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1204-2-3"
+         d="M 33,60 H 50"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1206-1-8"
+         d="M 33,57 H 54"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1208-0-0"
+         d="M 33,54 H 57"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1210-5-4"
+         d="M 33,51 H 59.5"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1212-1-7"
+         d="M 33,48 H 61"
+         style="stroke:#000000" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path1214-1-6"
+         d="M 33,45 H 63"
+         style="stroke:#000000" />
+    </g>
+  </g>
+</svg>

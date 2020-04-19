@@ -1,17 +1,19 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="bg-white">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>@ViewData["Title"] - Schafkopf</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
-<body>
+<body class="d-flex flex-column vh-100 overflow-hidden bg-white text-dark">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Schafkopf</a>
+                <a class="navbar-brand" asp-area="" asp-page="/Index">Schafkopf</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -19,30 +21,38 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-page="/Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" href="javascript:document.body.requestFullscreen();">Vollbild</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="toggleThemeButton" href="">Dark</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="toggleLastTrickButton" href=""></a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+    <div class="container-fluid flex-grow-1 d-flex overflow-hidden">
+        <main role="main" class="pb-3 d-flex flex-grow-1 overflow-hidden">
             @RenderBody()
         </main>
     </div>
-
+<!--
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2020 - Schafkopf - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2020 - Schafkopf - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
     </footer>
+-->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     @RenderSection("Scripts", required: false)
 </body>
 </html>

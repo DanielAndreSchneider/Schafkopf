@@ -1,71 +1,58 @@
-﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-
-a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
+﻿.card-on-table {
+    width: 12.5%;
+    transform-origin: 50% 0%;
+    position: absolute;
+    margin: auto;
+    left: 0;
+    right: 0;
+    z-index: 0;
+    pointer-events: none;
+    top: 50%;
 }
 
-/* Provide sufficient contrast against white background */
-a {
-  color: #0366d6;
+#hand {
+  z-index: 100;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+#card-right {
+  transform: rotate(270deg) translateY(27.5%);
 }
 
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+#card-left {
+  transform: rotate(90deg) translateY(27.5%);
 }
 
-/* Sticky footer styles
--------------------------------------------------- */
-html {
-  font-size: 14px;
-}
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+#card-bottom {
+  transform: translateY(27.5%);
 }
 
-.border-top {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom {
-  border-bottom: 1px solid #e5e5e5;
+#card-top {
+  transform: rotate(180deg) translateY(27.5%);
 }
 
-.box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+.player-at-table {
+width: max-content;
+background-color: rgba(255, 255, 255, 0.8);
+color: black;
+padding: 5px;
+border-radius: 5px;
 }
 
-button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
+#player-right {
+  transform: translateY(-50%);
+  left: auto;
 }
 
-/* Sticky footer styles
--------------------------------------------------- */
-html {
-  position: relative;
-  min-height: 100%;
+#player-left {
+  transform: translateY(-50%);
+  right: auto;
 }
 
-body {
-  /* Margin bottom by footer height */
-  margin-bottom: 60px;
+#player-bottom {
+  top: auto;
+  bottom: 5px;
 }
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px; /* Vertically center the text there */
+
+#player-top {
+  top: 5px;
 }
