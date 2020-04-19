@@ -122,9 +122,9 @@ namespace Schafkopf.Models
             return value;
         }
 
-        internal bool IsTrump(Game game)
+        internal bool IsTrump(GameType gameType, Color trump)
         {
-            return GetValue(game.AnnouncedGame, game.Trick.Trump) > 500;
+            return GetValue(gameType, trump) > 500;
         }
     }
 }

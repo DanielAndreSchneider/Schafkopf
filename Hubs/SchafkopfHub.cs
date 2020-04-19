@@ -64,6 +64,9 @@ namespace Schafkopf.Hubs
             Player player = (Player)Context.Items["player"];
             if (player == game.PlayingPlayers[game.ActionPlayer])
             {
+                if (gameType == GameType.Sauspiel && !await player.IsSauspielPossible(this)) {
+                    return;
+                }
                 await game.PlayingPlayers[game.ActionPlayer].AnnounceGameType(gameType, this, game);
                 game.ActionPlayer = (game.ActionPlayer + 1) % 4;
                 await game.SendAskForGameType(this);
@@ -100,6 +103,12 @@ namespace Schafkopf.Hubs
                 case "Schellen":
                     color = Color.Schellen;
                     break;
+            }
+            if (game.AnnouncedGame == GameType.Sauspiel) {
+                if (!await player.IsSauspielOnColorPossible(color, this))
+                {
+                    return;
+                }
             }
             game.Leader.AnnouncedColor = color;
             await game.StartGame(this);
