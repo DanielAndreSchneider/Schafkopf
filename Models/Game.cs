@@ -127,15 +127,13 @@ namespace Schafkopf.Models
 
         public async Task DealCards(SchafkopfHub hub)
         {
-
             await SendPlayers(hub);
             await SendAskWantToSpectate(hub, GetNonPlayingPlayersConnectionIds());
-            // TODO: if one of the players has exactly one trump, ask if he wants to play a Hochzeit
             foreach (String connectionId in GetPlayersConnectionIds())
             {
                 await hub.Clients.Client(connectionId).SendAsync("CloseWantToPlayModal");
             }
-            CurrentGameState = State.Announce;
+            CurrentGameState = State.AnnounceHochzeit;
 
             //New first player
             StartPlayer = (StartPlayer + 1) % 4;
@@ -155,7 +153,8 @@ namespace Schafkopf.Models
             }
 
             ActionPlayer = StartPlayer;
-            await SendAskAnnounce(hub);
+
+            await SendAskAnnounceHochzeit(hub);
         }
 
         public void DecideWhoIsPlaying()
@@ -204,6 +203,10 @@ namespace Schafkopf.Models
             else if (AnnouncedGame == GameType.Ramsch)
             {
                 message = $"Es wird geramscht!";
+            }
+            else if (AnnouncedGame == GameType.Hochzeit)
+            {
+                message = $"{Leader.Name} (kein Trumpf) und {HusbandWife.Name} spielen eine Hochzeit!";
             }
             else
             {
@@ -285,6 +288,14 @@ namespace Schafkopf.Models
 
         public async Task PlayCard(Player player, Color cardColor, int cardNumber, SchafkopfHub hub)
         {
+            if (CurrentGameState == State.HochzeitExchangeCards && player == HusbandWife)
+            {
+                if (await player.ExchangeCardWithPlayer(cardColor, cardNumber, Leader, hub, this))
+                {
+                    await StartGame(hub);
+                }
+                return;
+            }
             if (player != PlayingPlayers[ActionPlayer] || CurrentGameState != State.Playing)
             {
                 foreach (String connectionId in player.GetConnectionIds())
@@ -294,7 +305,8 @@ namespace Schafkopf.Models
                 return;
             }
             Card playedCard = await player.PlayCard(cardColor, cardNumber, hub, this);
-            if (playedCard == null) {
+            if (playedCard == null)
+            {
                 return;
             }
             await Trick.AddCard(playedCard, player, hub, this);
@@ -380,14 +392,6 @@ namespace Schafkopf.Models
                 }
 
             }
-            //Ask player whether they want to play another game
-            //TODO::Wait for Button press
-            //Do you want to play another game
-            if (NewGame == false)
-            {
-                //End Game and push every player in the initial screen
-                return;
-            }
         }
 
         #region Player actions
@@ -412,26 +416,6 @@ namespace Schafkopf.Models
                 await SendAskWantToSpectate(hub, player.GetConnectionIds());
             }
         }
-
-        //-------------------------------------------------
-        // Remove player
-        // Each player has the ability to leave the game, except when they are playing
-        //-------------------------------------------------
-        // public void RemovePlayer(Player player)
-        // {
-        //     if (player.Playing)
-        //     {
-        //         //Sorry, you can not leave the game during the game. You are able to quit the game.
-        //         //TODO::Notification that the player is not allowed to leave the game;
-        //         return;
-        //     }
-        //     if (!Players.Contains(player))
-        //     {
-        //         throw new Exception("There is something wrong with the player who wants to leave.");
-        //     }
-        //     PlayerDoesNotPlaysTheGame(player);
-        //     Players.Remove(player);
-        // }
 
         //-------------------------------------------------
         // Player decides to play the game
@@ -479,7 +463,6 @@ namespace Schafkopf.Models
             if (CurrentGameState != State.Idle)
             {
                 //Sorry, you can not pause the game during the game. You are able to pause afterwards.
-                //TODO::Notification that the player is not allowed to leave the game;
                 return;
             }
             player.Playing = false;
@@ -585,6 +568,54 @@ namespace Schafkopf.Models
             }
         }
 
+        public async Task SendAskAnnounceHochzeit(SchafkopfHub hub)
+        {
+            if (AnnouncedGame == GameType.Hochzeit && PlayingPlayers.Any(p => p != Leader && !p.HasAnsweredMarriageOffer))
+            {
+                foreach (Player player in PlayingPlayers.Where(p => p != Leader && !p.HasAnsweredMarriageOffer))
+                {
+                    await SendAskWantToMarryPlayer(hub, player.GetConnectionIdsWithSpectators());
+                }
+                return;
+            }
+
+            foreach (Player player in PlayingPlayers)
+            {
+                if (player.HandTrumpCount(GameType.Ramsch, Color.Herz) == 1 && !player.HasBeenAskedToOfferMarriage)
+                {
+                    foreach (String connectionId in player.GetConnectionIdsWithSpectators())
+                    {
+                        await hub.Clients.Client(connectionId).SendAsync("AskAnnounceHochzeit");
+                    }
+                    return;
+                }
+            }
+
+            AnnouncedGame = GameType.Ramsch;
+            Leader = null;
+            CurrentGameState = State.Announce;
+            await SendAskAnnounce(hub);
+        }
+
+        public async Task SendAskWantToMarryPlayer(SchafkopfHub hub, List<string> connectionIds)
+        {
+            foreach (String connectionId in connectionIds)
+            {
+                await hub.Clients.Client(connectionId).SendAsync("AskWantToMarryPlayer", Leader.Name);
+            }
+        }
+
+        public async Task SendAskExchangeCards(SchafkopfHub hub)
+        {
+            foreach (string connectionId in HusbandWife.GetConnectionIdsWithSpectators())
+            {
+                await hub.Clients.Client(connectionId).SendAsync(
+                    "ReceiveSystemMessage",
+                    "Klicke auf die Karte, die du deinem Mitspieler geben willst."
+                );
+            }
+        }
+
         public async Task SendAskForGameType(SchafkopfHub hub)
         {
             for (int i = 0; i < 4; i++)
@@ -623,10 +654,6 @@ namespace Schafkopf.Models
                 {
                     await hub.Clients.Client(connectionId).SendAsync("AskColor");
                 }
-            }
-            else if (AnnouncedGame == GameType.Hochzeit) //Hochzeit, announce husband or wife
-            {
-                //TODO::Wait for somebody to press the Button
             }
             else
             {
@@ -697,6 +724,14 @@ namespace Schafkopf.Models
             if (Leader == player && CurrentGameState == State.AnnounceGameColor)
             {
                 await SendAskForGameColor(hub);
+            }
+            if (CurrentGameState == State.AnnounceHochzeit)
+            {
+                await SendAskAnnounceHochzeit(hub);
+            }
+            if (CurrentGameState == State.HochzeitExchangeCards)
+            {
+                await SendAskExchangeCards(hub);
             }
         }
         public async Task UpdatePlayingPlayers(SchafkopfHub hub)

@@ -44,6 +44,51 @@ namespace Schafkopf.Hubs
                 }
                 await game.SendAskAnnounce(this);
             }
+            if (game.CurrentGameState == State.AnnounceHochzeit)
+            {
+                if (player.HandTrumpCount(GameType.Ramsch, Color.Herz) == 1 && !player.HasBeenAskedToOfferMarriage)
+                {
+                    foreach (String connectionId in player.GetConnectionIdsWithSpectators())
+                    {
+                        await Clients.Client(connectionId).SendAsync("CloseAnnounceModal");
+                    }
+                    player.HasBeenAskedToOfferMarriage = true;
+                    if (wantToPlay)
+                    {
+                        game.AnnouncedGame = GameType.Hochzeit;
+                        game.Leader = player;
+                        foreach (String connectionId in game.GetPlayersConnectionIds())
+                        {
+                            await Clients.Client(connectionId).SendAsync("ReceiveChatMessage", player.Name, "Wer will mich heiraten?");
+                        }
+                    }
+                    await game.SendAskAnnounceHochzeit(this);
+                }
+                else if (game.AnnouncedGame == GameType.Hochzeit && !player.HasAnsweredMarriageOffer)
+                {
+                    player.HasAnsweredMarriageOffer = true;
+                    if (wantToPlay)
+                    {
+                        foreach (String connectionId in game.GetPlayingPlayersConnectionIds())
+                        {
+                            await Clients.Client(connectionId).SendAsync("CloseAnnounceModal");
+                            await Clients.Client(connectionId).SendAsync("ReceiveChatMessage", player.Name, "Ich will!");
+                            await Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", $"{game.Leader.Name} und {player.Name} haben geheiratet");
+                        }
+                        game.CurrentGameState = State.HochzeitExchangeCards;
+                        game.HusbandWife = player;
+                        await game.SendAskExchangeCards(this);
+                    }
+                    else
+                    {
+                        foreach (String connectionId in player.GetConnectionIdsWithSpectators())
+                        {
+                            await Clients.Client(connectionId).SendAsync("CloseAnnounceModal");
+                        }
+                        await game.SendAskAnnounceHochzeit(this);
+                    }
+                }
+            }
         }
 
         public async Task AnnounceGameType(string gameTypeString)

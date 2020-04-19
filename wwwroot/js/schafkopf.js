@@ -58,6 +58,7 @@ connection.on("GameOver", function (title, body) {
 });
 
 connection.on("AskAnnounce", function (message) {
+  document.getElementById("announceModalTitle").textContent = "Magst du spielen?";
   $('#announceModal').modal({ keyboard: false, backdrop: "static" });
 });
 
@@ -71,6 +72,16 @@ connection.on("AskColor", function (message) {
 
 connection.on("AskWantToPlay", function () {
   $('#wantToPlayModal').modal({ keyboard: false, backdrop: "static" });
+});
+
+connection.on("AskAnnounceHochzeit", function (message) {
+  document.getElementById("announceModalTitle").textContent = "Magst du eine Hochzeit anbieten?";
+  $('#announceModal').modal({ keyboard: false, backdrop: "static" });
+});
+
+connection.on("AskWantToMarryPlayer", function (message) {
+  document.getElementById("announceModalTitle").textContent = `Magst du ${message} heiraten?`;
+  $('#announceModal').modal({ keyboard: false, backdrop: "static" });
 });
 
 connection.on("AskWantToSpectate", function (players) {

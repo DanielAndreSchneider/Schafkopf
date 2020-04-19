@@ -21,6 +21,8 @@ namespace Schafkopf.Models
         public Color AnnouncedColor = Color.None;
         public List<Player> Spectators = new List<Player>();
         public Queue<Player> SpectatorsWaitingForApproval = new Queue<Player>();
+        public bool HasBeenAskedToOfferMarriage = false;
+        public bool HasAnsweredMarriageOffer = false;
         private bool IsRunaway = false;
 
 
@@ -42,6 +44,8 @@ namespace Schafkopf.Models
             Spectators = new List<Player>();
             SpectatorsWaitingForApproval = new Queue<Player>();
             IsRunaway = false;
+            HasBeenAskedToOfferMarriage = false;
+            HasAnsweredMarriageOffer = false;
         }
 
         //-------------------------------------------------
@@ -247,6 +251,11 @@ namespace Schafkopf.Models
                     ).ToList().Count;
         }
 
+        public int HandTrumpCount(GameType gameType, Color trump)
+        {
+            return HandCards.Where(c => c.IsTrump(gameType, trump)).ToList().Count;
+        }
+
         private bool HandContainsColor(Color color, GameType gameType, Color trump)
         {
             return HandCards.Any(c => !c.IsTrump(gameType, trump) && c.Color == color);
@@ -279,6 +288,38 @@ namespace Schafkopf.Models
                 await hub.Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", "Du bist gesperrt!");
             }
             return false;
+        }
+
+        internal async Task<bool> ExchangeCardWithPlayer(Color cardColor, int cardNumber, Player player, SchafkopfHub hub, Game game)
+        {
+            foreach (Card card in HandCards)
+            {
+                if (card.Color == cardColor && card.Number == cardNumber)
+                {
+                    if (card.IsTrump(game.AnnouncedGame, Color.Herz))
+                    {
+                        foreach (String connectionId in GetConnectionIds())
+                        {
+                            await hub.Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", "Du kannst deinem Mitspieler kein Trumpf geben!");
+                        }
+                        return false;
+                    }
+                    player.HandCards.Add(card);
+                    HandCards.Remove(card);
+                    Card trumpCard = player.HandCards.Single(c => c.IsTrump(game.AnnouncedGame, Color.Herz));
+                    player.HandCards.Remove(trumpCard);
+                    HandCards.Add(trumpCard);
+                    foreach (String connectionId in game.GetPlayingPlayersConnectionIds())
+                    {
+                        await hub.Clients.Client(connectionId).SendAsync(
+                            "ReceiveSystemMessage",
+                            $"{player.Name} und {Name} haben eine Karte getauscht"
+                        );
+                    }
+                    return true;
+                }
+            }
+            throw new Exception("There is something wrong, the card is not on the hand.");
         }
 
         public async Task<bool> IsSauspielOnColorPossible(Color searchedColor, SchafkopfHub hub)
