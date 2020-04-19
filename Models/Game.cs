@@ -24,6 +24,7 @@ namespace Schafkopf.Models
         public Player Leader = null;
         public Player HusbandWife = null;
         public Trick Trick = null;
+        public Trick LastTrick = null;
         public int TrickCount = 0;
 
         private Random random = new Random();
@@ -78,9 +79,11 @@ namespace Schafkopf.Models
             Leader = null;
             HusbandWife = null;
             Trick = null;
+            LastTrick = null;
             TrickCount = 0;
 
-            await new Trick(this).SendTrick(hub, this);
+            await new Trick(this, 0).SendTrick(hub, this, GetPlayingPlayersConnectionIds());
+            await SendLastTrickButton(hub, GetPlayingPlayersConnectionIds(), LastTrickButtonState.disabled);
             PlayingPlayers = new List<Player>();
             foreach (Player player in Players)
             {
@@ -177,7 +180,7 @@ namespace Schafkopf.Models
         {
             await SendPlayerIsPlayingGameTypeAndColor(hub, GetPlayingPlayersConnectionIds());
             FindTeams();
-            Trick = new Trick(this);
+            Trick = new Trick(this, StartPlayer);
             CurrentGameState = State.Playing;
             ActionPlayer = StartPlayer;
             await SendPlayerIsStartingTheRound(hub, GetPlayingPlayersConnectionIds());
@@ -311,7 +314,8 @@ namespace Schafkopf.Models
                 }
 
                 ActionPlayer = PlayingPlayers.FindIndex(p => p == winner);
-                Trick = new Trick(this);
+                LastTrick = Trick;
+                Trick = new Trick(this, ActionPlayer);
                 await SendPlayerIsStartingTheRound(hub, GetPlayingPlayersConnectionIds());
             }
         }
@@ -654,7 +658,11 @@ namespace Schafkopf.Models
                 {
                     await SendPlayerIsStartingTheRound(hub, new List<string>() { hub.Context.ConnectionId });
                 }
-                await Trick.SendTrick(hub, this);
+                await Trick.SendTrick(hub, this, new List<string>() { hub.Context.ConnectionId });
+                if (LastTrick != null)
+                {
+                    await SendLastTrickButton(hub, new List<string>() { hub.Context.ConnectionId }, LastTrickButtonState.show);
+                }
                 await player.SendHand(hub, AnnouncedGame, Trick.Trump);
             }
             else
@@ -699,6 +707,14 @@ namespace Schafkopf.Models
                     "ReceiveSystemMessage",
                     $"Playing Players: {String.Join(", ", PlayingPlayers.Select(p => p.Name + " (" + p.GetConnectionIds().Count + ")"))}"
                 );
+            }
+        }
+
+        public async Task SendLastTrickButton(SchafkopfHub hub, List<String> connectionIds, LastTrickButtonState state)
+        {
+            foreach (string connectionId in connectionIds)
+            {
+                await hub.Clients.Client(connectionId).SendAsync("ReceiveLastTrickButton", state.ToString());
             }
         }
     }

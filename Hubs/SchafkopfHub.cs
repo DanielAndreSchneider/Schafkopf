@@ -13,6 +13,11 @@ namespace Schafkopf.Hubs
         public async Task SendChatMessage(string message)
         {
             Game game = ((Game)Context.Items["game"]);
+            if (message == "/restart")
+            {
+                await game.Reset(this);
+                return;
+            }
             String user = ((Player)Context.Items["player"]).Name;
             foreach (String connectionId in game.GetPlayersConnectionIds())
             {
@@ -64,7 +69,8 @@ namespace Schafkopf.Hubs
             Player player = (Player)Context.Items["player"];
             if (player == game.PlayingPlayers[game.ActionPlayer])
             {
-                if (gameType == GameType.Sauspiel && !await player.IsSauspielPossible(this)) {
+                if (gameType == GameType.Sauspiel && !await player.IsSauspielPossible(this))
+                {
                     return;
                 }
                 await game.PlayingPlayers[game.ActionPlayer].AnnounceGameType(gameType, this, game);
@@ -104,7 +110,8 @@ namespace Schafkopf.Hubs
                     color = Color.Schellen;
                     break;
             }
-            if (game.AnnouncedGame == GameType.Sauspiel) {
+            if (game.AnnouncedGame == GameType.Sauspiel)
+            {
                 if (!await player.IsSauspielOnColorPossible(color, this))
                 {
                     return;
@@ -251,6 +258,22 @@ namespace Schafkopf.Hubs
         {
             Game game = ((Game)Context.Items["game"]);
             await game.Reset(this);
+        }
+
+        public async Task ShowLastTrick(bool showLastTrick)
+        {
+            Game game = ((Game)Context.Items["game"]);
+            Player player = (Player)Context.Items["player"];
+            if (showLastTrick && game.LastTrick != null)
+            {
+                await game.LastTrick.SendTrick(this, game, new List<string>() { Context.ConnectionId });
+                await game.SendLastTrickButton(this, new List<string>() { Context.ConnectionId }, LastTrickButtonState.hide);
+            }
+            else
+            {
+                await game.Trick.SendTrick(this, game, new List<string>() { Context.ConnectionId });
+                await game.SendLastTrickButton(this, new List<string>() { Context.ConnectionId }, LastTrickButtonState.show);
+            }
         }
 
         public override Task OnDisconnectedAsync(Exception exception)

@@ -148,9 +148,23 @@ connection.on("ReceivePlayers", function (players) {
 
 connection.on("ReceiveTrick", function (cards) {
   document.getElementById("card-bottom").src = cards[0] != "" ? `/carddecks/noto/${cards[0]}.svg` : "/carddecks/blank.svg";
-    document.getElementById("card-left").src = cards[1] != "" ? `/carddecks/noto/${cards[1]}.svg` : "/carddecks/blank.svg";
-    document.getElementById("card-top").src = cards[2] != "" ? `/carddecks/noto/${cards[2]}.svg` : "/carddecks/blank.svg";
-    document.getElementById("card-right").src = cards[3] != "" ? `/carddecks/noto/${cards[3]}.svg` : "/carddecks/blank.svg";
+  document.getElementById("card-left").src = cards[1] != "" ? `/carddecks/noto/${cards[1]}.svg` : "/carddecks/blank.svg";
+  document.getElementById("card-top").src = cards[2] != "" ? `/carddecks/noto/${cards[2]}.svg` : "/carddecks/blank.svg";
+  document.getElementById("card-right").src = cards[3] != "" ? `/carddecks/noto/${cards[3]}.svg` : "/carddecks/blank.svg";
+});
+
+connection.on("ReceiveLastTrickButton", function (buttonState) {
+  switch (buttonState) {
+    case "disabled":
+      document.getElementById("toggleLastTrickButton").textContent = "";
+      break;
+    case "show":
+      document.getElementById("toggleLastTrickButton").textContent = "Letzten Stich zeigen";
+      break;
+    case "hide":
+      document.getElementById("toggleLastTrickButton").textContent = "Letzten Stich verstecken";
+      break;
+  }
 });
 
 connection
@@ -294,7 +308,7 @@ document
   .getElementById("restartButton")
   .addEventListener("click", function (event) {
     connection
-      .invoke("ResetGame",).catch(function (err) {
+      .invoke("ResetGame").catch(function (err) {
         return console.error(err.toString());
       });
     event.preventDefault();
@@ -378,5 +392,22 @@ document
     searchParams.set("game", document.getElementById("gameIdInput").value)
     window.location.search = searchParams.toString();
     tryReconnect();
+    event.preventDefault();
+  });
+
+document
+  .getElementById("toggleLastTrickButton")
+  .addEventListener("click", function (event) {
+    if (document.getElementById("toggleLastTrickButton").textContent.trim() == "Letzten Stich verstecken") {
+      connection
+        .invoke("ShowLastTrick", false).catch(function (err) {
+          return console.error(err.toString());
+        });
+    } else if (document.getElementById("toggleLastTrickButton").textContent.trim() == "Letzten Stich zeigen") {
+      connection
+        .invoke("ShowLastTrick", true).catch(function (err) {
+          return console.error(err.toString());
+        });
+    }
     event.preventDefault();
   });

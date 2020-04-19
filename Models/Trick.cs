@@ -16,11 +16,13 @@ namespace Schafkopf.Models
         public GameType GameType = GameType.Ramsch;
         public Color Trump = Color.Herz;
         public int Winner = 0;
+        private int StartPlayer;
 
-        public Trick(Game game)
+        public Trick(Game game, int startPlayer)
         {
             GameType = game.AnnouncedGame;
             DetermineTrumpf(game);
+            StartPlayer = startPlayer;
         }
 
         //-------------------------------------------------
@@ -36,7 +38,11 @@ namespace Schafkopf.Models
             Cards[Count] = card;
             Player[Count] = player;
 
-            await SendTrick(hub, game);
+            await SendTrick(hub, game, game.GetPlayingPlayersConnectionIds());
+            if (game.LastTrick != null)
+            {
+                await game.SendLastTrickButton(hub, game.GetPlayingPlayersConnectionIds(), LastTrickButtonState.show);
+            }
 
             //Determine the winner of the Trick
             if(Count > 0)
@@ -89,7 +95,7 @@ namespace Schafkopf.Models
             }
         }
 
-        public async Task SendTrick(SchafkopfHub hub, Game game)
+        public async Task SendTrick(SchafkopfHub hub, Game game, List<String> connectionIds)
         {
             for (int i = 0; i < 4; i++)
             {
@@ -98,9 +104,13 @@ namespace Schafkopf.Models
                 {
                     permutedCards[j] = Cards[(j + i) % 4];
                 }
-                Player player = game.PlayingPlayers[(game.ActionPlayer - Count + i + 4) % 4];
+                Player player = game.PlayingPlayers[(StartPlayer + i) % 4];
                 foreach (String connectionId in player.GetConnectionIdsWithSpectators())
                 {
+                    if (!connectionIds.Contains(connectionId))
+                    {
+                        continue;
+                    }
                     await hub.Clients.Client(connectionId).SendAsync(
                         "ReceiveTrick",
                         permutedCards.Select(card => card == null ? "" : card.ToString())
