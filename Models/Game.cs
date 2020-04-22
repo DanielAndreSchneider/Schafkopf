@@ -446,6 +446,8 @@ namespace Schafkopf.Models
                 await UpdatePlayingPlayers(hub);
                 if (PlayingPlayers.Count == 4)
                 {
+                    // wait for a second to make sure old other modals have closed
+                    await Task.Delay(1000);
                     await DealCards(hub);
                 }
             }
