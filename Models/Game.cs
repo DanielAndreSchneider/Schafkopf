@@ -306,6 +306,9 @@ namespace Schafkopf.Models
                 }
                 return;
             }
+            if (Trick.Count == 4) {
+                await hub.TakeTrick();
+            }
             Card playedCard = await player.PlayCard(cardColor, cardNumber, hub, this);
             if (playedCard == null)
             {
@@ -320,19 +323,9 @@ namespace Schafkopf.Models
             }
             else
             {
-                Player winner = Trick.GetWinner();
-                winner.TakeTrick(Trick);
-                TrickCount++;
-                if (TrickCount == 8)
-                {
-                    await SendEndGameModal(hub, GetPlayingPlayersConnectionIds());
-                }
-
-                ActionPlayer = PlayingPlayers.FindIndex(p => p == winner);
+                ActionPlayer = PlayingPlayers.IndexOf(Trick.GetWinner());
                 await SendPlayers(hub);
-                LastTrick = Trick;
-                Trick = new Trick(this, ActionPlayer);
-                await SendPlayerIsStartingTheRound(hub, GetPlayingPlayersConnectionIds());
+                await SendTakeTrickButton(hub, GetPlayingPlayersConnectionIds());
             }
         }
 
@@ -452,8 +445,6 @@ namespace Schafkopf.Models
                 await SendPlayingPlayersInfo(hub);
                 if (PlayingPlayers.Count == 4)
                 {
-                    // wait for a second to make sure old other modals have closed
-                    await Task.Delay(1000);
                     await DealCards(hub);
                 }
             }
@@ -718,6 +709,7 @@ namespace Schafkopf.Models
                     await SendLastTrickButton(hub, connectionIds, LastTrickButtonState.show);
                 }
                 await player.SendHand(hub, AnnouncedGame, Trick.Trump);
+                await SendTakeTrickButton(hub, connectionIds);
             }
             else
             {
@@ -791,6 +783,31 @@ namespace Schafkopf.Models
             foreach (string connectionId in connectionIds)
             {
                 await hub.Clients.Client(connectionId).SendAsync("ReceiveLastTrickButton", state.ToString());
+            }
+        }
+
+        public async Task SendTakeTrickButton(SchafkopfHub hub, List<String> connectionIds)
+        {
+            foreach (Player player in PlayingPlayers)
+            {
+                foreach (string connectionId in player.GetConnectionIdsWithSpectators())
+                {
+                    if (!connectionIds.Contains(connectionId)) {
+                        continue;
+                    }
+                    if (Trick.Count < 4)
+                    {
+                        await hub.Clients.Client(connectionId).SendAsync("ReceiveTakeTrickButton", TakeTrickButtonState.hidden.ToString());
+                    }
+                    else if (player == Trick.GetWinner())
+                    {
+                        await hub.Clients.Client(connectionId).SendAsync("ReceiveTakeTrickButton", TakeTrickButtonState.won.ToString());
+                    }
+                    else
+                    {
+                        await hub.Clients.Client(connectionId).SendAsync("ReceiveTakeTrickButton", TakeTrickButtonState.lost.ToString(), Trick.GetWinner().Name);
+                    }
+                }
             }
         }
     }

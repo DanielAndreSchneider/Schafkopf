@@ -58,7 +58,7 @@ namespace Schafkopf.Hubs
                     {
                         game.AnnouncedGame = GameType.Hochzeit;
                         game.Leader = player;
-                        foreach (String connectionId in game.GetPlayersConnectionIds())
+                        foreach (String connectionId in game.GetPlayingPlayersConnectionIds())
                         {
                             await Clients.Client(connectionId).SendAsync("ReceiveChatMessage", player.Name, "Wer will mich heiraten?");
                         }
@@ -211,7 +211,6 @@ namespace Schafkopf.Hubs
                 {
                     await game.SendUpdatedGameState(player, this, new List<String> { Context.ConnectionId });
                     // check if all players are connected again and close connectionLostModal for the other players
-                    await Task.Delay(1000);
                     if (game.PlayingPlayers.All(p => p.GetConnectionIds().Count > 0))
                     {
                         foreach (String connectionId in game.GetPlayingPlayersConnectionIds())
@@ -329,6 +328,29 @@ namespace Schafkopf.Hubs
             {
                 await game.Trick.SendTrick(this, game, new List<string>() { Context.ConnectionId });
                 await game.SendLastTrickButton(this, new List<string>() { Context.ConnectionId }, LastTrickButtonState.show);
+            }
+        }
+
+        public async Task TakeTrick()
+        {
+            Game game = ((Game)Context.Items["game"]);
+            Player player = (Player)Context.Items["player"];
+            if (game.Trick.Count == 4 && game.Trick.GetWinner() == player)
+            {
+                player.TakeTrick(game.Trick);
+                game.TrickCount++;
+                if (game.TrickCount == 8)
+                {
+                    await game.SendEndGameModal(this, game.GetPlayingPlayersConnectionIds());
+                }
+
+                game.ActionPlayer = game.PlayingPlayers.FindIndex(p => p == player);
+                await game.SendPlayers(this);
+                game.LastTrick = game.Trick;
+                game.Trick = new Trick(game, game.ActionPlayer);
+                await game.Trick.SendTrick(this, game, game.GetPlayingPlayersConnectionIds());
+                await game.SendTakeTrickButton(this, game.GetPlayingPlayersConnectionIds());
+                await game.SendPlayerIsStartingTheRound(this, game.GetPlayingPlayersConnectionIds());
             }
         }
 
