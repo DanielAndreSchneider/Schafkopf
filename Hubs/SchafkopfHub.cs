@@ -79,7 +79,6 @@ namespace Schafkopf.Hubs
                         game.CurrentGameState = State.HochzeitExchangeCards;
                         game.HusbandWife = player;
                         game.ActionPlayer = game.PlayingPlayers.IndexOf(game.HusbandWife);
-                        await game.SendPlayers(this);
                         await game.SendAskExchangeCards(this, game.HusbandWife.GetConnectionIdsWithSpectators());
                     }
                     else
@@ -91,6 +90,7 @@ namespace Schafkopf.Hubs
                         await game.SendAskAnnounceHochzeit(this);
                     }
                 }
+                await game.SendPlayers(this);
             }
         }
 

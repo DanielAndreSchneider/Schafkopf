@@ -208,17 +208,24 @@ connection.on("ReceiveHand", function (cards) {
   }
 });
 
-connection.on("ReceivePlayers", function (players, actionPlayer) {
+connection.on("ReceivePlayers", function (players, infos, actionPlayer) {
   const playersPositions = new Array("player-bottom", "player-left", "player-top", "player-right");
   for (let i = 0; i < 4; i++) {
-    const player = document.getElementById(playersPositions[i]);
+    const player = document.getElementById(playersPositions[i] + "-name");
+    const info = document.getElementById(playersPositions[i] + "-info");
     player.textContent = players[i];
+    info.textContent = infos[i]
     if (i == actionPlayer) {
       player.classList.add("active-player");
     } else {
       player.classList.remove("active-player");
     }
   }
+});
+
+connection.on("ReceiveGameInfo", function (message) {
+  const info = document.getElementById("game-info");
+  info.textContent = message;
 });
 
 connection.on("ReceiveTrick", function (cards) {

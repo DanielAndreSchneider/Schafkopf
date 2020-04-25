@@ -17,6 +17,7 @@ namespace Schafkopf.Models
         private readonly List<String> _connectionIds = new List<String>();
         public Boolean Playing = false;
         public Boolean WantToPlay = false;
+        public Boolean WantToPlayAnswered = false;
         public GameType AnnouncedGameType = GameType.Ramsch;
         public Color AnnouncedColor = Color.None;
         public List<Player> Spectators = new List<Player>();
@@ -39,6 +40,7 @@ namespace Schafkopf.Models
             Balance = 0;
             Playing = false;
             WantToPlay = false;
+            WantToPlayAnswered = false;
             AnnouncedGameType = GameType.Ramsch;
             AnnouncedColor = Color.None;
             Spectators = new List<Player>();
@@ -88,6 +90,7 @@ namespace Schafkopf.Models
         {
             //Message about the players actions
             WantToPlay = wantToPlay;
+            WantToPlayAnswered = true;
             foreach (String connectionId in game.GetPlayingPlayersConnectionIds())
             {
                 if (WantToPlay)
@@ -344,6 +347,61 @@ namespace Schafkopf.Models
                 await hub.Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", $"Du kannst nicht auf die {searchedColor}-Sau spielen!");
             }
             return false;
+        }
+
+        public string GetSpectatorNames()
+        {
+            if (Spectators.Where(s => s.GetConnectionIds().Count > 0).ToList().Count > 0)
+            {
+                return $" ({String.Join(", ", Spectators.Where(s => s.GetConnectionIds().Count > 0).Select(s => s.Name))})";
+            }
+            return "";
+        }
+
+        public string GetCurrentInfo(Game game)
+        {
+            if (game.CurrentGameState == State.AnnounceHochzeit || game.CurrentGameState == State.HochzeitExchangeCards)
+            {
+                if (game.Leader == this)
+                {
+                    return "Wer will mich heiraten?";
+                }
+                else if (HasAnsweredMarriageOffer)
+                {
+                    if (game.HusbandWife == this)
+                    {
+                        return "Ich will!";
+                    }
+                    else
+                    {
+                        return "Ich nicht";
+                    }
+                }
+            }
+            else if (game.CurrentGameState == State.AnnounceGameColor || (game.CurrentGameState == State.AnnounceGameType && AnnouncedGameType != GameType.Ramsch))
+            {
+                switch (AnnouncedGameType)
+                {
+                    case GameType.Farbsolo:
+                        return "Ich hab ein Solo";
+                    case GameType.Wenz:
+                        return "Ich hab ein Wenz";
+                    case GameType.Sauspiel:
+                        return "Ich hab ein Sauspiel";
+                }
+            }
+            else if (game.CurrentGameState == State.AnnounceGameType || (game.CurrentGameState == State.Announce && WantToPlayAnswered))
+            {
+                if (WantToPlay)
+                {
+                    return "Ich würde";
+                }
+                else
+                {
+                    return "Weiter";
+                }
+            }
+            return "";
         }
     }
 }
