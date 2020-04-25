@@ -36,6 +36,7 @@ namespace Schafkopf.Hubs
                 }
                 await game.PlayingPlayers[game.ActionPlayer].Announce(wantToPlay, this, game);
                 game.ActionPlayer = (game.ActionPlayer + 1) % 4;
+                await game.SendPlayers(this);
                 if (game.ActionPlayer == game.StartPlayer)
                 {
                     game.CurrentGameState = State.AnnounceGameType;
@@ -77,7 +78,9 @@ namespace Schafkopf.Hubs
                         }
                         game.CurrentGameState = State.HochzeitExchangeCards;
                         game.HusbandWife = player;
-                        await game.SendAskExchangeCards(this);
+                        game.ActionPlayer = game.PlayingPlayers.IndexOf(game.HusbandWife);
+                        await game.SendPlayers(this);
+                        await game.SendAskExchangeCards(this, game.HusbandWife.GetConnectionIdsWithSpectators());
                     }
                     else
                     {
@@ -120,6 +123,7 @@ namespace Schafkopf.Hubs
                 }
                 await game.PlayingPlayers[game.ActionPlayer].AnnounceGameType(gameType, this, game);
                 game.ActionPlayer = (game.ActionPlayer + 1) % 4;
+                await game.SendPlayers(this);
                 await game.SendAskForGameType(this);
                 foreach (String connectionId in player.GetConnectionIdsWithSpectators())
                 {
@@ -196,12 +200,16 @@ namespace Schafkopf.Hubs
             Context.Items.Add("game", game);
             Player player = game.Players.Single(p => p.Id == userId);
             player.AddConnectionId(this);
+            if (player.GetConnectionIds().Count == 1) {
+                Task asyncTask = game.SendPlayersInfo(this);
+            }
             await Clients.Caller.SendAsync("ReceiveSystemMessage", $"Willkommen zurück {player.Name}");
+            await game.SendPlayers(this);
             if (game.CurrentGameState != State.Idle)
             {
                 if (game.PlayingPlayers.Contains(player))
                 {
-                    await game.SendUpdatedGameState(player, this);
+                    await game.SendUpdatedGameState(player, this, new List<String> { Context.ConnectionId });
                     // check if all players are connected again and close connectionLostModal for the other players
                     await Task.Delay(1000);
                     if (game.PlayingPlayers.All(p => p.GetConnectionIds().Count > 0))
@@ -214,7 +222,10 @@ namespace Schafkopf.Hubs
                 }
                 else if (game.PlayingPlayers.Any(p => p.Spectators.Contains(player)))
                 {
-                    await game.SendUpdatedGameState(game.PlayingPlayers.Single(p => p.Spectators.Contains(player)), this);
+                    await game.SendUpdatedGameState(
+                        game.PlayingPlayers.Single(p => p.Spectators.Contains(player)),
+                        this,
+                        new List<String> { Context.ConnectionId });
                 }
                 else
                 {
@@ -328,17 +339,19 @@ namespace Schafkopf.Hubs
                 Game game = ((Game)Context.Items["game"]);
                 foreach (Player player in game.Players)
                 {
-                    if (player.RemoveConnectionId(Context.ConnectionId))
+                    if (player.RemoveConnectionId(Context.ConnectionId) && player.GetConnectionIds().Count == 0)
                     {
-                        if (game.PlayingPlayers.Contains(player) && player.GetConnectionIds().Count == 0)
+                        Task asyncTask = game.SendPlayersInfo(this);
+                        asyncTask = game.SendPlayers(this);
+                        if (game.PlayingPlayers.Contains(player))
                         {
                             if (game.CurrentGameState == State.Idle)
                             {
-                                Task asyncTask = game.PlayerDoesNotPlayTheGame(player, this);
+                                asyncTask = game.PlayerDoesNotPlayTheGame(player, this);
                             }
                             else
                             {
-                                Task asyncTask = game.SendConnectionToPlayerLostModal(this, game.GetPlayingPlayersConnectionIds());
+                                asyncTask = game.SendConnectionToPlayerLostModal(this, game.GetPlayingPlayersConnectionIds());
                                 asyncTask = game.ResetIfAllConnectionsLost(this);
                             }
                         }

@@ -173,11 +173,17 @@ connection.on("ReceiveHand", function (cards) {
   }
 });
 
-connection.on("ReceivePlayers", function (players) {
-  document.getElementById("player-bottom").textContent = players[0];
-  document.getElementById("player-left").textContent = players[1];
-  document.getElementById("player-top").textContent = players[2];
-  document.getElementById("player-right").textContent = players[3];
+connection.on("ReceivePlayers", function (players, actionPlayer) {
+  const playersPositions = new Array("player-bottom", "player-left", "player-top", "player-right");
+  for (let i = 0; i < 4; i++) {
+    const player = document.getElementById(playersPositions[i]);
+    player.textContent = players[i];
+    if (i == actionPlayer) {
+      player.classList.add("active-player");
+    } else {
+      player.classList.remove("active-player");
+    }
+  }
 });
 
 connection.on("ReceiveTrick", function (cards) {

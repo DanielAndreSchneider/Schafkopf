@@ -161,7 +161,7 @@ namespace Schafkopf.Models
                 await hub.Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", $"{player.Name} schaut jetzt bei {Name} zu");
             }
             Spectators.Add(player);
-            await game.SendUpdatedGameState(this, hub);
+            await game.SendUpdatedGameState(this, hub, player.GetConnectionIds());
         }
 
         public async Task AskForApprovalToSpectate(SchafkopfHub hub)
