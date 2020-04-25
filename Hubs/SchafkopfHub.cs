@@ -374,13 +374,6 @@ namespace Schafkopf.Hubs
             {
                 await Clients.Client(connectionId).SendAsync("CloseWantToPlayModal");
             }
-            if (game.Players.Where((p => p.GetConnectionIds().Count > 0 && p.Playing)).ToList().Count <= 4)
-            {
-                foreach (Player p in game.Players.Where((p => p.GetConnectionIds().Count > 0 && p.Playing)))
-                {
-                    await game.PlayerPlaysTheGame(p, this);
-                }
-            }
         }
 
         public async Task ResetGame()
@@ -439,13 +432,10 @@ namespace Schafkopf.Hubs
                     {
                         Task asyncTask = game.SendPlayersInfo(this);
                         asyncTask = game.SendPlayers(this);
+                        asyncTask = game.PlayerDoesNotPlayTheGame(player, this);
                         if (game.PlayingPlayers.Contains(player))
                         {
-                            if (game.CurrentGameState == State.Idle)
-                            {
-                                asyncTask = game.PlayerDoesNotPlayTheGame(player, this);
-                            }
-                            else
+                            if (game.CurrentGameState != State.Idle)
                             {
                                 asyncTask = game.SendConnectionToPlayerLostModal(this, game.GetPlayingPlayersConnectionIds());
                                 asyncTask = game.ResetIfAllConnectionsLost(this);
