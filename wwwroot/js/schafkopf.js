@@ -1,5 +1,29 @@
 "use strict";
 
+const modalState = {};
+
+function showModal(modal) {
+  modalState[modal] = true;
+  $(modal).modal({ keyboard: false, backdrop: "static" });
+
+  $(modal).on('hidden.bs.modal', function (e) {
+    if (modalState[modal]) {
+      $(modal).modal({ keyboard: false, backdrop: "static" });
+    }
+  })
+}
+
+function hideModal(modal) {
+  modalState[modal] = false;
+  $(modal).modal('hide');
+
+  $(modal).on('shown.bs.modal', function (e) {
+    if (!modalState[modal]) {
+      $(modal).modal('hide');
+    }
+  })
+}
+
 function tryReconnect() {
   // The following code allows a user to reconnect after reloading the page or restarting the browser
   // During development this is not useful as it is more difficult to simulate multiple users from one machine
@@ -13,7 +37,11 @@ function tryReconnect() {
         return console.error(err.toString());
       });
   } else {
-    $('#usernameModal').modal({ keyboard: false, backdrop: "static" });
+    document.getElementById("startModalUserName").value = localStorage.getItem("userName");
+    showModal('#usernameModal');
+    $('#usernameModal').on('shown.bs.modal', function () {
+      $('#startModalUserName').focus();
+    })
   }
 }
 
@@ -59,6 +87,11 @@ connection.on("ReceiveChatMessage", function (user, message) {
 });
 
 connection.on("ReceiveSystemMessage", function (message) {
+  if (message.startsWith("Error: ")) {
+    document.getElementById("errorModalBody").textContent = message;
+    $("#errorModal").modal();
+  }
+
   var div = document.createElement("div");
   var userB = div.appendChild(document.createElement("b"));
   var msgSpan = div.appendChild(document.createElement("span"));
@@ -71,40 +104,44 @@ connection.on("ReceiveSystemMessage", function (message) {
 
 connection.on("AskUsername", function (message) {
   localStorage.removeItem("userId");
-  $('#usernameModal').modal({ keyboard: false, backdrop: "static" });
+  document.getElementById("startModalUserName").value = localStorage.getItem("userName");
+  showModal('#usernameModal');
+  $('#usernameModal').on('shown.bs.modal', function () {
+    $('#startModalUserName').focus();
+  })
 });
 
 connection.on("GameOver", function (title, body) {
   document.getElementById("gameOverModalTitle").textContent = title;
   document.getElementById("gameOverModalBody").textContent = body;
-  $('#gameOverModal').modal({ keyboard: false, backdrop: "static" });
+  showModal('#gameOverModal');
 });
 
 connection.on("AskAnnounce", function (message) {
   document.getElementById("announceModalTitle").textContent = "Magst du spielen?";
-  $('#announceModal').modal({ keyboard: false, backdrop: "static" });
+  showModal('#announceModal');
 });
 
 connection.on("AskGameType", function (message) {
-  $('#announceGameTypeModal').modal({ keyboard: false, backdrop: "static" });
+  showModal('#announceGameTypeModal');
 });
 
 connection.on("AskColor", function (message) {
-  $('#gameColorModal').modal({ keyboard: false, backdrop: "static" });
+  showModal('#gameColorModal');
 });
 
 connection.on("AskWantToPlay", function () {
-  $('#wantToPlayModal').modal({ keyboard: false, backdrop: "static" });
+  showModal('#wantToPlayModal');
 });
 
 connection.on("AskAnnounceHochzeit", function (message) {
   document.getElementById("announceModalTitle").textContent = "Magst du eine Hochzeit anbieten?";
-  $('#announceModal').modal({ keyboard: false, backdrop: "static" });
+  showModal('#announceModal');
 });
 
 connection.on("AskWantToMarryPlayer", function (message) {
   document.getElementById("announceModalTitle").textContent = `Magst du ${message} heiraten?`;
-  $('#announceModal').modal({ keyboard: false, backdrop: "static" });
+  showModal('#announceModal');
 });
 
 connection.on("AskWantToSpectate", function (players) {
@@ -112,45 +149,46 @@ connection.on("AskWantToSpectate", function (players) {
   document.getElementById("wantToSpectatePlayer2Button").textContent = players[1];
   document.getElementById("wantToSpectatePlayer3Button").textContent = players[2];
   document.getElementById("wantToSpectatePlayer4Button").textContent = players[3];
-  $('#wantToSpectateModal').modal({ keyboard: false, backdrop: "static" });
+  showModal('#wantToSpectateModal');
 });
 
 connection.on("AskAllowSpectator", function (player) {
   document.getElementById("allowSpectatorModalTitle").textContent = `Erlaubst du ${player} bei dir zuzuschauen?`;
-  $('#allowSpectatorModal').modal({ keyboard: false, backdrop: "static" });
+  showModal('#allowSpectatorModal');
 })
 
 connection.on("CloseGameOverModal", function () {
-  $('#gameOverModal').modal('hide');
+  hideModal('#gameOverModal');
 });
 
 connection.on("CloseAnnounceModal", function () {
-  $('#announceModal').modal('hide');
+  hideModal('#announceModal');
 });
 
 connection.on("CloseAnnounceGameTypeModal", function () {
-  $('#announceGameTypeModal').modal('hide');
+  hideModal('#announceGameTypeModal');
 });
 
 connection.on("CloseGameColorModal", function () {
-  $('#gameColorModal').modal('hide');
+  hideModal('#gameColorModal');
 });
 
 connection.on("CloseWantToPlayModal", function () {
-  $('#wantToPlayModal').modal('hide');
+  hideModal('#wantToPlayModal');
 });
 
 connection.on("CloseWantToSpectateModal", function () {
-  $('#wantToSpectateModal').modal('hide');
+  hideModal('#wantToSpectateModal');
 });
 
 connection.on("CloseAllowSpectatorModal", function (player) {
-  $('#allowSpectatorModal').modal('hide');
+  hideModal('#allowSpectatorModal');
 })
 
-connection.on("StoreUserId", function (id) {
+connection.on("StoreUser", function (id, name) {
   localStorage.setItem("userId", id);
-  $('#usernameModal').modal('hide');
+  localStorage.setItem("userName", name);
+  hideModal('#usernameModal');
 });
 
 connection.on("ReceiveHand", function (cards) {
@@ -173,11 +211,24 @@ connection.on("ReceiveHand", function (cards) {
   }
 });
 
-connection.on("ReceivePlayers", function (players) {
-  document.getElementById("player-bottom").textContent = players[0];
-  document.getElementById("player-left").textContent = players[1];
-  document.getElementById("player-top").textContent = players[2];
-  document.getElementById("player-right").textContent = players[3];
+connection.on("ReceivePlayers", function (players, infos, actionPlayer) {
+  const playersPositions = new Array("player-bottom", "player-left", "player-top", "player-right");
+  for (let i = 0; i < 4; i++) {
+    const player = document.getElementById(playersPositions[i] + "-name");
+    const info = document.getElementById(playersPositions[i] + "-info");
+    player.textContent = players[i];
+    info.textContent = infos[i]
+    if (i == actionPlayer) {
+      player.classList.add("active-player");
+    } else {
+      player.classList.remove("active-player");
+    }
+  }
+});
+
+connection.on("ReceiveGameInfo", function (message) {
+  const info = document.getElementById("game-info");
+  info.textContent = message;
 });
 
 connection.on("ReceiveTrick", function (cards) {
@@ -190,13 +241,37 @@ connection.on("ReceiveTrick", function (cards) {
 connection.on("ReceiveLastTrickButton", function (buttonState) {
   switch (buttonState) {
     case "disabled":
-      document.getElementById("toggleLastTrickButton").textContent = "";
+      document.getElementById("toggleLastTrickButton").classList.add("d-none");
       break;
     case "show":
+      document.getElementById("toggleLastTrickButton").classList.remove("d-none");
       document.getElementById("toggleLastTrickButton").textContent = "Letzten Stich zeigen";
       break;
     case "hide":
+      document.getElementById("toggleLastTrickButton").classList.remove("d-none");
       document.getElementById("toggleLastTrickButton").textContent = "Letzten Stich verstecken";
+      break;
+  }
+});
+
+connection.on("ReceiveTakeTrickButton", function (buttonState, winner) {
+  const btn = document.getElementById("take-trick-btn");
+  const content = document.getElementById("take-trick-btn-content");
+  btn.classList.remove("d-none");
+  btn.classList.remove("btn-primary");
+  btn.classList.remove("btn-secondary");
+  switch (buttonState) {
+    case "hidden":
+      content.textContent = "";
+      btn.classList.add("d-none");
+      break;
+    case "won":
+      content.textContent = "Stich nehmen!";
+      btn.classList.add("btn-primary");
+      break;
+    case "lost":
+      content.textContent = `${winner} hat den Stich gewonnen.`;
+      btn.classList.add("btn-secondary");
       break;
   }
 });
@@ -207,7 +282,7 @@ connection
     document.getElementById("sendButton").disabled = false;
     let searchParams = new URLSearchParams(window.location.search);
     if (!searchParams.get("game")) {
-      $('#gameIdModal').modal({ keyboard: false, backdrop: "static" });
+      showModal('#gameIdModal');
       return;
     }
     tryReconnect();
@@ -329,14 +404,18 @@ document
 document
   .getElementById("startButton")
   .addEventListener("click", function (event) {
+    event.preventDefault();
     let searchParams = new URLSearchParams(window.location.search);
     var userName = document.getElementById("startModalUserName").value;
+    if (userName === "") {
+      return;
+    }
+    document.getElementById("startModalUserName").value = "";
     connection
       .invoke("AddPlayer", userName, searchParams.get("game"))
       .catch(function (err) {
         return console.error(err.toString());
       });
-    event.preventDefault();
   });
 
 document
@@ -344,16 +423,6 @@ document
   .addEventListener("click", function (event) {
     connection
       .invoke("ResetGame").catch(function (err) {
-        return console.error(err.toString());
-      });
-    event.preventDefault();
-  });
-
-document
-  .getElementById("doNotSpectateButton")
-  .addEventListener("click", function (event) {
-    connection
-      .invoke("PlayerWantsToSpectate", -1).catch(function (err) {
         return console.error(err.toString());
       });
     event.preventDefault();
@@ -422,7 +491,7 @@ document
 document
   .getElementById("gameIdSubmitButton")
   .addEventListener("click", function (event) {
-    $('#gameIdModal').modal('hide');
+    hideModal('#gameIdModal');
     let searchParams = new URLSearchParams(window.location.search);
     searchParams.set("game", document.getElementById("gameIdInput").value)
     window.location.search = searchParams.toString();
@@ -448,9 +517,30 @@ document
   });
 
 document
+  .getElementById("take-trick-btn")
+  .addEventListener("click", function (event) {
+    connection
+      .invoke("TakeTrick").catch(function (err) {
+        return console.error(err.toString());
+      });
+    event.preventDefault();
+  });
+
+document
   .getElementById("toggleThemeButton")
   .addEventListener("click", function (event) {
     var button = document.getElementById("toggleThemeButton");
     setTheme(button.textContent.trim());
+    event.preventDefault();
+  });
+
+document
+  .getElementById("player-bottom-name")
+  .addEventListener("click", function (event) {
+    document.getElementById("startModalUserName").value = localStorage.getItem("userName");
+    showModal('#usernameModal');
+    $('#usernameModal').on('shown.bs.modal', function () {
+      $('#startModalUserName').focus();
+    })
     event.preventDefault();
   });

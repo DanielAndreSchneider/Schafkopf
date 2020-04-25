@@ -4,4 +4,5 @@
     public enum State { Idle, AnnounceHochzeit, Announce, AnnounceGameType, AnnounceGameColor, HochzeitExchangeCards, Playing };
     public enum GameType { Ramsch, Sauspiel, Hochzeit, Wenz, Farbsolo, WenzTout, FarbsoloTout };
     public enum LastTrickButtonState { disabled, show, hide };
+    public enum TakeTrickButtonState { hidden, won, lost };
 }

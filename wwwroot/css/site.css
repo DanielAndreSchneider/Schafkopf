@@ -1,13 +1,13 @@
 ﻿.card-on-table {
-    width: 12.5%;
-    transform-origin: 50% 0%;
-    position: absolute;
-    margin: auto;
-    left: 0;
-    right: 0;
-    z-index: 0;
-    pointer-events: none;
-    top: 50%;
+  width: 12.5%;
+  transform-origin: 50% 0%;
+  position: absolute;
+  margin: auto;
+  left: 0;
+  right: 0;
+  z-index: 0;
+  pointer-events: none;
+  top: 50%;
 }
 
 #hand {
@@ -30,29 +30,83 @@
   transform: rotate(180deg) translateY(27.5%);
 }
 
-.player-at-table {
-width: max-content;
-background-color: rgba(255, 255, 255, 0.8);
-color: black;
-padding: 5px;
-border-radius: 5px;
+.float-box {
+  width: max-content;
+  height: max-content;
+  text-align: center;
+  background-color: rgba(180, 180, 180, 0.8);
+  color: black;
+  padding: 5px;
+  border-radius: 5px;
+  margin: auto;
+}
+
+.active-player {
+  background-color: rgba(255, 80, 0, 0.8);
 }
 
 #player-right {
+  max-width: 30%;
+  width: auto;
   transform: translateY(-50%);
   left: auto;
 }
 
 #player-left {
+  max-width: 30%;
+  width: auto;
   transform: translateY(-50%);
   right: auto;
 }
 
 #player-bottom {
+  max-width: 30%;
+  width: auto;
   top: auto;
   bottom: 5px;
+  pointer-events: all;
 }
 
 #player-top {
+  max-width: 30%;
+  width: auto;
   top: 5px;
+}
+
+#player-left-name {
+  margin-right: 5px;
+}
+
+#player-right-name {
+  margin-left: 5px;
+}
+
+#player-top-name {
+  margin-bottom: 5px;
+}
+
+#player-bottom-name {
+  margin-top: 5px;
+}
+
+#game-info {
+  right: auto;
+  top: 5px;
+  margin-left:0;
+  max-width: 30%;
+}
+
+#take-trick-btn {
+  width: 100%;
+  height: 100%;
+  transform: translateY(-50%);
+  pointer-events: all;
+  position: absolute;
+}
+
+#take-trick-btn-content {
+  margin: auto;
+  text-align: center;
+  font-size: 1vw;
+  line-height: 1.3vw;
 }
