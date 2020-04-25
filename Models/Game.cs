@@ -17,7 +17,7 @@ namespace Schafkopf.Models
         public State CurrentGameState = State.Idle;
         public int[] Groups = new int[] { 0, 0, 0, 0 };
         //Rotates around after each game
-        public int StartPlayer = 3;
+        public int StartPlayer = -1;
         public int ActionPlayer = -1;
         public Boolean NewGame = false;
         public GameType AnnouncedGame = GameType.Ramsch;
@@ -141,7 +141,11 @@ namespace Schafkopf.Models
             CurrentGameState = State.AnnounceHochzeit;
 
             //New first player
-            StartPlayer = (StartPlayer + 1) % 4;
+            StartPlayer = (StartPlayer + 1) % Players.Count;
+            while (!PlayingPlayers.Contains(Players[StartPlayer]))
+            {
+                StartPlayer = (StartPlayer + 1) % Players.Count;
+            }
             //Shuffle cards
             Shuffle();
             //Distribute cards to the players
@@ -163,7 +167,7 @@ namespace Schafkopf.Models
 
         public void DecideWhoIsPlaying()
         {
-            ActionPlayer = StartPlayer;
+            ActionPlayer = PlayingPlayers.IndexOf(Players[StartPlayer]);
             for (int i = 0; i < 4; i++)
             {
                 if (PlayingPlayers[ActionPlayer].WantToPlay)
@@ -185,8 +189,8 @@ namespace Schafkopf.Models
             CurrentGameState = State.Playing;
             await SendPlayerIsPlayingGameTypeAndColor(hub, GetPlayingPlayersConnectionIds());
             FindTeams();
-            Trick = new Trick(this, StartPlayer);
-            ActionPlayer = StartPlayer;
+            ActionPlayer = PlayingPlayers.IndexOf(Players[StartPlayer]);
+            Trick = new Trick(this, ActionPlayer);
             await SendPlayers(hub);
             await SendPlayerIsStartingTheRound(hub, GetPlayingPlayersConnectionIds());
             foreach (Player player in PlayingPlayers)
@@ -250,7 +254,7 @@ namespace Schafkopf.Models
             {
                 await hub.Clients.Client(connectionId).SendAsync(
                     "ReceiveGameInfo",
-                    $"{PlayingPlayers[StartPlayer].Name} kommt raus"
+                    $"{Players[StartPlayer].Name} kommt raus"
                 );
             }
         }
@@ -635,7 +639,7 @@ namespace Schafkopf.Models
             AnnouncedGame = GameType.Ramsch;
             Leader = null;
             CurrentGameState = State.Announce;
-            ActionPlayer = StartPlayer;
+            ActionPlayer = PlayingPlayers.IndexOf(Players[StartPlayer]);
             await SendPlayers(hub);
             await SendAskAnnounce(hub);
         }

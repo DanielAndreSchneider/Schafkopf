@@ -37,6 +37,7 @@ function tryReconnect() {
         return console.error(err.toString());
       });
   } else {
+    document.getElementById("startModalUserName").value = localStorage.getItem("userName");
     showModal('#usernameModal');
     $('#usernameModal').on('shown.bs.modal', function () {
       $('#startModalUserName').focus();
@@ -103,6 +104,7 @@ connection.on("ReceiveSystemMessage", function (message) {
 
 connection.on("AskUsername", function (message) {
   localStorage.removeItem("userId");
+  document.getElementById("startModalUserName").value = localStorage.getItem("userName");
   showModal('#usernameModal');
   $('#usernameModal').on('shown.bs.modal', function () {
     $('#startModalUserName').focus();
@@ -183,8 +185,9 @@ connection.on("CloseAllowSpectatorModal", function (player) {
   hideModal('#allowSpectatorModal');
 })
 
-connection.on("StoreUserId", function (id) {
+connection.on("StoreUser", function (id, name) {
   localStorage.setItem("userId", id);
+  localStorage.setItem("userName", name);
   hideModal('#usernameModal');
 });
 
@@ -426,16 +429,6 @@ document
   });
 
 document
-  .getElementById("doNotSpectateButton")
-  .addEventListener("click", function (event) {
-    connection
-      .invoke("PlayerWantsToSpectate", -1).catch(function (err) {
-        return console.error(err.toString());
-      });
-    event.preventDefault();
-  });
-
-document
   .getElementById("wantToSpectatePlayer1Button")
   .addEventListener("click", function (event) {
     connection
@@ -538,5 +531,16 @@ document
   .addEventListener("click", function (event) {
     var button = document.getElementById("toggleThemeButton");
     setTheme(button.textContent.trim());
+    event.preventDefault();
+  });
+
+document
+  .getElementById("player-bottom-name")
+  .addEventListener("click", function (event) {
+    document.getElementById("startModalUserName").value = localStorage.getItem("userName");
+    showModal('#usernameModal');
+    $('#usernameModal').on('shown.bs.modal', function () {
+      $('#startModalUserName').focus();
+    })
     event.preventDefault();
   });

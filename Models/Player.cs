@@ -15,7 +15,7 @@ namespace Schafkopf.Models
         public String Name = "";
         public String Id = "";
         private readonly List<String> _connectionIds = new List<String>();
-        public Boolean Playing = false;
+        public Boolean Playing = true;
         public Boolean WantToPlay = false;
         public Boolean WantToPlayAnswered = false;
         public GameType AnnouncedGameType = GameType.Ramsch;
@@ -38,7 +38,7 @@ namespace Schafkopf.Models
         {
             HandCards = new List<Card>();
             Balance = 0;
-            Playing = false;
+            Playing = true;
             WantToPlay = false;
             WantToPlayAnswered = false;
             AnnouncedGameType = GameType.Ramsch;

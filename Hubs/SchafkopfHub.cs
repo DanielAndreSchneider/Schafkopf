@@ -37,7 +37,7 @@ namespace Schafkopf.Hubs
                 await game.PlayingPlayers[game.ActionPlayer].Announce(wantToPlay, this, game);
                 game.ActionPlayer = (game.ActionPlayer + 1) % 4;
                 await game.SendPlayers(this);
-                if (game.ActionPlayer == game.StartPlayer)
+                if (game.PlayingPlayers.All(p => p.WantToPlayAnswered))
                 {
                     game.CurrentGameState = State.AnnounceGameType;
                     await game.SendAskForGameType(this);
@@ -236,13 +236,45 @@ namespace Schafkopf.Hubs
             {
                 if (!game.PlayingPlayers.Contains(player))
                 {
-                    await game.SendAskWantToPlay(this, new List<string>() { Context.ConnectionId });
+                    if (game.Players.Where((p => p.GetConnectionIds().Count > 0 && p.Playing)).ToList().Count <= 4)
+                    {
+                        await game.PlayerPlaysTheGame(player, this);
+                    }
+                    else {
+                        await game.SendAskWantToPlay(this, new List<string>() { Context.ConnectionId });
+                    }
                 }
             }
         }
         public async Task AddPlayer(string userName, string gameId)
         {
             Game game;
+            Player player;
+            String error = "";
+            // rename user
+            if (Context.Items.Keys.Contains("player"))
+            {
+                player = (Player)Context.Items["player"];
+                game = (Game)Context.Items["game"];
+                if (userName != player.Name && game.Players.Where(p => p.Name == userName).ToList().Count > 0)
+                {
+                    error = $"Der Name \"{userName}\" ist bereits vergeben!";
+                }
+                else if (userName.ToLower() == "system")
+                {
+                    error = "Dein Name darf nicht \"System\" sein!";
+                }
+                if (error != "")
+                {
+                    await Clients.Caller.SendAsync("ReceiveSystemMessage", $"Error: {error}");
+                    return;
+                }
+                player.Name = userName;
+                await Clients.Caller.SendAsync("StoreUser", player.Id, player.Name);
+                await game.SendPlayers(this);
+                return;
+            }
+
             if (Games.Keys.Contains(gameId))
             {
                 game = Games[gameId];
@@ -252,21 +284,22 @@ namespace Schafkopf.Hubs
                 game = new Game();
                 Games[gameId] = game;
             }
-            String error = "";
             if (game.Players.Where(p => p.Name == userName).ToList().Count > 0)
             {
-                Player existingPlayer = game.Players.Single(p => p.Name == userName);
+                player = game.Players.Single(p => p.Name == userName);
                 // Assume identity of existing user if it has no more active connections
-                if (existingPlayer.GetConnectionIds().Count == 0) {
+                if (player.GetConnectionIds().Count == 0)
+                {
                     string newUserId = System.Guid.NewGuid().ToString();
-                    existingPlayer.Id = newUserId;
-                    await Clients.Caller.SendAsync("StoreUserId", newUserId);
+                    player.Id = newUserId;
+                    await Clients.Caller.SendAsync("StoreUser", player.Id, player.Name);
                     await ReconnectPlayer(newUserId, gameId);
                     return;
                 }
                 error = $"Der Name \"{userName}\" ist bereits vergeben!";
             }
-            else if (userName.ToLower() == "system") {
+            else if (userName.ToLower() == "system")
+            {
                 error = "Dein Name darf nicht \"System\" sein!";
             }
             if (error != "")
@@ -275,8 +308,8 @@ namespace Schafkopf.Hubs
                 return;
             }
             Context.Items.Add("game", game);
-            Player player = new Player(userName, this);
-            await Clients.Caller.SendAsync("StoreUserId", player.Id);
+            player = new Player(userName, this);
+            await Clients.Caller.SendAsync("StoreUser", player.Id, player.Name);
             await game.AddPlayer(player, this);
         }
 
@@ -318,6 +351,17 @@ namespace Schafkopf.Hubs
             {
                 await player.AddSpectator(spectator, this, game);
             }
+            else
+            {
+                await game.SendAskWantToSpectate(this, spectator.GetConnectionIds());
+                foreach (String connectionId in spectator.GetConnectionIds())
+                {
+                    await Clients.Client(connectionId).SendAsync(
+                        "ReceiveSystemMessage",
+                        $"Error: {player.Name} will nicht, dass du zuschaust"
+                    );
+                }
+            }
             await player.AskForApprovalToSpectate(this);
         }
 
@@ -329,6 +373,13 @@ namespace Schafkopf.Hubs
             foreach (String connectionId in player.GetConnectionIds())
             {
                 await Clients.Client(connectionId).SendAsync("CloseWantToPlayModal");
+            }
+            if (game.Players.Where((p => p.GetConnectionIds().Count > 0 && p.Playing)).ToList().Count <= 4)
+            {
+                foreach (Player p in game.Players.Where((p => p.GetConnectionIds().Count > 0 && p.Playing)))
+                {
+                    await game.PlayerPlaysTheGame(p, this);
+                }
             }
         }
 
