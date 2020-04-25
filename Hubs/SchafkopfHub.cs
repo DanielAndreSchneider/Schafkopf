@@ -200,7 +200,8 @@ namespace Schafkopf.Hubs
             Context.Items.Add("game", game);
             Player player = game.Players.Single(p => p.Id == userId);
             player.AddConnectionId(this);
-            if (player.GetConnectionIds().Count == 1) {
+            if (player.GetConnectionIds().Count == 1)
+            {
                 Task asyncTask = game.SendPlayersInfo(this);
             }
             await Clients.Caller.SendAsync("ReceiveSystemMessage", $"Willkommen zurück {player.Name}");
@@ -250,6 +251,28 @@ namespace Schafkopf.Hubs
             {
                 game = new Game();
                 Games[gameId] = game;
+            }
+            String error = "";
+            if (game.Players.Where(p => p.Name == userName).ToList().Count > 0)
+            {
+                Player existingPlayer = game.Players.Single(p => p.Name == userName);
+                // Assume identity of existing user if it has no more active connections
+                if (existingPlayer.GetConnectionIds().Count == 0) {
+                    string newUserId = System.Guid.NewGuid().ToString();
+                    existingPlayer.Id = newUserId;
+                    await Clients.Caller.SendAsync("StoreUserId", newUserId);
+                    await ReconnectPlayer(newUserId, gameId);
+                    return;
+                }
+                error = $"Der Name \"{userName}\" ist bereits vergeben!";
+            }
+            else if (userName.ToLower() == "system") {
+                error = "Dein Name darf nicht \"System\" sein!";
+            }
+            if (error != "")
+            {
+                await Clients.Caller.SendAsync("ReceiveSystemMessage", $"Error: {error}");
+                return;
             }
             Context.Items.Add("game", game);
             Player player = new Player(userName, this);

@@ -38,6 +38,9 @@ function tryReconnect() {
       });
   } else {
     showModal('#usernameModal');
+    $('#usernameModal').on('shown.bs.modal', function () {
+      $('#startModalUserName').focus();
+    })
   }
 }
 
@@ -83,6 +86,11 @@ connection.on("ReceiveChatMessage", function (user, message) {
 });
 
 connection.on("ReceiveSystemMessage", function (message) {
+  if (message.startsWith("Error: ")) {
+    document.getElementById("errorModalBody").textContent = message;
+    $("#errorModal").modal();
+  }
+
   var div = document.createElement("div");
   var userB = div.appendChild(document.createElement("b"));
   var msgSpan = div.appendChild(document.createElement("span"));
@@ -96,6 +104,9 @@ connection.on("ReceiveSystemMessage", function (message) {
 connection.on("AskUsername", function (message) {
   localStorage.removeItem("userId");
   showModal('#usernameModal');
+  $('#usernameModal').on('shown.bs.modal', function () {
+    $('#startModalUserName').focus();
+  })
 });
 
 connection.on("GameOver", function (title, body) {
@@ -383,14 +394,18 @@ document
 document
   .getElementById("startButton")
   .addEventListener("click", function (event) {
+    event.preventDefault();
     let searchParams = new URLSearchParams(window.location.search);
     var userName = document.getElementById("startModalUserName").value;
+    if (userName === "") {
+      return;
+    }
+    document.getElementById("startModalUserName").value = "";
     connection
       .invoke("AddPlayer", userName, searchParams.get("game"))
       .catch(function (err) {
         return console.error(err.toString());
       });
-    event.preventDefault();
   });
 
 document
