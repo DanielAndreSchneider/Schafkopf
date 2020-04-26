@@ -735,11 +735,19 @@ namespace Schafkopf.Models
             {
                 predictedStartPlayer = (StartPlayer + 1) % Players.Count;
             }
-            String players = String.Join(", ", Players.Where(p => p.GetConnectionIds().Count > 0).Select(p => p.Name));
-            String startPlayer = Players[predictedStartPlayer].Name;
-            foreach (String connectionId in connectionIds)
+            string players = String.Join(", ", Players.Where(p => p.GetConnectionIds().Count > 0).Select(p => p.Name));
+            string startPlayer = Players[predictedStartPlayer].Name;
+            int playerCnt = Players.Where(p => p.GetConnectionIds().Count > 0).ToList().Count;
+            string proposal =
+$@"
+{Players[predictedStartPlayer].Name},
+{Players[(int)Math.Floor(predictedStartPlayer + 1m * playerCnt / 4m) % playerCnt].Name},
+{Players[(int)Math.Floor(predictedStartPlayer + 2m * playerCnt / 4m) % playerCnt].Name},
+{Players[(int)Math.Floor(predictedStartPlayer + 3m * playerCnt / 4m) % playerCnt].Name}
+";
+            foreach (string connectionId in connectionIds)
             {
-                await hub.Clients.Client(connectionId).SendAsync("AskWantToPlay", players, startPlayer);
+                await hub.Clients.Client(connectionId).SendAsync("AskWantToPlay", players, startPlayer, proposal);
             }
         }
 

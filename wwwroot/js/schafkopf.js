@@ -130,14 +130,17 @@ connection.on("AskColor", function (message) {
   showModal('#gameColorModal');
 });
 
-connection.on("AskWantToPlay", function (players, startPlayer) {
+connection.on("AskWantToPlay", function (players, startPlayer, proposal) {
   document.getElementById("wantToPlayModalBody").innerHTML = "";
   const playersDiv = document.createElement("div");
   playersDiv.textContent = `Spieler: ${players}`
   const startPlayerDiv = document.createElement("div");
   startPlayerDiv.textContent = `${startPlayer} kommt als nächstes raus.`
+  const proposalDiv = document.createElement("div");
+  proposalDiv.textContent = `Vorschlag: ${proposal}`
   document.getElementById("wantToPlayModalBody").appendChild(playersDiv);
   document.getElementById("wantToPlayModalBody").appendChild(startPlayerDiv);
+  document.getElementById("wantToPlayModalBody").appendChild(proposalDiv);
   showModal('#wantToPlayModal');
 });
 
