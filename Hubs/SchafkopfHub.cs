@@ -19,6 +19,19 @@ namespace Schafkopf.Hubs
                 return;
             }
             String user = ((Player)Context.Items["player"]).Name;
+            if (message.StartsWith("/kick"))
+            {
+                Player playerToKick = game.Players.Single(p => p.Name == message.Split("/kick ")[1]);
+                foreach (String connectionId in playerToKick.GetConnectionIds())
+                {
+                    await Clients.Client(connectionId).SendAsync("ReceiveKicked", user);
+                }
+                foreach (String connectionId in game.GetPlayingPlayersConnectionIds())
+                {
+                    await Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", $"{user} hat {playerToKick.Name} rausgeworfen");
+                }
+                return;
+            }
             foreach (String connectionId in game.GetPlayersConnectionIds())
             {
                 await Clients.Client(connectionId).SendAsync("ReceiveChatMessage", user, message);
@@ -240,7 +253,8 @@ namespace Schafkopf.Hubs
                     {
                         await game.PlayerPlaysTheGame(player, this);
                     }
-                    else {
+                    else
+                    {
                         await game.SendAskWantToPlay(this, new List<string>() { Context.ConnectionId });
                     }
                 }
@@ -374,13 +388,6 @@ namespace Schafkopf.Hubs
             {
                 await Clients.Client(connectionId).SendAsync("CloseWantToPlayModal");
             }
-            if (game.Players.Where((p => p.GetConnectionIds().Count > 0 && p.Playing)).ToList().Count <= 4)
-            {
-                foreach (Player p in game.Players.Where((p => p.GetConnectionIds().Count > 0 && p.Playing)))
-                {
-                    await game.PlayerPlaysTheGame(p, this);
-                }
-            }
         }
 
         public async Task ResetGame()
@@ -439,13 +446,10 @@ namespace Schafkopf.Hubs
                     {
                         Task asyncTask = game.SendPlayersInfo(this);
                         asyncTask = game.SendPlayers(this);
+                        asyncTask = game.PlayerDoesNotPlayTheGame(player, this);
                         if (game.PlayingPlayers.Contains(player))
                         {
-                            if (game.CurrentGameState == State.Idle)
-                            {
-                                asyncTask = game.PlayerDoesNotPlayTheGame(player, this);
-                            }
-                            else
+                            if (game.CurrentGameState != State.Idle)
                             {
                                 asyncTask = game.SendConnectionToPlayerLostModal(this, game.GetPlayingPlayersConnectionIds());
                                 asyncTask = game.ResetIfAllConnectionsLost(this);

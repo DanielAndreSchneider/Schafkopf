@@ -73,6 +73,10 @@ namespace Schafkopf.Models
 
         public async Task Reset(SchafkopfHub hub)
         {
+            if (CurrentGameState == State.Idle)
+            {
+                return;
+            }
             Trick = new Trick(this, 0);
             await Trick.SendTrick(hub, this, GetPlayingPlayersConnectionIds());
             await SendLastTrickButton(hub, GetPlayingPlayersConnectionIds(), LastTrickButtonState.disabled);
@@ -162,7 +166,29 @@ namespace Schafkopf.Models
             }
 
             await SendStartPlayer(hub, GetPlayingPlayersConnectionIds());
+            if (await CheckIfOnePlayerHas6Nixerl(hub))
+            {
+                return;
+            }
             await SendAskAnnounceHochzeit(hub);
+        }
+
+        private async Task<bool> CheckIfOnePlayerHas6Nixerl(SchafkopfHub hub)
+        {
+            List<Player> players = PlayingPlayers.Where(
+                                        p => p.HandCards.Where(
+                                            c => !c.IsTrump(GameType.Ramsch, Color.Herz) && c.getPoints() == 0
+                                        ).ToList().Count >= 6
+                                    ).ToList();
+            if (players.Count > 0)
+            {
+                foreach (String connectionId in GetPlayingPlayersConnectionIds())
+                {
+                    await hub.Clients.Client(connectionId).SendAsync("GameOver", $"{String.Join(", ", players.Select(p => p.Name))} hat 6 Nixerl", "");
+                }
+                return true;
+            }
+            return false;
         }
 
         public void DecideWhoIsPlaying()
@@ -510,6 +536,13 @@ namespace Schafkopf.Models
                 }
                 await SendPlayingPlayersInfo(hub);
             }
+            if (Players.Where((p => p.GetConnectionIds().Count > 0 && p.Playing)).ToList().Count <= 4)
+            {
+                foreach (Player p in Players.Where((p => p.GetConnectionIds().Count > 0 && p.Playing)))
+                {
+                    await PlayerPlaysTheGame(p, hub);
+                }
+            }
         }
         #endregion
 
@@ -719,9 +752,24 @@ namespace Schafkopf.Models
         }
         public async Task SendAskWantToPlay(SchafkopfHub hub, List<String> connectionIds)
         {
-            foreach (String connectionId in connectionIds)
+            int predictedStartPlayer = (StartPlayer + 1) % Players.Count;
+            while (Players[predictedStartPlayer].GetConnectionIds().Count == 0)
             {
-                await hub.Clients.Client(connectionId).SendAsync("AskWantToPlay");
+                predictedStartPlayer = (StartPlayer + 1) % Players.Count;
+            }
+            string players = String.Join(", ", Players.Where(p => p.GetConnectionIds().Count > 0).Select(p => p.Name));
+            string startPlayer = Players[predictedStartPlayer].Name;
+            int playerCnt = Players.Where(p => p.GetConnectionIds().Count > 0).ToList().Count;
+            string proposal =
+$@"
+{Players[predictedStartPlayer].Name},
+{Players[(int)Math.Floor(predictedStartPlayer + 1m * playerCnt / 4m) % playerCnt].Name},
+{Players[(int)Math.Floor(predictedStartPlayer + 2m * playerCnt / 4m) % playerCnt].Name},
+{Players[(int)Math.Floor(predictedStartPlayer + 3m * playerCnt / 4m) % playerCnt].Name}
+";
+            foreach (string connectionId in connectionIds)
+            {
+                await hub.Clients.Client(connectionId).SendAsync("AskWantToPlay", players, startPlayer, proposal);
             }
         }
 
