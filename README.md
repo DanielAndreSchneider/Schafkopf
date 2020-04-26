@@ -10,3 +10,9 @@ What can this app offer you:
 * No logins, no registration, no ads
 * It's Open Source: feel free to adapt it to your needs
 * No data is stored permanently on the server
+
+## Screenshots
+
+![screenshot of app in light mode](screenshots/light.png "Light Mode")
+
+![screenshot of app in dark mode](screenshots/dark.png "Dark Mode")
