@@ -11,8 +11,23 @@ What can this app offer you:
 * It's Open Source: feel free to adapt it to your needs
 * No data is stored permanently on the server
 
+Note, that this is a German game so everything in the game is in German.
+
+## Features
+* Sauspiel
+* Farbsolo
+* Wenz
+* Hochzeit
+* Ramsch
+* Chat
+* More than 4 Players (additional players can spectate if not playing)
+
 ## Screenshots
 
 ![screenshot of app in light mode](screenshots/light.png "Light Mode")
 
 ![screenshot of app in dark mode](screenshots/dark.png "Dark Mode")
+
+## Development
+This is a .NET core project, check out https://dotnet.microsoft.com/download for more information about .NET core.
+If you want to play this on a single computer during development, append `&session=new` to the URL to create a new session instead of reconnecting to an existing one.
