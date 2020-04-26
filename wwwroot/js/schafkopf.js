@@ -106,6 +106,11 @@ function init() {
     document.getElementById("card-left").src = "/carddecks/blank.svg";
     document.getElementById("card-top").src = "/carddecks/blank.svg";
     document.getElementById("card-right").src = "/carddecks/blank.svg";
+    const btn = document.getElementById("take-trick-btn");
+    btn.classList.add("d-none");
+    btn.classList.remove("btn-primary");
+    btn.classList.remove("btn-secondary");
+    document.getElementById("take-trick-btn-content").textContent = "";
     hideModal('#gameOverModal');
     hideModal('#gameIdModal');
     hideModal('#announceModal');
