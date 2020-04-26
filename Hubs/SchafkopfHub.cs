@@ -19,6 +19,15 @@ namespace Schafkopf.Hubs
                 return;
             }
             String user = ((Player)Context.Items["player"]).Name;
+            if (message.StartsWith("/kick"))
+            {
+                Player playerToKick = game.Players.Single(p => p.Name == message.Split("/kick ")[1]);
+                foreach (String connectionId in playerToKick.GetConnectionIds())
+                {
+                    await Clients.Client(connectionId).SendAsync("ReceiveKicked", user);
+                }
+                return;
+            }
             foreach (String connectionId in game.GetPlayersConnectionIds())
             {
                 await Clients.Client(connectionId).SendAsync("ReceiveChatMessage", user, message);
@@ -240,7 +249,8 @@ namespace Schafkopf.Hubs
                     {
                         await game.PlayerPlaysTheGame(player, this);
                     }
-                    else {
+                    else
+                    {
                         await game.SendAskWantToPlay(this, new List<string>() { Context.ConnectionId });
                     }
                 }
