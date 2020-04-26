@@ -26,6 +26,10 @@ namespace Schafkopf.Hubs
                 {
                     await Clients.Client(connectionId).SendAsync("ReceiveKicked", user);
                 }
+                foreach (String connectionId in game.GetPlayingPlayersConnectionIds())
+                {
+                    await Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", $"{user} hat {playerToKick.Name} rausgeworfen");
+                }
                 return;
             }
             foreach (String connectionId in game.GetPlayersConnectionIds())

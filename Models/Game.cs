@@ -166,7 +166,29 @@ namespace Schafkopf.Models
             }
 
             await SendStartPlayer(hub, GetPlayingPlayersConnectionIds());
+            if (await CheckIfOnePlayerHas6Nixerl(hub))
+            {
+                return;
+            }
             await SendAskAnnounceHochzeit(hub);
+        }
+
+        private async Task<bool> CheckIfOnePlayerHas6Nixerl(SchafkopfHub hub)
+        {
+            List<Player> players = PlayingPlayers.Where(
+                                        p => p.HandCards.Where(
+                                            c => !c.IsTrump(GameType.Ramsch, Color.Herz) && c.getPoints() == 0
+                                        ).ToList().Count >= 6
+                                    ).ToList();
+            if (players.Count > 0)
+            {
+                foreach (String connectionId in GetPlayingPlayersConnectionIds())
+                {
+                    await hub.Clients.Client(connectionId).SendAsync("GameOver", $"{String.Join(", ", players.Select(p => p.Name))} hat 6 Nixerl", "");
+                }
+                return true;
+            }
+            return false;
         }
 
         public void DecideWhoIsPlaying()

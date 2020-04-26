@@ -66,6 +66,9 @@ function connect() {
       let searchParams = new URLSearchParams(window.location.search);
       if (!searchParams.get("game")) {
         showModal('#gameIdModal');
+        $('#gameIdModal').on('shown.bs.modal', function () {
+          $('#gameIdInput').focus();
+        })
         return;
       }
       tryReconnect();
@@ -97,6 +100,12 @@ function setTheme(theme) {
 
 function init() {
   connection.onclose(() => {
+    document.getElementById("game-info").textContent = "";
+    document.getElementById("hand").innerHTML = "";
+    document.getElementById("card-bottom").src = "/carddecks/blank.svg";
+    document.getElementById("card-left").src = "/carddecks/blank.svg";
+    document.getElementById("card-top").src = "/carddecks/blank.svg";
+    document.getElementById("card-right").src = "/carddecks/blank.svg";
     hideModal('#gameOverModal');
     hideModal('#gameIdModal');
     hideModal('#announceModal');
