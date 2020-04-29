@@ -31,3 +31,47 @@ Note, that this is a German game so everything in the game is in German.
 ## Development
 This is a .NET core project, check out https://dotnet.microsoft.com/download for more information about .NET core.
 If you want to play this on a single computer during development, append `&session=new` to the URL to create a new session instead of reconnecting to an existing one.
+
+## Server Installation
+In case you want to run the application behind a reverse proxy using nginx, you could use the following configuration to handle the required websocket properly:
+```
+map $http_upgrade $connection_upgrade {
+   default upgrade;
+   '' close;
+}
+
+upstream schafkopf_docker {
+    server 0.0.0.0:9080;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name    schafkopf.example.com;
+    root           /var/www/html;
+    index          index index.html index.htm index.nginx-debian.html;
+
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name    schafkopf.example.com;
+    
+    # In case you are using letsencrypt for your certificates
+    ssl_certificate    /etc/letsencrypt/live/schafkopf.example.com/fullchain.pem;
+    ssl_certificate_key    /etc/letsencrypt/live/schafkopf.example.com/privkey.pem;
+
+    root           /var/www/html;
+    index          index index.html index.htm index.nginx-debian.html;
+
+
+    location / {
+        proxy_set_header   Upgrade $http_upgrade;
+        proxy_set_header   Connection $connection_upgrade;
+        proxy_set_header   Host $host;
+        proxy_pass http://schafkopf_docker;
+    }
+}
+```
