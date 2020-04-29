@@ -377,7 +377,12 @@ namespace Schafkopf.Models
             {
                 return;
             }
-            await Trick.AddCard(playedCard, player, hub, this);
+            Trick.AddCard(playedCard, player, this);
+            await Trick.SendTrick(hub, this, GetPlayingPlayersConnectionIds());
+            if (LastTrick != null)
+            {
+                await SendLastTrickButton(hub, GetPlayingPlayersConnectionIds(), LastTrickButtonState.show);
+            }
 
             if (Trick.Count < 4)
             {

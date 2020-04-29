@@ -212,7 +212,8 @@ namespace Schafkopf.Hubs
             }
             Context.Items.Add("game", game);
             Player player = game.Players.Single(p => p.Id == userId);
-            player.AddConnectionId(this);
+            player.AddConnectionId(Context.ConnectionId);
+            Context.Items.Add("player", player);
             if (player.GetConnectionIds().Count == 1)
             {
                 Task asyncTask = game.SendPlayersInfo(this);
@@ -326,7 +327,8 @@ namespace Schafkopf.Hubs
                 return;
             }
             Context.Items.Add("game", game);
-            player = new Player(userName, this);
+            player = new Player(userName, Context.ConnectionId);
+            Context.Items.Add("player", player);
             await Clients.Caller.SendAsync("StoreUser", player.Id, player.Name);
             await game.AddPlayer(player, this);
         }

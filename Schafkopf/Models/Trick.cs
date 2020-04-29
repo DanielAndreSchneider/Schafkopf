@@ -29,7 +29,7 @@ namespace Schafkopf.Models
         // Card is added to the trick
         // in case that there are too many cards in one trick, an exception is thrown
         //-------------------------------------------------
-        public async Task AddCard(Card card, Player player, SchafkopfHub hub, Game game)
+        public void AddCard(Card card, Player player, Game game)
         {
             if (Count >= 4)
             {
@@ -38,11 +38,6 @@ namespace Schafkopf.Models
             Cards[Count] = card;
             Player[Count] = player;
 
-            await SendTrick(hub, game, game.GetPlayingPlayersConnectionIds());
-            if (game.LastTrick != null)
-            {
-                await game.SendLastTrickButton(hub, game.GetPlayingPlayersConnectionIds(), LastTrickButtonState.show);
-            }
 
             //Determine the winner of the Trick
             if(Count > 0)
