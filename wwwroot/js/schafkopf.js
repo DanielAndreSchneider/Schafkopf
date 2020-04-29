@@ -354,12 +354,15 @@ function init() {
 document
   .getElementById("sendButton")
   .addEventListener("click", function (event) {
+    event.preventDefault();
     var message = document.getElementById("messageInput").value;
+    if (message.trim() === "") {
+      return;
+    }
     connection.invoke("SendChatMessage", message).catch(function (err) {
       return console.error(err.toString());
     });
     document.getElementById("messageInput").value = "";
-    event.preventDefault();
   });
 
 document

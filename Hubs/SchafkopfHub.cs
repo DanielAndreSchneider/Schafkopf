@@ -265,6 +265,18 @@ namespace Schafkopf.Hubs
             Game game;
             Player player;
             String error = "";
+            if (userName.ToLower() == "system")
+            {
+                error = "Dein Name darf nicht \"System\" sein!";
+            }
+            else if (userName.Trim() == "")
+            {
+                error = "Dein Name darf nicht leer sein!";
+            }
+            else if (userName.Length > 20)
+            {
+                error = "Dein Name darf nicht länger als 20 Zeichen sein!";
+            }
             // rename user
             if (Context.Items.Keys.Contains("player"))
             {
@@ -273,10 +285,6 @@ namespace Schafkopf.Hubs
                 if (userName != player.Name && game.Players.Where(p => p.Name == userName).ToList().Count > 0)
                 {
                     error = $"Der Name \"{userName}\" ist bereits vergeben!";
-                }
-                else if (userName.ToLower() == "system")
-                {
-                    error = "Dein Name darf nicht \"System\" sein!";
                 }
                 if (error != "")
                 {
@@ -311,10 +319,6 @@ namespace Schafkopf.Hubs
                     return;
                 }
                 error = $"Der Name \"{userName}\" ist bereits vergeben!";
-            }
-            else if (userName.ToLower() == "system")
-            {
-                error = "Dein Name darf nicht \"System\" sein!";
             }
             if (error != "")
             {
