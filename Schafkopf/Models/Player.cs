@@ -27,10 +27,10 @@ namespace Schafkopf.Models
         private bool IsRunaway = false;
 
 
-        public Player(String name, SchafkopfHub hub)
+        public Player(String name, String connectionId)
         {
             Name = name;
-            AddConnectionId(hub);
+            AddConnectionId(connectionId);
             Id = System.Guid.NewGuid().ToString();
         }
 
@@ -117,12 +117,11 @@ namespace Schafkopf.Models
             }
         }
 
-        public void AddConnectionId(SchafkopfHub hub)
+        public void AddConnectionId(String connectionId)
         {
-            hub.Context.Items.Add("player", this);
             lock (_connectionIds)
             {
-                _connectionIds.Add(hub.Context.ConnectionId);
+                _connectionIds.Add(connectionId);
             }
         }
         public bool RemoveConnectionId(String id)
