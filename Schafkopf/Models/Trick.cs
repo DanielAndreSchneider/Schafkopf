@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Schafkopf.Hubs;
@@ -20,7 +21,7 @@ namespace Schafkopf.Models
 
         public Trick(Game game, int startPlayer)
         {
-            GameType = game.AnnouncedGame;
+            GameType = game.GameState.AnnouncedGame;
             DetermineTrumpf(game);
             StartPlayer = startPlayer;
         }
@@ -40,13 +41,9 @@ namespace Schafkopf.Models
 
 
             //Determine the winner of the Trick
-            if(Count > 0)
+            if (Count > 0)
             {
                 DetermineWinnerCard(card);
-            } else
-            {
-                FirstCard = card;
-                FirstCard.TrickValue = card.GetValue(GameType, Trump);
             }
             Count++;
         }
@@ -58,9 +55,8 @@ namespace Schafkopf.Models
         //-------------------------------------------------
         private void DetermineWinnerCard(Card newCard)
         {
-            newCard.TrickValue = newCard.GetValue(GameType, Trump, FirstCard);
             //Check which one is higher
-            if (newCard.TrickValue > Cards[Winner].TrickValue)
+            if (newCard.GetValue(GameType, Trump, GetFirstCard()) > Cards[Winner].GetValue(GameType, Trump, GetFirstCard()))
             {
                 Winner = Count;
             }
@@ -71,8 +67,14 @@ namespace Schafkopf.Models
             return Player[Winner];
         }
 
-        private void DetermineTrumpf(Game game) {
-            switch (game.AnnouncedGame)
+        private Card GetFirstCard()
+        {
+            return Cards[0];
+        }
+
+        private void DetermineTrumpf(Game game)
+        {
+            switch (game.GameState.AnnouncedGame)
             {
                 case GameType.Ramsch:
                 case GameType.Sauspiel:
@@ -81,7 +83,7 @@ namespace Schafkopf.Models
                     break;
                 case GameType.Farbsolo:
                 case GameType.FarbsoloTout:
-                    Trump = game.Leader.AnnouncedColor;
+                    Trump = game.GameState.Leader.AnnouncedColor;
                     break;
                 case GameType.Wenz:
                 case GameType.WenzTout:
@@ -99,7 +101,7 @@ namespace Schafkopf.Models
                 {
                     permutedCards[j] = Cards[(j + i) % 4];
                 }
-                Player player = game.PlayingPlayers[(StartPlayer + i) % 4];
+                Player player = game.GameState.PlayingPlayers[(StartPlayer + i) % 4];
                 foreach (String connectionId in player.GetConnectionIdsWithSpectators())
                 {
                     if (!connectionIds.Contains(connectionId))

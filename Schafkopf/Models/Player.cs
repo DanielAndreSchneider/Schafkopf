@@ -70,7 +70,7 @@ namespace Schafkopf.Models
                         return null;
                     }
                     HandCards.Remove(card);
-                    await SendHand(hub, game.AnnouncedGame, game.Trick.Trump);
+                    await SendHand(hub, game.GameState.AnnouncedGame, game.GameState.Trick.Trump);
                     return card;
                 }
             }
@@ -107,7 +107,7 @@ namespace Schafkopf.Models
         //-------------------------------------------------
         // Player can decide what type of Game he is playing
         //-------------------------------------------------
-        internal async Task AnnounceGameType(GameType gameType, SchafkopfHub hub, Game game)
+        public async Task AnnounceGameType(GameType gameType, SchafkopfHub hub, Game game)
         {
             AnnouncedGameType = gameType;
             //Message about the players actions
@@ -184,62 +184,62 @@ namespace Schafkopf.Models
 
         private bool CanCardBePlayed(Game game, Card card)
         {
-            if (game.Trick.FirstCard == null)
+            if (game.GameState.Trick.FirstCard == null)
             {
-                if (game.AnnouncedGame == GameType.Sauspiel &&
-                    HandContainsSearchedSau(game.Leader.AnnouncedColor) &&
+                if (game.GameState.AnnouncedGame == GameType.Sauspiel &&
+                    HandContainsSearchedSau(game.GameState.Leader.AnnouncedColor) &&
                     !IsRunaway)
                 {
                     // Davonlaufen
-                    if (HandColorCount(game.Leader.AnnouncedColor, game.AnnouncedGame, game.Trick.Trump) >= 4)
+                    if (HandColorCount(game.GameState.Leader.AnnouncedColor, game.GameState.AnnouncedGame, game.GameState.Trick.Trump) >= 4)
                     {
                         IsRunaway = true;
                         return true;
                     }
-                    return card.IsTrump(game.AnnouncedGame, game.Trick.Trump) || card.Color != game.Leader.AnnouncedColor || card.Number == 11;
+                    return card.IsTrump(game.GameState.AnnouncedGame, game.GameState.Trick.Trump) || card.Color != game.GameState.Leader.AnnouncedColor || card.Number == 11;
                 }
                 return true;
             }
-            else if (game.Trick.FirstCard.IsTrump(game.AnnouncedGame, game.Trick.Trump))
+            else if (game.GameState.Trick.FirstCard.IsTrump(game.GameState.AnnouncedGame, game.GameState.Trick.Trump))
             {
                 if (HandContainsTrump(game))
                 {
-                    return card.IsTrump(game.AnnouncedGame, game.Trick.Trump);
+                    return card.IsTrump(game.GameState.AnnouncedGame, game.GameState.Trick.Trump);
                 }
                 if (
-                    game.AnnouncedGame == GameType.Sauspiel &&
-                    HandContainsSearchedSau(game.Leader.AnnouncedColor) &&
+                    game.GameState.AnnouncedGame == GameType.Sauspiel &&
+                    HandContainsSearchedSau(game.GameState.Leader.AnnouncedColor) &&
                     !IsRunaway
                 )
                 {
-                    if (game.TrickCount < 6)
+                    if (game.GameState.TrickCount < 6)
                     {
-                        return card.Color != game.Leader.AnnouncedColor || card.Number != 11;
+                        return card.Color != game.GameState.Leader.AnnouncedColor || card.Number != 11;
                     }
                 }
                 return true;
             }
-            else if (HandContainsColor(game.Trick.FirstCard.Color, game.AnnouncedGame, game.Trick.Trump))
+            else if (HandContainsColor(game.GameState.Trick.FirstCard.Color, game.GameState.AnnouncedGame, game.GameState.Trick.Trump))
             {
                 if (
-                    game.AnnouncedGame == GameType.Sauspiel &&
-                    game.Trick.FirstCard.Color == game.Leader.AnnouncedColor &&
-                    HandContainsSearchedSau(game.Leader.AnnouncedColor)
+                    game.GameState.AnnouncedGame == GameType.Sauspiel &&
+                    game.GameState.Trick.FirstCard.Color == game.GameState.Leader.AnnouncedColor &&
+                    HandContainsSearchedSau(game.GameState.Leader.AnnouncedColor)
                 )
                 {
-                    return card.Color == game.Trick.FirstCard.Color && card.Number == 11;
+                    return card.Color == game.GameState.Trick.FirstCard.Color && card.Number == 11;
                 }
-                return !card.IsTrump(game.AnnouncedGame, game.Trick.Trump) && card.Color == game.Trick.FirstCard.Color;
+                return !card.IsTrump(game.GameState.AnnouncedGame, game.GameState.Trick.Trump) && card.Color == game.GameState.Trick.FirstCard.Color;
             }
             else if (
-                game.AnnouncedGame == GameType.Sauspiel &&
-                HandContainsSearchedSau(game.Leader.AnnouncedColor) &&
+                game.GameState.AnnouncedGame == GameType.Sauspiel &&
+                HandContainsSearchedSau(game.GameState.Leader.AnnouncedColor) &&
                 !IsRunaway
             )
             {
-                if (game.TrickCount < 6)
+                if (game.GameState.TrickCount < 6)
                 {
-                    return card.Color != game.Leader.AnnouncedColor || card.Number != 11;
+                    return card.Color != game.GameState.Leader.AnnouncedColor || card.Number != 11;
                 }
             }
             return true;
@@ -265,7 +265,7 @@ namespace Schafkopf.Models
 
         private bool HandContainsTrump(Game game)
         {
-            return HandCards.Any(c => c.IsTrump(game.AnnouncedGame, game.Trick.Trump));
+            return HandCards.Any(c => c.IsTrump(game.GameState.AnnouncedGame, game.GameState.Trick.Trump));
         }
 
         private bool HandContainsSearchedSau(Color searchedColor)
@@ -292,13 +292,13 @@ namespace Schafkopf.Models
             return false;
         }
 
-        internal async Task<bool> ExchangeCardWithPlayer(Color cardColor, int cardNumber, Player player, SchafkopfHub hub, Game game)
+        public async Task<bool> ExchangeCardWithPlayer(Color cardColor, int cardNumber, Player player, SchafkopfHub hub, Game game)
         {
             foreach (Card card in HandCards)
             {
                 if (card.Color == cardColor && card.Number == cardNumber)
                 {
-                    if (card.IsTrump(game.AnnouncedGame, Color.Herz))
+                    if (card.IsTrump(game.GameState.AnnouncedGame, Color.Herz))
                     {
                         foreach (String connectionId in GetConnectionIds())
                         {
@@ -308,7 +308,7 @@ namespace Schafkopf.Models
                     }
                     player.HandCards.Add(card);
                     HandCards.Remove(card);
-                    Card trumpCard = player.HandCards.Single(c => c.IsTrump(game.AnnouncedGame, Color.Herz));
+                    Card trumpCard = player.HandCards.Single(c => c.IsTrump(game.GameState.AnnouncedGame, Color.Herz));
                     player.HandCards.Remove(trumpCard);
                     HandCards.Add(trumpCard);
                     foreach (String connectionId in game.GetPlayingPlayersConnectionIds())
@@ -359,15 +359,15 @@ namespace Schafkopf.Models
 
         public string GetCurrentInfo(Game game)
         {
-            if (game.CurrentGameState == State.AnnounceHochzeit || game.CurrentGameState == State.HochzeitExchangeCards)
+            if (game.GameState.CurrentGameState == State.AnnounceHochzeit || game.GameState.CurrentGameState == State.HochzeitExchangeCards)
             {
-                if (game.Leader == this)
+                if (game.GameState.Leader == this)
                 {
                     return "Wer will mich heiraten?";
                 }
                 else if (HasAnsweredMarriageOffer)
                 {
-                    if (game.HusbandWife == this)
+                    if (game.GameState.HusbandWife == this)
                     {
                         return "Ich will!";
                     }
@@ -377,7 +377,7 @@ namespace Schafkopf.Models
                     }
                 }
             }
-            else if (game.CurrentGameState == State.AnnounceGameColor || (game.CurrentGameState == State.AnnounceGameType && AnnouncedGameType != GameType.Ramsch))
+            else if (game.GameState.CurrentGameState == State.AnnounceGameColor || (game.GameState.CurrentGameState == State.AnnounceGameType && AnnouncedGameType != GameType.Ramsch))
             {
                 switch (AnnouncedGameType)
                 {
@@ -389,7 +389,7 @@ namespace Schafkopf.Models
                         return "Ich hab ein Sauspiel";
                 }
             }
-            else if (game.CurrentGameState == State.AnnounceGameType || (game.CurrentGameState == State.Announce && WantToPlayAnswered))
+            else if (game.GameState.CurrentGameState == State.AnnounceGameType || (game.GameState.CurrentGameState == State.Announce && WantToPlayAnswered))
             {
                 if (WantToPlay)
                 {

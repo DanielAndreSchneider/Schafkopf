@@ -21,7 +21,7 @@ namespace Schafkopf.Hubs
             String user = ((Player)Context.Items["player"]).Name;
             if (message.StartsWith("/kick"))
             {
-                Player playerToKick = game.Players.Single(p => p.Name == message.Split("/kick ")[1]);
+                Player playerToKick = game.GameState.Players.Single(p => p.Name == message.Split("/kick ")[1]);
                 foreach (String connectionId in playerToKick.GetConnectionIds())
                 {
                     await Clients.Client(connectionId).SendAsync("ReceiveKicked", user);
@@ -41,24 +41,24 @@ namespace Schafkopf.Hubs
         {
             Game game = ((Game)Context.Items["game"]);
             Player player = (Player)Context.Items["player"];
-            if (game.CurrentGameState == State.Announce && player == game.PlayingPlayers[game.ActionPlayer])
+            if (game.GameState.CurrentGameState == State.Announce && player == game.GameState.PlayingPlayers[game.GameState.ActionPlayer])
             {
                 foreach (String connectionId in player.GetConnectionIdsWithSpectators())
                 {
                     await Clients.Client(connectionId).SendAsync("CloseAnnounceModal");
                 }
-                await game.PlayingPlayers[game.ActionPlayer].Announce(wantToPlay, this, game);
-                game.ActionPlayer = (game.ActionPlayer + 1) % 4;
+                await game.GameState.PlayingPlayers[game.GameState.ActionPlayer].Announce(wantToPlay, this, game);
+                game.GameState.ActionPlayer = (game.GameState.ActionPlayer + 1) % 4;
                 await game.SendPlayers(this);
-                if (game.PlayingPlayers.All(p => p.WantToPlayAnswered))
+                if (game.GameState.PlayingPlayers.All(p => p.WantToPlayAnswered))
                 {
-                    game.CurrentGameState = State.AnnounceGameType;
+                    game.GameState.CurrentGameState = State.AnnounceGameType;
                     await game.SendAskForGameType(this);
                     return;
                 }
                 await game.SendAskAnnounce(this);
             }
-            if (game.CurrentGameState == State.AnnounceHochzeit)
+            if (game.GameState.CurrentGameState == State.AnnounceHochzeit)
             {
                 if (player.HandTrumpCount(GameType.Ramsch, Color.Herz) == 1 && !player.HasBeenAskedToOfferMarriage)
                 {
@@ -69,8 +69,8 @@ namespace Schafkopf.Hubs
                     player.HasBeenAskedToOfferMarriage = true;
                     if (wantToPlay)
                     {
-                        game.AnnouncedGame = GameType.Hochzeit;
-                        game.Leader = player;
+                        game.GameState.AnnouncedGame = GameType.Hochzeit;
+                        game.GameState.Leader = player;
                         foreach (String connectionId in game.GetPlayingPlayersConnectionIds())
                         {
                             await Clients.Client(connectionId).SendAsync("ReceiveChatMessage", player.Name, "Wer will mich heiraten?");
@@ -78,7 +78,7 @@ namespace Schafkopf.Hubs
                     }
                     await game.SendAskAnnounceHochzeit(this);
                 }
-                else if (game.AnnouncedGame == GameType.Hochzeit && !player.HasAnsweredMarriageOffer)
+                else if (game.GameState.AnnouncedGame == GameType.Hochzeit && !player.HasAnsweredMarriageOffer)
                 {
                     player.HasAnsweredMarriageOffer = true;
                     if (wantToPlay)
@@ -87,12 +87,12 @@ namespace Schafkopf.Hubs
                         {
                             await Clients.Client(connectionId).SendAsync("CloseAnnounceModal");
                             await Clients.Client(connectionId).SendAsync("ReceiveChatMessage", player.Name, "Ich will!");
-                            await Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", $"{game.Leader.Name} und {player.Name} haben geheiratet");
+                            await Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", $"{game.GameState.Leader.Name} und {player.Name} haben geheiratet");
                         }
-                        game.CurrentGameState = State.HochzeitExchangeCards;
-                        game.HusbandWife = player;
-                        game.ActionPlayer = game.PlayingPlayers.IndexOf(game.HusbandWife);
-                        await game.SendAskExchangeCards(this, game.HusbandWife.GetConnectionIdsWithSpectators());
+                        game.GameState.CurrentGameState = State.HochzeitExchangeCards;
+                        game.GameState.HusbandWife = player;
+                        game.GameState.ActionPlayer = game.GameState.PlayingPlayers.IndexOf(game.GameState.HusbandWife);
+                        await game.SendAskExchangeCards(this, game.GameState.HusbandWife.GetConnectionIdsWithSpectators());
                     }
                     else
                     {
@@ -110,7 +110,7 @@ namespace Schafkopf.Hubs
         public async Task AnnounceGameType(string gameTypeString)
         {
             Game game = ((Game)Context.Items["game"]);
-            if (game.CurrentGameState != State.AnnounceGameType)
+            if (game.GameState.CurrentGameState != State.AnnounceGameType)
             {
                 return;
             }
@@ -128,14 +128,14 @@ namespace Schafkopf.Hubs
                     break;
             }
             Player player = (Player)Context.Items["player"];
-            if (player == game.PlayingPlayers[game.ActionPlayer])
+            if (player == game.GameState.PlayingPlayers[game.GameState.ActionPlayer])
             {
                 if (gameType == GameType.Sauspiel && !await player.IsSauspielPossible(this))
                 {
                     return;
                 }
-                await game.PlayingPlayers[game.ActionPlayer].AnnounceGameType(gameType, this, game);
-                game.ActionPlayer = (game.ActionPlayer + 1) % 4;
+                await game.GameState.PlayingPlayers[game.GameState.ActionPlayer].AnnounceGameType(gameType, this, game);
+                game.GameState.ActionPlayer = (game.GameState.ActionPlayer + 1) % 4;
                 await game.SendPlayers(this);
                 await game.SendAskForGameType(this);
                 foreach (String connectionId in player.GetConnectionIdsWithSpectators())
@@ -147,12 +147,12 @@ namespace Schafkopf.Hubs
         public async Task AnnounceGameColor(string gameColorString)
         {
             Game game = ((Game)Context.Items["game"]);
-            if (game.CurrentGameState != State.AnnounceGameColor)
+            if (game.GameState.CurrentGameState != State.AnnounceGameColor)
             {
                 return;
             }
             Player player = (Player)Context.Items["player"];
-            if (player != game.Leader)
+            if (player != game.GameState.Leader)
             {
                 return;
             }
@@ -172,14 +172,14 @@ namespace Schafkopf.Hubs
                     color = Color.Schellen;
                     break;
             }
-            if (game.AnnouncedGame == GameType.Sauspiel)
+            if (game.GameState.AnnouncedGame == GameType.Sauspiel)
             {
                 if (!await player.IsSauspielOnColorPossible(color, this))
                 {
                     return;
                 }
             }
-            game.Leader.AnnouncedColor = color;
+            game.GameState.Leader.AnnouncedColor = color;
             await game.StartGame(this);
             foreach (String connectionId in player.GetConnectionIdsWithSpectators())
             {
@@ -205,13 +205,13 @@ namespace Schafkopf.Hubs
                 return;
             }
             Game game = Games[gameId];
-            if (!game.Players.Any(p => p.Id == userId))
+            if (!game.GameState.Players.Any(p => p.Id == userId))
             {
                 await Clients.Caller.SendAsync("AskUsername");
                 return;
             }
             Context.Items.Add("game", game);
-            Player player = game.Players.Single(p => p.Id == userId);
+            Player player = game.GameState.Players.Single(p => p.Id == userId);
             player.AddConnectionId(Context.ConnectionId);
             Context.Items.Add("player", player);
             if (player.GetConnectionIds().Count == 1)
@@ -220,13 +220,13 @@ namespace Schafkopf.Hubs
             }
             await Clients.Caller.SendAsync("ReceiveSystemMessage", $"Willkommen zurück {player.Name}");
             await game.SendPlayers(this);
-            if (game.CurrentGameState != State.Idle)
+            if (game.GameState.CurrentGameState != State.Idle)
             {
-                if (game.PlayingPlayers.Contains(player))
+                if (game.GameState.PlayingPlayers.Contains(player))
                 {
                     await game.SendUpdatedGameState(player, this, new List<String> { Context.ConnectionId });
                     // check if all players are connected again and close connectionLostModal for the other players
-                    if (game.PlayingPlayers.All(p => p.GetConnectionIds().Count > 0))
+                    if (game.GameState.PlayingPlayers.All(p => p.GetConnectionIds().Count > 0))
                     {
                         foreach (String connectionId in game.GetPlayingPlayersConnectionIds())
                         {
@@ -234,10 +234,10 @@ namespace Schafkopf.Hubs
                         }
                     }
                 }
-                else if (game.PlayingPlayers.Any(p => p.Spectators.Contains(player)))
+                else if (game.GameState.PlayingPlayers.Any(p => p.Spectators.Contains(player)))
                 {
                     await game.SendUpdatedGameState(
-                        game.PlayingPlayers.Single(p => p.Spectators.Contains(player)),
+                        game.GameState.PlayingPlayers.Single(p => p.Spectators.Contains(player)),
                         this,
                         new List<String> { Context.ConnectionId });
                 }
@@ -248,9 +248,9 @@ namespace Schafkopf.Hubs
             }
             else
             {
-                if (!game.PlayingPlayers.Contains(player))
+                if (!game.GameState.PlayingPlayers.Contains(player))
                 {
-                    if (game.Players.Where((p => p.GetConnectionIds().Count > 0 && p.Playing)).ToList().Count <= 4)
+                    if (game.GameState.Players.Where((p => p.GetConnectionIds().Count > 0 && p.Playing)).ToList().Count <= 4)
                     {
                         await game.PlayerPlaysTheGame(player, this);
                     }
@@ -283,7 +283,7 @@ namespace Schafkopf.Hubs
             {
                 player = (Player)Context.Items["player"];
                 game = (Game)Context.Items["game"];
-                if (userName != player.Name && game.Players.Where(p => p.Name == userName).ToList().Count > 0)
+                if (userName != player.Name && game.GameState.Players.Where(p => p.Name == userName).ToList().Count > 0)
                 {
                     error = $"Der Name \"{userName}\" ist bereits vergeben!";
                 }
@@ -307,9 +307,9 @@ namespace Schafkopf.Hubs
                 game = new Game();
                 Games[gameId] = game;
             }
-            if (game.Players.Where(p => p.Name == userName).ToList().Count > 0)
+            if (game.GameState.Players.Where(p => p.Name == userName).ToList().Count > 0)
             {
-                player = game.Players.Single(p => p.Name == userName);
+                player = game.GameState.Players.Single(p => p.Name == userName);
                 // Assume identity of existing user if it has no more active connections
                 if (player.GetConnectionIds().Count == 0)
                 {
@@ -353,8 +353,8 @@ namespace Schafkopf.Hubs
             }
             if (playerId >= 0 && playerId <= 4)
             {
-                game.PlayingPlayers[playerId].SpectatorsWaitingForApproval.Enqueue(player);
-                await game.PlayingPlayers[playerId].AskForApprovalToSpectate(this);
+                game.GameState.PlayingPlayers[playerId].SpectatorsWaitingForApproval.Enqueue(player);
+                await game.GameState.PlayingPlayers[playerId].AskForApprovalToSpectate(this);
             }
         }
 
@@ -406,14 +406,14 @@ namespace Schafkopf.Hubs
         {
             Game game = ((Game)Context.Items["game"]);
             Player player = (Player)Context.Items["player"];
-            if (showLastTrick && game.LastTrick != null)
+            if (showLastTrick && game.GameState.LastTrick != null)
             {
-                await game.LastTrick.SendTrick(this, game, new List<string>() { Context.ConnectionId });
+                await game.GameState.LastTrick.SendTrick(this, game, new List<string>() { Context.ConnectionId });
                 await game.SendLastTrickButton(this, new List<string>() { Context.ConnectionId }, LastTrickButtonState.hide);
             }
             else
             {
-                await game.Trick.SendTrick(this, game, new List<string>() { Context.ConnectionId });
+                await game.GameState.Trick.SendTrick(this, game, new List<string>() { Context.ConnectionId });
                 await game.SendLastTrickButton(this, new List<string>() { Context.ConnectionId }, LastTrickButtonState.show);
             }
         }
@@ -422,20 +422,20 @@ namespace Schafkopf.Hubs
         {
             Game game = ((Game)Context.Items["game"]);
             Player player = (Player)Context.Items["player"];
-            if (game.Trick.Count == 4 && game.Trick.GetWinner() == player)
+            if (game.GameState.Trick.Count == 4 && game.GameState.Trick.GetWinner() == player)
             {
-                player.TakeTrick(game.Trick);
-                game.TrickCount++;
-                if (game.TrickCount == 8)
+                player.TakeTrick(game.GameState.Trick);
+                game.GameState.TrickCount++;
+                if (game.GameState.TrickCount == 8)
                 {
                     await game.SendEndGameModal(this, game.GetPlayingPlayersConnectionIds());
                 }
 
-                game.ActionPlayer = game.PlayingPlayers.FindIndex(p => p == player);
+                game.GameState.ActionPlayer = game.GameState.PlayingPlayers.FindIndex(p => p == player);
                 await game.SendPlayers(this);
-                game.LastTrick = game.Trick;
-                game.Trick = new Trick(game, game.ActionPlayer);
-                await game.Trick.SendTrick(this, game, game.GetPlayingPlayersConnectionIds());
+                game.GameState.LastTrick = game.GameState.Trick;
+                game.GameState.Trick = new Trick(game, game.GameState.ActionPlayer);
+                await game.GameState.Trick.SendTrick(this, game, game.GetPlayingPlayersConnectionIds());
                 await game.SendTakeTrickButton(this, game.GetPlayingPlayersConnectionIds());
                 await game.SendPlayerIsStartingTheRound(this, game.GetPlayingPlayersConnectionIds());
             }
@@ -446,16 +446,16 @@ namespace Schafkopf.Hubs
             if (Context.Items.Keys.Contains("game") && Context.Items.Keys.Contains("player"))
             {
                 Game game = ((Game)Context.Items["game"]);
-                foreach (Player player in game.Players)
+                foreach (Player player in game.GameState.Players)
                 {
                     if (player.RemoveConnectionId(Context.ConnectionId) && player.GetConnectionIds().Count == 0)
                     {
                         Task asyncTask = game.SendPlayersInfo(this);
                         asyncTask = game.SendPlayers(this);
                         asyncTask = game.PlayerDoesNotPlayTheGame(player, this);
-                        if (game.PlayingPlayers.Contains(player))
+                        if (game.GameState.PlayingPlayers.Contains(player))
                         {
-                            if (game.CurrentGameState != State.Idle)
+                            if (game.GameState.CurrentGameState != State.Idle)
                             {
                                 asyncTask = game.SendConnectionToPlayerLostModal(this, game.GetPlayingPlayersConnectionIds());
                                 asyncTask = game.ResetIfAllConnectionsLost(this);

@@ -1,5 +1,7 @@
 using Xunit;
 using Schafkopf.Models;
+using System;
+
 
 namespace Schafkopf.UnitTests
 {
@@ -12,7 +14,7 @@ namespace Schafkopf.UnitTests
         public void Wenz()
         {
             game = new Game();
-            game.AnnouncedGame = GameType.Wenz;
+            game.GameState.AnnouncedGame = GameType.Wenz;
 
             players = new Player[4];
             players[0] = new Player("P1", "");
@@ -26,7 +28,9 @@ namespace Schafkopf.UnitTests
             trick.AddCard(new Card(Color.Gras, 3), players[2], game);
             trick.AddCard(new Card(Color.Herz, 11), players[3], game);
 
-            Assert.Equal(trick.GetWinner(), players[3]);
+            Player winner = trick.GetWinner();
+
+            Assert.Equal("P4", winner.Name);
         }
     }
 }
