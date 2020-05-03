@@ -18,26 +18,15 @@ namespace Schafkopf.Models
             {
                 return;
             }
-            GameState.Trick = new Trick(this, 0);
+            GameState.NewTrick();
             await GameState.Trick.SendTrick(hub, this, GetPlayingPlayersConnectionIds());
             await SendLastTrickButton(hub, GetPlayingPlayersConnectionIds(), LastTrickButtonState.disabled);
             await ClearGameInfo(hub, GetPlayingPlayersConnectionIds());
             await SendTakeTrickButton(hub, GetPlayingPlayersConnectionIds());
 
-            GameState.CurrentGameState = State.Idle;
-            GameState.Groups = new int[] { 0, 0, 0, 0 };
-            GameState.AnnouncedGame = GameType.Ramsch;
-            GameState.Leader = null;
-            GameState.HusbandWife = null;
-            GameState.Trick = null;
-            GameState.LastTrick = null;
-            GameState.TrickCount = 0;
-            GameState.ActionPlayer = -1;
-            GameState.PlayingPlayers = new List<Player>();
-
+            GameState.Reset();
             foreach (Player player in GameState.Players)
             {
-                player.Reset();
                 await player.SendHand(hub);
             }
             await SendPlayers(hub);
@@ -83,27 +72,11 @@ namespace Schafkopf.Models
             {
                 await hub.Clients.Client(connectionId).SendAsync("CloseWantToPlayModal");
             }
-            GameState.CurrentGameState = State.AnnounceHochzeit;
 
-            //New first player
-            GameState.StartPlayer = (GameState.StartPlayer + 1) % GameState.Players.Count;
-            while (!GameState.PlayingPlayers.Contains(GameState.Players[GameState.StartPlayer]))
+            GameState.StartGame();
+            foreach (Player player in GameState.PlayingPlayers)
             {
-                GameState.StartPlayer = (GameState.StartPlayer + 1) % GameState.Players.Count;
-            }
-            //Shuffle cards
-            Card[] shuffledCards = GameState.Carddeck.Shuffle();
-            //Distribute cards to the players
-            //Player 1 gets first 8 cards, Player 2 gets second 8 cards, an so on ...
-            for (int i = 0; i < 4; i++)
-            {
-                Card[] HandCards = new Card[8];
-                for (int j = i * 8; j < (i + 1) * 8; j++)
-                {
-                    HandCards[j % 8] = shuffledCards[j];
-                    GameState.PlayingPlayers[i].HandCards = new List<Card>(HandCards);
-                }
-                await GameState.PlayingPlayers[i].SendHand(hub);
+                await player.SendHand(hub);
             }
 
             await SendStartPlayer(hub, GetPlayingPlayersConnectionIds());
@@ -117,7 +90,7 @@ namespace Schafkopf.Models
         private async Task<bool> CheckIfOnePlayerHas6Nixerl(SchafkopfHub hub)
         {
             List<Player> players = GameState.PlayingPlayers.Where(
-                                        p => p.HandCards.Where(
+                                        p => p.GetHandCards().Where(
                                             c => !c.IsTrump(GameType.Ramsch, Color.Herz) && c.getPoints() == 0
                                         ).ToList().Count >= 6
                                     ).ToList();
@@ -157,12 +130,11 @@ namespace Schafkopf.Models
             await SendPlayerIsPlayingGameTypeAndColor(hub, GetPlayingPlayersConnectionIds());
             FindTeams();
             GameState.ActionPlayer = GameState.PlayingPlayers.IndexOf(GameState.Players[GameState.StartPlayer]);
-            GameState.Trick = new Trick(this, GameState.ActionPlayer);
+            GameState.NewTrick();
             await SendPlayers(hub);
-            await SendPlayerIsStartingTheRound(hub, GetPlayingPlayersConnectionIds());
             foreach (Player player in GameState.PlayingPlayers)
             {
-                await player.SendHand(hub, GameState.AnnouncedGame, GameState.Trick.Trump);
+                await player.SendHand(hub, GameState.AnnouncedGame, GameState.GetTrumpColor());
             }
         }
 
@@ -195,19 +167,7 @@ namespace Schafkopf.Models
             }
             foreach (String connectionId in connectionIds)
             {
-                await hub.Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", message);
                 await hub.Clients.Client(connectionId).SendAsync("ReceiveGameInfo", message);
-            }
-        }
-
-        public async Task SendPlayerIsStartingTheRound(SchafkopfHub hub, List<String> connectionIds)
-        {
-            foreach (String connectionId in connectionIds)
-            {
-                await hub.Clients.Client(connectionId).SendAsync(
-                    "ReceiveSystemMessage",
-                    $"{GameState.PlayingPlayers[GameState.ActionPlayer].Name} kommt raus"
-                );
             }
         }
 
@@ -251,7 +211,7 @@ namespace Schafkopf.Models
                     }
                     else
                     {
-                        foreach (Card c in GameState.PlayingPlayers[i].HandCards)
+                        foreach (Card c in GameState.PlayingPlayers[i].GetHandCards())
                         {
                             if (c.Number == 11 && c.Color == GameState.Leader.AnnouncedColor)
                             {
@@ -295,7 +255,13 @@ namespace Schafkopf.Models
         {
             if (GameState.CurrentGameState == State.HochzeitExchangeCards && player == GameState.HusbandWife)
             {
-                if (await player.ExchangeCardWithPlayer(cardColor, cardNumber, GameState.Leader, hub, this))
+                (bool success, string message1, List<string> connsectionIds) =
+                    GameState.ExchangeCardWithPlayer(player, cardColor, cardNumber, GameState.Leader, hub, this);
+                foreach (String connectionId in connsectionIds)
+                {
+                    await hub.Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", message1);
+                }
+                if (success)
                 {
                     await StartGame(hub);
                 }
@@ -313,12 +279,17 @@ namespace Schafkopf.Models
             {
                 await hub.TakeTrick();
             }
-            Card playedCard = await player.PlayCard(cardColor, cardNumber, hub, this);
+            (Card playedCard, string message) = GameState.PlayCard(cardColor, cardNumber, hub, this, player);
             if (playedCard == null)
             {
+                foreach (String connectionId in player.GetConnectionIds())
+                {
+                    await hub.Clients.Client(connectionId).SendAsync("ReceiveSystemMessage", message);
+                }
                 return;
             }
-            GameState.Trick.AddCard(playedCard, player, this);
+            await player.SendHand(hub, GameState.AnnouncedGame, GameState.GetTrumpColor());
+            GameState.AddCardToTrick(playedCard, player);
             await GameState.Trick.SendTrick(hub, this, GetPlayingPlayersConnectionIds());
             if (GameState.LastTrick != null)
             {
@@ -332,7 +303,7 @@ namespace Schafkopf.Models
             }
             else
             {
-                GameState.ActionPlayer = GameState.PlayingPlayers.IndexOf(GameState.Trick.GetWinner());
+                GameState.ActionPlayer = GameState.PlayingPlayers.IndexOf(GameState.Trick.Winner);
                 await SendPlayers(hub);
                 await SendTakeTrickButton(hub, GetPlayingPlayersConnectionIds());
             }
@@ -408,11 +379,6 @@ namespace Schafkopf.Models
         //-------------------------------------------------
         public async Task AddPlayer(Player player, SchafkopfHub hub)
         {
-            if (player == null && GameState.Players.Contains(player))
-            {
-                throw new Exception("There is something wrong with the new player.");
-            }
-            GameState.Players.Add(player);
             await SendPlayersInfo(hub);
             await SendPlayers(hub);
             if (GameState.CurrentGameState == State.Idle)
@@ -432,25 +398,7 @@ namespace Schafkopf.Models
         {
             if (GameState.PlayingPlayers.Count < 4 && GameState.CurrentGameState == State.Idle)
             {
-                player.Playing = true;
-                lock (GameState.PlayingPlayers)
-                {
-                    if (!GameState.PlayingPlayers.Contains(player))
-                    {
-                        for (int i = 0; i < GameState.PlayingPlayers.Count; i++)
-                        {
-                            if (GameState.Players.IndexOf(GameState.PlayingPlayers[i]) > GameState.Players.IndexOf(player))
-                            {
-                                GameState.PlayingPlayers.Insert(i, player);
-                                break;
-                            }
-                        }
-                        if (!GameState.PlayingPlayers.Contains(player))
-                        {
-                            GameState.PlayingPlayers.Add(player);
-                        }
-                    }
-                }
+                GameState.SetPlayerPlaying(true, player);
                 await SendPlayingPlayersInfo(hub);
                 if (GameState.PlayingPlayers.Count == 4)
                 {
@@ -473,7 +421,7 @@ namespace Schafkopf.Models
                 //Sorry, you can not pause the game during the game. You are able to pause afterwards.
                 return;
             }
-            player.Playing = false;
+            GameState.SetPlayerPlaying(false, player);
             if (GameState.PlayingPlayers.Contains(player))
             {
                 lock (GameState.PlayingPlayers)
@@ -709,16 +657,12 @@ $@"
             if (GameState.CurrentGameState == State.Playing)
             {
                 await SendPlayerIsPlayingGameTypeAndColor(hub, connectionIds);
-                if (GameState.Trick.Count == 0)
-                {
-                    await SendPlayerIsStartingTheRound(hub, connectionIds);
-                }
                 await GameState.Trick.SendTrick(hub, this, connectionIds);
                 if (GameState.LastTrick != null)
                 {
                     await SendLastTrickButton(hub, connectionIds, LastTrickButtonState.show);
                 }
-                await player.SendHand(hub, GameState.AnnouncedGame, GameState.Trick.Trump);
+                await player.SendHand(hub, GameState.AnnouncedGame, GameState.GetTrumpColor());
                 await SendTakeTrickButton(hub, connectionIds);
             }
             else
@@ -811,13 +755,13 @@ $@"
                     {
                         await hub.Clients.Client(connectionId).SendAsync("ReceiveTakeTrickButton", TakeTrickButtonState.hidden.ToString());
                     }
-                    else if (player == GameState.Trick.GetWinner())
+                    else if (player == GameState.Trick.Winner)
                     {
                         await hub.Clients.Client(connectionId).SendAsync("ReceiveTakeTrickButton", TakeTrickButtonState.won.ToString());
                     }
                     else
                     {
-                        await hub.Clients.Client(connectionId).SendAsync("ReceiveTakeTrickButton", TakeTrickButtonState.lost.ToString(), GameState.Trick.GetWinner().Name);
+                        await hub.Clients.Client(connectionId).SendAsync("ReceiveTakeTrickButton", TakeTrickButtonState.lost.ToString(), GameState.Trick.Winner.Name);
                     }
                 }
             }
