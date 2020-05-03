@@ -1,96 +1,123 @@
 ﻿@page
-        <div class="row h-100 overflow-hidden">
-            <div class="col-9 overflow-auto h-100 d-flex flex-column">
-                <div class="row flex-grow-1 overflow-hidden">
-
-                  <!-- the positioning here is kinda hacky, but it works -->
-                  <div class="row w-100" style="transform: translateY(50%);">
-                      <img src="" class="card-on-table" id="card-left">
-                      <img src="" class="card-on-table" id="card-right">
-                      <img src="" class="card-on-table" id="card-top">
-                      <img src="" class="card-on-table" id="card-bottom">
+        <div class="d-flex flex-grow-1 overflow-hidden">
+            <div class="col-9 overflow-hidden d-flex flex-column  pl-0 pr-0">
+                <div class="flex-grow-1 w-100" style="transform: translateY(0);">
+                    <div class="card-on-table float-box" id="game-info">
                     </div>
-
-                </div>
-                <div class="row">
-                    <!--style="position: absolute; bottom: 0;"-->
-                    <div id="hand" class="col">
+                    <img src="" class="card-on-table" id="card-left">
+                    <img src="" class="card-on-table" id="card-right">
+                    <img src="" class="card-on-table" id="card-top">
+                    <img src="" class="card-on-table" id="card-bottom">
+                    <div class="card-on-table d-flex flex-row" id="player-left">
+                      <div id="player-left-name" class="float-box">
+                      </div>
+                      <div id="player-left-info" class="float-box">
+                      </div>
+                    </div>
+                    <div class="card-on-table d-flex flex-row" id="player-right">
+                      <div id="player-right-info" class="float-box">
+                      </div>
+                      <div id="player-right-name" class="float-box">
+                      </div>
+                    </div>
+                    <div class="card-on-table d-flex flex-column" id="player-top">
+                      <div id="player-top-name" class="float-box">
+                      </div>
+                      <div id="player-top-info" class="float-box">
+                      </div>
+                    </div>
+                    <div class="card-on-table d-flex flex-column" id="player-bottom">
+                      <div id="player-bottom-info" class="float-box">
+                      </div>
+                      <div id="player-bottom-name" class="float-box">
+                      </div>
+                    </div>
+                    <div class="card-on-table" style="width: 11%;">
+                      <div style="padding-bottom:100%;">
+                        <div id="take-trick-btn" class="btn d-none d-flex">
+                          <div id="take-trick-btn-content">
+                          </div>
+                        </div>
+                      </div>
                     </div>
                 </div>
+                <div id="hand"></div>
             </div>
 
-            <div class="col-3 h-100 d-flex flex-column overflow-hidden">
+            <div class="col-3 d-flex flex-column overflow-hidden pr-0">
                 <div id="messagesList" class="flex-grow-1 overflow-auto"></div>
-                <div class="input-group">
+                <form id="chatInput" class="input-group">
                     <input type="text" class="form-control" id="messageInput" />
-                    <input class="btn btn-primary" type="button" id="sendButton" value="Send" />
-                </div>
+                    <input class="btn btn-primary" type="submit" id="sendButton" value="Send" />
+                </form>
             </div>
         </div>
 
 
-<div class="modal fade" id="announceModal" tabindex="-1" role="dialog">
+<div class="modal fade text-dark" id="announceModal" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Magst du spielen?</h5>
+        <h5 class="modal-title" id="announceModalTitle"></h5>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="announceNoButton" data-dismiss="modal">Nein</button>
-        <button type="button" class="btn btn-primary" id="announceYesButton" data-dismiss="modal">Ja</button>
+        <button type="button" class="btn btn-secondary" id="announceNoButton">Nein</button>
+        <button type="button" class="btn btn-primary" id="announceYesButton">Ja</button>
       </div>
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="announceGameTypeModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Was magst du spielen?</h5>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="announceSoloButton" data-dismiss="modal">Solo</button>
-        <button type="button" class="btn btn-primary" id="announceWenzButton" data-dismiss="modal">Wenz</button>
-        <button type="button" class="btn btn-primary" id="announceSauspielButton" data-dismiss="modal">Sauspiel</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="gameColorModal" tabindex="-1" role="dialog">
+<div class="modal fade text-dark" id="announceGameTypeModal" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Was magst du spielen?</h5>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="eichelButton" data-dismiss="modal">Eichel</button>
-        <button type="button" class="btn btn-primary" id="grasButton" data-dismiss="modal">Gras</button>
-        <button type="button" class="btn btn-primary" id="herzButton" data-dismiss="modal">Herz</button>
-        <button type="button" class="btn btn-primary" id="schellenButton" data-dismiss="modal">Schellen</button>
+        <button type="button" class="btn btn-primary" id="announceSoloButton">Solo</button>
+        <button type="button" class="btn btn-primary" id="announceWenzButton">Wenz</button>
+        <button type="button" class="btn btn-primary" id="announceSauspielButton">Sauspiel</button>
       </div>
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="usernameModal" tabindex="-1" role="dialog" >
+<div class="modal fade text-dark" id="gameColorModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Was magst du spielen?</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="eichelButton">Eichel</button>
+        <button type="button" class="btn btn-primary" id="grasButton">Gras</button>
+        <button type="button" class="btn btn-primary" id="herzButton">Herz</button>
+        <button type="button" class="btn btn-primary" id="schellenButton">Schellen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade text-dark" id="usernameModal" tabindex="-1" role="dialog" >
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Wie heißt du?</h5>
       </div>
-      <div class="modal-body">
-        <input class="form-control" type="text" id="startModalUserName" />
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="startButton" data-dismiss="modal">Los geht's!</button>
-      </div>
+      <form id="userNameInput">
+        <div class="modal-body">
+          <input class="form-control" type="text" id="startModalUserName" />
+        </div>
+        <div class="modal-footer">
+          <input type="submit" class="btn btn-primary" id="startButton" value="Das bin ich!"/>
+        </div>
+      </form>
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="gameOverModal" tabindex="-1" role="dialog" >
+<div class="modal fade text-dark" id="gameOverModal" tabindex="-1" role="dialog" >
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -99,21 +126,99 @@
       <div class="modal-body" id="gameOverModalBody">
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="restartButton" data-dismiss="modal">Neues Spiel starten!</button>
+        <button type="button" class="btn btn-primary" id="restartButton">Neues Spiel starten!</button>
       </div>
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="wantToPlayModal" tabindex="-1" role="dialog" >
+<div class="modal fade text-dark" id="wantToPlayModal" tabindex="-1" role="dialog" >
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Willst du nächste Runde mitspielen?</h5>
       </div>
+      <div class="modal-body" id="wantToPlayModalBody">
+      </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Erstmal aussetzen.</button>
-        <button type="button" class="btn btn-primary" id="wantToPlayButton" data-dismiss="modal">Bin dabei!</button>
+        <button type="button" class="btn btn-secondary" id="wantToPauseButton">Erstmal aussetzen.</button>
+        <button type="button" class="btn btn-primary" id="wantToPlayButton">Bin dabei!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade text-dark" id="wantToSpectateModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Bei wem magst du zuschauen?</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="wantToSpectatePlayer1Button"></button>
+        <button type="button" class="btn btn-primary" id="wantToSpectatePlayer2Button"></button>
+        <button type="button" class="btn btn-primary" id="wantToSpectatePlayer3Button"></button>
+        <button type="button" class="btn btn-primary" id="wantToSpectatePlayer4Button"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade text-dark" id="allowSpectatorModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="allowSpectatorModalTitle"></h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="doNotAllowSpectatorButton">Zuschauen verbieten.</button>
+        <button type="button" class="btn btn-primary" id="allowSpectatorButton">Zuschauen erlauben</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade text-dark" id="gameIdModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Wie soll das Spiel heißen?</h5>
+      </div>
+      <form id="userNameInput">
+        <div class="modal-body">
+          <input class="form-control" type="text" id="gameIdInput" />
+        </div>
+        <div class="modal-footer">
+          <input type="submit" class="btn btn-primary" id="gameIdSubmitButton" value="Los geht's!"/>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade text-dark" id="errorModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Fehler!</h5>
+      </div>
+      <div class="modal-body" id="errorModalBody">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Schließen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade text-dark" id="reconnectModal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reconnectModalTitle"></h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="reconnectButton"></button>
       </div>
     </div>
   </div>
